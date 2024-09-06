@@ -1,6 +1,6 @@
 
 
-import React, { useState, useEffect, useRef, useContext } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -22,7 +22,6 @@ import Svg, { Path } from "react-native-svg";
 import Holidaydata from "../calenderData/holidays";
 import Loader from "./loader";
 import { InterstitialAd, AdEventType } from 'react-native-google-mobile-ads';
-import { AdContext, AdProvider } from './adsContext';  // Import AdContext and AdProvider
 
 
 const adUnitId = 'ca-app-pub-3940256099942544/1033173712'; // Replace with your Interstitial Ad Unit ID
@@ -56,36 +55,44 @@ const Calender = () => {
   const [loading, setLoading] = useState(false);
   const [isMainScreen, setIsMainScreen] = useState(false);
 
-  const { adCount, incrementAdCount } = useContext(AdContext);
-
+  const [clickCount, setClickCount] = useState(0);
 
 
   useEffect(() => {
-    if (adCount > 0 && adCount % 3 === 0) {
-      const interstitialAd = InterstitialAd.createForAdRequest("ca-app-pub-3940256099942544/1033173712");
+    // Load the interstitial ad when the component mounts
+    interstitialAd.load();
+  }, []);
 
-      const adLoadListener = interstitialAd.addAdEventListener(AdEventType.LOADED, () => {
-        interstitialAd.show();
-      });
+  const handlePickerChange = (itemValue, type) => {
+    setClickCount((prevCount) => {
+      const newCount = prevCount + 1;
 
-      const adCloseListener = interstitialAd.addAdEventListener(AdEventType.CLOSED, () => {
-        // Optionally handle ad closure
-      });
+      if (newCount % 3 === 0) {
+        if (interstitialAd.loaded) {
+          // If ad is loaded, show it
+          interstitialAd.show().catch((error) => {
+            console.log('Failed to show interstitial ad:', error);
+          });
+        } else {
+          // If ad is not loaded, log a message and reload the ad
+          console.log('Interstitial ad not loaded yet');
+          interstitialAd.load();
+        }
+      }
 
-      interstitialAd.load();
+      // Update the respective state based on the picker type
+      if (type === 'calendar') {
+        setCalendarType(itemValue);
+      } else if (type === 'language') {
+        setLanguage(itemValue);
+      }
 
-      return () => {
-        adLoadListener();
-        adCloseListener();
-      };
-    }
-  }, [adCount]);
+      return newCount;
+    });
+  };
 
+ 
 
-
-
-
-  
 
   const toggleModal = (js) => {
     setModalData(js);
@@ -433,14 +440,11 @@ const Calender = () => {
               </View>
 
 
-              <View style={styles.pickersContainer}>
+              {/* <View style={styles.pickersContainer}>
                 <View style={styles.pickerWrapper}>
                   <CustomPicker
                     selectedValue={calendarType}
-                    onValueChange={(itemValue) => {
-                      setCalendarType(itemValue);
-                      incrementAdCount(); // Increment ad count when calendar type changes
-                    }}
+                    onValueChange={(itemValue) => setCalendarType(itemValue)}
                     items={typeData}
                   />
                 </View>
@@ -448,15 +452,29 @@ const Calender = () => {
                 <View style={styles.pickerWrapper}>
                   <CustomPicker
                     selectedValue={language}
-                    onValueChange={(itemValue) => {
-                      setLanguage(itemValue);
-                      incrementAdCount(); // Increment ad count when language changes
-                    }}
+                    onValueChange={(itemValue) => setLanguage(itemValue)}
+                    items={languageData}
+                  />
+                </View>
+              </View>   */}
+
+              <View style={styles.pickersContainer}>
+                <View style={styles.pickerWrapper}>
+                  <CustomPicker
+                    selectedValue={calendarType}
+                    onValueChange={(itemValue) => handlePickerChange(itemValue, 'calendar')}
+                    items={typeData}
+                  />
+                </View>
+
+                <View style={styles.pickerWrapper}>
+                  <CustomPicker
+                    selectedValue={language}
+                    onValueChange={(itemValue) => handlePickerChange(itemValue, 'language')}
                     items={languageData}
                   />
                 </View>
               </View>
-
 
 
 

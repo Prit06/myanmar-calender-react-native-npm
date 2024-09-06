@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef ,useContext} from "react";
 import {
   View,
   Text,
@@ -21,7 +21,29 @@ import Svg, { Path } from "react-native-svg";
 import Holidaydata from "../calenderData/holidays";
 import Loader from "./loader";
 import { ceMmDateTime } from "../calenderData/calender";
-  
+
+import { InterstitialAd, AdEventType } from 'react-native-google-mobile-ads';
+import { AdContext, AdProvider } from './adsContext';  // Import AdContext and AdProvider
+
+
+
+
+
+
+
+
+
+const adUnitId = 'ca-app-pub-3940256099942544/1033173712'; // Replace with your Interstitial Ad Unit ID
+const interstitialAd = InterstitialAd.createForAdRequest(adUnitId);
+
+
+
+
+
+
+
+
+
 
 const EmCalender = () => {
   var dt = new Date();
@@ -52,9 +74,46 @@ const EmCalender = () => {
   const [isMainScreen, setIsMainScreen] = useState(false);
   const [englishMonth, setEnglishMonth] = useState("")
   const [englishYears, setEnglishYears] = useState("")
-
   const [currentYear, setCurrentYear] = useState(null);
   const [currentMonth, setCurrentMonth] = useState(null);
+
+  const { adCount, incrementAdCount } = useContext(AdContext);
+
+
+
+
+  // === ads count ==========//
+  useEffect(() => {
+    if (adCount > 0 && adCount % 3 === 0) {
+      const interstitialAd = InterstitialAd.createForAdRequest("ca-app-pub-3940256099942544/1033173712");
+
+      const adLoadListener = interstitialAd.addAdEventListener(AdEventType.LOADED, () => {
+        interstitialAd.show();
+      });
+
+      const adCloseListener = interstitialAd.addAdEventListener(AdEventType.CLOSED, () => {
+        // Optionally handle ad closure
+      });
+
+      interstitialAd.load();
+
+      return () => {
+        adLoadListener();
+        adCloseListener();
+      };
+    }
+  }, [adCount]);
+
+
+
+
+
+
+
+
+
+
+
 
   const toggleModal = (js) => {
     setModalData(js);
@@ -85,7 +144,7 @@ const EmCalender = () => {
     calenderDataFun();
     staticDataFun();
     getDaysData(selectedJs);
-  // }, [month, year, calendarType, language]);
+    // }, [month, year, calendarType, language]);
   }, [month, year]);
 
   useEffect(() => {
@@ -102,15 +161,15 @@ const EmCalender = () => {
       if (js) {
         getDaysData(js, true);
         setSelectedJs(js)
-      }else{
+      } else {
         getDaysData(selectedJs);
       }
     }
     changeTypeDataSetFun()
   }, [calendarType, language]);
 
-  const selectedDateDataFunction = async() => {
-    if(!selectedDate) return false
+  const selectedDateDataFunction = async () => {
+    if (!selectedDate) return false
     var data = await getMCalenderData(selectedDate?.month + 1, selectedDate?.year, calendarType, language)
     data = data?.calenderArr
     toDateJs = data.find((dayData) => {
@@ -214,7 +273,7 @@ const EmCalender = () => {
 
   const getDaysData = async (js, status) => {
     var jsId = js
-    if(currentMonth == month && currentYear == year && !status){
+    if (currentMonth == month && currentYear == year && !status) {
       var data = await getMCalenderData(currentMonth, currentYear, calendarType, language)
       data = data?.calenderArr
       toDateJs = data.find((dayData) => {
@@ -224,7 +283,7 @@ const EmCalender = () => {
       setSelectedJs(jsId)
       setSelectedDate(null)
     }
-    if(jsId){
+    if (jsId) {
       var MCalenderStaticData = await getMCalenderDaysData(jsId, calendarType, language);
       setModelData(MCalenderStaticData);
     }
@@ -468,7 +527,7 @@ const EmCalender = () => {
                 </View>
               </View>
 
-              <View style={styles.pickersContainer}>
+              {/* <View style={styles.pickersContainer}>
                 <View style={styles.pickerWrapper}>
                   <CustomPicker
                     selectedValue={calendarType}
@@ -485,7 +544,55 @@ const EmCalender = () => {
                     items={languageData}
                   />
                 </View>
+              </View> */}
+
+
+
+
+
+
+
+
+
+
+
+
+              <View style={styles.pickersContainer}>
+                <View style={styles.pickerWrapper}>
+                  <CustomPicker
+                    selectedValue={calendarType}
+                    onValueChange={(itemValue) => {
+                      setCalendarType(itemValue);
+                      incrementAdCount(); // Increment ad count when calendar type changes
+                    }}
+                    items={typeData}
+                  />
+                </View>
+
+                <View style={styles.pickerWrapper}>
+                  <CustomPicker
+                    selectedValue={language}
+                    onValueChange={(itemValue) => {
+                      setLanguage(itemValue);
+                      incrementAdCount(); // Increment ad count when language changes
+                    }}
+                    items={languageData}
+                  />
+                </View>
               </View>
+
+
+
+
+
+
+
+
+
+
+
+
+
 
               <View>
                 <Text
@@ -493,7 +600,7 @@ const EmCalender = () => {
                     margin: 10,
                     textAlign: "center",
                     fontWeight: "bold",
-                    color:'black',
+                    color: 'black',
                   }}
                 >
                   {headerLine}
@@ -644,7 +751,7 @@ const EmCalender = () => {
 
                 <View>
                   <Text
-                    style={{ margin: 10, fontWeight: "bold", fontSize: 16 ,color:'black'}}
+                    style={{ margin: 10, fontWeight: "bold", fontSize: 16, color: 'black' }}
                   >
                     Holiday and Observances
                   </Text>
@@ -692,10 +799,10 @@ const EmCalender = () => {
                 <View style={styles.dateContainer}>
                   {modelData?.MyanmarDate && (
                     <>
-                      <Text style={[styles.daFontSize ,styles.sm]}>
+                      <Text style={[styles.daFontSize, styles.sm]}>
                         {modelData.SasanaYear}
                       </Text>
-                      <Text style={[styles.daFontSize , styles.sm]} >
+                      <Text style={[styles.daFontSize, styles.sm]} >
                         {modelData.MyanmarYear}
                       </Text>
                       <Text
@@ -941,9 +1048,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  
-  monthText:{
-   color:'black',
+
+  monthText: {
+    color: 'black',
   },
 
   dayText: {
@@ -1028,8 +1135,8 @@ const styles = StyleSheet.create({
     borderColor: "#CCCCCC",
   },
 
-  sm:{
-  color:'black',
+  sm: {
+    color: 'black',
   },
 
   NM: {
@@ -1074,7 +1181,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     paddingTop: 5,
     paddingBottom: 5,
-    color:'black',
+    color: 'black',
   },
   anchorFootMC: {
     textDecorationLine: "none",
