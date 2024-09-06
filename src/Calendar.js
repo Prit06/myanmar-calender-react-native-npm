@@ -25,10 +25,6 @@ import { InterstitialAd, AdEventType } from 'react-native-google-mobile-ads';
 import { AdContext, AdProvider } from './adsContext';  // Import AdContext and AdProvider
 
 
-const adUnitId = 'ca-app-pub-3940256099942544/1033173712'; // Replace with your Interstitial Ad Unit ID
-const interstitialAd = InterstitialAd.createForAdRequest(adUnitId);
-
-
 const Calender = () => {
   var dt = new Date();
   const [day, setDay] = useState(dt.getDate());
@@ -59,12 +55,17 @@ const Calender = () => {
   const { adCount, incrementAdCount } = useContext(AdContext);
 
 
+  const INTERSTITIAL_AD_UNIT_ID = "ca-app-pub-3940256099942544/1033173712";
 
+          //==================== ads count ===========================//
   useEffect(() => {
     if (adCount > 0 && adCount % 3 === 0) {
-      const interstitialAd = InterstitialAd.createForAdRequest("ca-app-pub-3940256099942544/1033173712");
+      const interstitialAd = InterstitialAd.createForAdRequest(INTERSTITIAL_AD_UNIT_ID);
+      setLoading(true)
+
 
       const adLoadListener = interstitialAd.addAdEventListener(AdEventType.LOADED, () => {
+        setLoading(false)
         interstitialAd.show();
       });
 

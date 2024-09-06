@@ -2,6 +2,19 @@ import React, { useEffect, useState } from 'react';
 import { FlatList, StyleSheet, Text, View, ScrollView } from 'react-native';
 import Holidaydata from '../calenderData/holidays'; // Assuming holidaysData is imported and used within Holidaydata
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 const Holiday = () => {
   const [holidays, setHolidays] = useState([]);
   const [title, setTitle] = useState('');

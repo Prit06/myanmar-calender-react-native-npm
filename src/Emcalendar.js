@@ -30,21 +30,6 @@ import { AdContext, AdProvider } from './adsContext';  // Import AdContext and A
 
 
 
-
-
-
-const adUnitId = 'ca-app-pub-3940256099942544/1033173712'; // Replace with your Interstitial Ad Unit ID
-const interstitialAd = InterstitialAd.createForAdRequest(adUnitId);
-
-
-
-
-
-
-
-
-
-
 const EmCalender = () => {
   var dt = new Date();
   const [day, setDay] = useState(dt.getDate());
@@ -81,13 +66,17 @@ const EmCalender = () => {
 
 
 
+  const INTERSTITIAL_AD_UNIT_ID = "ca-app-pub-3940256099942544/1033173712";
 
-  // === ads count ==========//
+  //==================== ads count ===========================//
   useEffect(() => {
     if (adCount > 0 && adCount % 3 === 0) {
-      const interstitialAd = InterstitialAd.createForAdRequest("ca-app-pub-3940256099942544/1033173712");
+      const interstitialAd = InterstitialAd.createForAdRequest(INTERSTITIAL_AD_UNIT_ID);
+      setLoading(true)
 
+      
       const adLoadListener = interstitialAd.addAdEventListener(AdEventType.LOADED, () => {
+        setLoading(false)
         interstitialAd.show();
       });
 
