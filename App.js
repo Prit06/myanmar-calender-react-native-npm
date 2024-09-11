@@ -65,6 +65,7 @@ const App = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  
   return (
     <GestureHandlerRootView style={{flex: 1}}>
       <AdProvider>

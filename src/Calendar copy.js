@@ -1,6 +1,6 @@
 
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import {
   View,
   Text,
@@ -10,6 +10,8 @@ import {
   DrawerLayoutAndroid,
   Image,
   Linking,
+  Modal,
+  ActivityIndicator
 } from "react-native";
 import LinearGradient from 'react-native-linear-gradient';
 import {
@@ -22,10 +24,7 @@ import Svg, { Path } from "react-native-svg";
 import Holidaydata from "../calenderData/holidays";
 import Loader from "./loader";
 import { InterstitialAd, AdEventType } from 'react-native-google-mobile-ads';
-
-
-const adUnitId = 'ca-app-pub-3940256099942544/1033173712'; // Replace with your Interstitial Ad Unit ID
-const interstitialAd = InterstitialAd.createForAdRequest(adUnitId);
+import { AdContext, AdProvider } from './adsContext';  // Import AdContext and AdProvider
 
 
 const Calender = () => {
@@ -55,44 +54,88 @@ const Calender = () => {
   const [loading, setLoading] = useState(false);
   const [isMainScreen, setIsMainScreen] = useState(false);
 
-  const [clickCount, setClickCount] = useState(0);
+  const { adCount, incrementAdCount } = useContext(AdContext);
 
 
-  useEffect(() => {
-    // Load the interstitial ad when the component mounts
-    interstitialAd.load();
-  }, []);
+  // const INTERSTITIAL_AD_UNIT_ID = "ca-app-pub-3940256099942544/1033173712";
 
-  const handlePickerChange = (itemValue, type) => {
-    setClickCount((prevCount) => {
-      const newCount = prevCount + 1;
+          //==================== ads count ===========================//
+  // useEffect(() => {
+  //   if (adCount > 0 && adCount % 3 === 0) {
+  //     const interstitialAd = InterstitialAd.createForAdRequest(INTERSTITIAL_AD_UNIT_ID);
+  //     setLoading(true)
 
-      if (newCount % 3 === 0) {
-        if (interstitialAd.loaded) {
-          // If ad is loaded, show it
-          interstitialAd.show().catch((error) => {
-            console.log('Failed to show interstitial ad:', error);
-          });
-        } else {
-          // If ad is not loaded, log a message and reload the ad
-          console.log('Interstitial ad not loaded yet');
-          interstitialAd.load();
-        }
-      }
 
-      // Update the respective state based on the picker type
-      if (type === 'calendar') {
-        setCalendarType(itemValue);
-      } else if (type === 'language') {
-        setLanguage(itemValue);
-      }
+  //     const adLoadListener = interstitialAd.addAdEventListener(AdEventType.LOADED, () => {
+  //       setLoading(false)
+  //       interstitialAd.show();
+  //     });
 
-      return newCount;
-    });
-  };
+  //     const adCloseListener = interstitialAd.addAdEventListener(AdEventType.CLOSED, () => {
+  //       // Optionally handle ad closure
+  //     });
 
- 
+  //     interstitialAd.load();
 
+  //     return () => {
+  //       adLoadListener();
+  //       adCloseListener();
+  //     };
+  //   }
+  // }, [adCount]);
+
+
+
+
+
+
+
+
+
+
+
+  // useEffect(() => {
+  //   if (adCount > 0 && adCount % 3 === 0) {
+  //     console.log("Calnder Ads Check");
+      
+  //     const interstitialAd = InterstitialAd.createForAdRequest(INTERSTITIAL_AD_UNIT_ID);
+  //     setLoading(true);
+
+  //     const adLoadListener = interstitialAd.addAdEventListener(AdEventType.LOADED, () => {
+  //       setLoading(false);
+  //       interstitialAd.show();
+  //     });
+
+  //     const adCloseListener = interstitialAd.addAdEventListener(AdEventType.CLOSED, () => {
+  //       // Optionally handle ad closure
+  //     });
+
+  //     interstitialAd.load();
+
+  //     return () => {
+  //       adLoadListener();
+  //       adCloseListener();
+  //     };
+  //   }
+  // }, [adCount]);
+
+
+
+
+
+
+
+
+// <Modal visible={loading} transparent>
+//     <View style={styles.modalContainer}>
+//       <View style={styles.loaderContainer}>
+//         <Text style={styles.loaderText}>Please Wait...</Text>
+//         {/* <ActivityIndicator size="large" color="#7B61FF" /> */}
+//       </View>
+//     </View>
+//   </Modal>
+
+  
 
   const toggleModal = (js) => {
     setModalData(js);
@@ -440,29 +483,14 @@ const Calender = () => {
               </View>
 
 
-              {/* <View style={styles.pickersContainer}>
-                <View style={styles.pickerWrapper}>
-                  <CustomPicker
-                    selectedValue={calendarType}
-                    onValueChange={(itemValue) => setCalendarType(itemValue)}
-                    items={typeData}
-                  />
-                </View>
-
-                <View style={styles.pickerWrapper}>
-                  <CustomPicker
-                    selectedValue={language}
-                    onValueChange={(itemValue) => setLanguage(itemValue)}
-                    items={languageData}
-                  />
-                </View>
-              </View>   */}
-
               <View style={styles.pickersContainer}>
                 <View style={styles.pickerWrapper}>
                   <CustomPicker
                     selectedValue={calendarType}
-                    onValueChange={(itemValue) => handlePickerChange(itemValue, 'calendar')}
+                    onValueChange={(itemValue) => {
+                      setCalendarType(itemValue);
+                      incrementAdCount(); // Increment ad count when calendar type changes
+                    }}
                     items={typeData}
                   />
                 </View>
@@ -470,11 +498,15 @@ const Calender = () => {
                 <View style={styles.pickerWrapper}>
                   <CustomPicker
                     selectedValue={language}
-                    onValueChange={(itemValue) => handlePickerChange(itemValue, 'language')}
+                    onValueChange={(itemValue) => {
+                      setLanguage(itemValue);
+                      incrementAdCount(); // Increment ad count when language changes
+                    }}
                     items={languageData}
                   />
                 </View>
               </View>
+
 
 
 

@@ -4,17 +4,6 @@ import Holidaydata from '../calenderData/holidays'; // Assuming holidaysData is 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 const Holiday = () => {
   const [holidays, setHolidays] = useState([]);
   const [title, setTitle] = useState('');
