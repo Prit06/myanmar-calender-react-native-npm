@@ -65,7 +65,6 @@ const EmCalender = () => {
   
 
 
-
   const toggleModal = (js) => {
     setModalData(js);
     setModalVisible(!isModalVisible);
@@ -128,47 +127,6 @@ const EmCalender = () => {
     });
     return toDateJs?.js
   }
-
-  // useEffect(() => {
-  //   const selectedDateDataFunction = async() => {
-  //     // console.log("month, year, calendarType, language", currentYear, currentMonth, calendarType, language);
-  //     // var data = await getMCalenderData(month, year, calendarType, language)
-  //     // data = data?.calenderArr
-  //     // var toDateJs = ""
-  //     // if (data) {
-  //     //   toDateJs = data?.find((dayData) => {
-  //     //     return dayData.englishDaysClass == "PriDayToday";
-  //     //    });
-  //     // }
-  //     // if(selectedDate){
-  //     //   var data = await getMCalenderData(selectedDate?.month + 1, selectedDate?.year, calendarType, language)
-  //     //   data = data?.calenderArr
-  //     //   toDateJs = data.find((dayData) => {
-  //     //     return dayData.EnglishDay == +selectedDate.EnglishDay;
-  //     //   });
-  //     // }
-  //     var toDateJs = ""
-  //     if (selectedDate) {
-  //       var data = await getMCalenderData(selectedDate?.month + 1, selectedDate?.year, calendarType, language)
-  //       data = data?.calenderArr
-  //       toDateJs = data.find((dayData) => {
-  //         return dayData.EnglishDay == +selectedDate.EnglishDay;
-  //       });
-  //     } else {
-  //       var data = await getMCalenderData(currentMonth, currentYear, calendarType, language)
-  //       data = data?.calenderArr
-  //       toDateJs = data.find((dayData) => {
-  //         return dayData.englishDaysClass == "PriDayToday";
-  //       });
-  //     }
-  //     if (selectedDate) {
-  //       setSelectedJs(toDateJs?.js);
-  //     } else if (currentDate) {
-  //       setSelectedJs(toDateJs?.js);
-  //     }
-  //   }
-  //   selectedDateDataFunction()
-  // }, [selectedJs, calendarType, language]);
 
   useEffect(() => {
     const today = new Date();
@@ -532,17 +490,6 @@ const EmCalender = () => {
                   />
                 </View>
               </View>
-
-
-
-
-
-
-
-
-
-
-
 
 
 

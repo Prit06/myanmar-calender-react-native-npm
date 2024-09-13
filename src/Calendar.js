@@ -120,31 +120,6 @@ const Calender = () => {
     return toDateJs?.js
   }
 
-  // useEffect(() => {
-  //   const selectedDateDataFuncation = async() => {
-  //     var toDateJs = ""
-  //     if(selectedDate){
-  //       var data = await getCalenderData(selectedDate?.month + 1, selectedDate?.year, calendarType, language)
-  //       data = data?.calenderArr
-  //       toDateJs = data.find((dayData) => {
-  //         return dayData.EnglishDay == +selectedDate.EnglishDay;
-  //       });
-  //     }else{
-  //       var data = await getCalenderData( currentDate?.getMonth() + 1,  currentDate?.getFullYear(), calendarType, language)
-  //       data = data?.calenderArr
-  //       toDateJs = data.find((dayData) => {
-  //         return dayData.englishDaysClass == "PriDayToday";
-  //       });
-  //     }
-  //     if (selectedDate) {
-  //       setSelectedJs(toDateJs?.js);
-  //     }else if(currentDate){
-  //       setSelectedJs(toDateJs?.js);
-  //     }
-  //   }
-  //   selectedDateDataFuncation()
-  // }, [month, year, selectedJs, calendarType, language]);
-
   useEffect(() => {
     if (selectedJs) {
       getDaysData(selectedJs, true);
@@ -430,11 +405,6 @@ const Calender = () => {
                   />
                 </View>
               </View>
-
-
-
-
-
 
 
               <View>
@@ -806,13 +776,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginVertical: 10,
   },
+
   yearMonthContainer: {
     flexDirection: "row",
     alignItems: "center",
     flex: 1,
   },
+
   arrow: {
-    fontSize: 20,
+    fontSize: 30,
     color: "white",
     // marginHorizontal: 20,
   },

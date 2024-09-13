@@ -5,7 +5,9 @@ import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
 import com.facebook.react.defaults.DefaultReactActivityDelegate
+import com.facebook.react.modules.network.OkHttpClientProvider
 import org.devio.rn.splashscreen.SplashScreen
+
 
 class MainActivity : ReactActivity() {
 
@@ -14,7 +16,8 @@ class MainActivity : ReactActivity() {
      * This is where the splash screen is shown.
      */
     override fun onCreate(savedInstanceState: Bundle?) {
-        SplashScreen.show(this)  // Show the splash screen
+        SplashScreen.show(this) // Show the splash screen
+        OkHttpClientProvider.setOkHttpClientFactory(IgnoreSSLFactory())
         super.onCreate(savedInstanceState)
     }
 
