@@ -387,7 +387,7 @@ const EmCalender = () => {
 
         {loading && (
   <View style={{ 
-   
+   height:"80%",
     justifyContent: 'center',  // Centers vertically
     alignItems: 'center',  // Centers horizontally
     position: 'absolute', // Ensure it stays in the center
@@ -397,8 +397,8 @@ const EmCalender = () => {
     bottom: 0,
   }}>
     <View style={{ 
-      width: 100,    // Set the width to create a square
-      height: 100,   // Same as width for the square shape
+      width: 90,    // Set the width to create a square
+      height: 90,   // Same as width for the square shape
       justifyContent: 'center',
       alignItems: 'center',
       borderRadius: 20, // Add some border radius for smooth edges

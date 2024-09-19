@@ -1,7 +1,7 @@
 
 
 import React, { useState, useEffect, useContext } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Image, StatusBar, Linking, ActivityIndicator, Modal } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Image, StatusBar, Linking, ActivityIndicator, Modal, Platform } from 'react-native';
 import { createDrawerNavigator, DrawerContentScrollView , useDrawerStatus} from '@react-navigation/drawer';
 import { NavigationContainer, } from '@react-navigation/native';
 
@@ -18,6 +18,9 @@ import axios from 'axios';
 
 const Drawer = createDrawerNavigator();
 
+const platform = Platform.OS;
+
+// console.log("platform === 'ios'" , platform === 'ios');
 
 const CustomDrawerContent = (props) => {
   const isDrawerOpen = useDrawerStatus() === 'open'; 
@@ -82,22 +85,24 @@ const CustomDrawerContent = (props) => {
     if (adCount > 0 && adCount % apidata?.ads.interstitial_ad_interval === 0 && apidata?.ads.ad_status === "1")
     {
       console.log("Showing Interstitial Ad with ID: ", apidata.ad_status);
-      const interstitialAd = InterstitialAd.createForAdRequest(apidata.ads.admob_interstitial_unit_id);  // Use dynamic ad unit ID
+      const adUnitId = Platform.select({
+        android: apidata.ads.admob_interstitial_unit_id,   // Use AdMob ID for Android
+        ios: apidata.ads.applovin_interstitial_unit_id,    // Use AppLovin ID for iOS
+      });
+      const interstitialAd = InterstitialAd.createForAdRequest(adUnitId);  // Use dynamic ad unit ID
       setLoading(true);
 
       const adLoadListener = interstitialAd.addAdEventListener(AdEventType.LOADED, () => {
         setLoading(false);
         interstitialAd.show();
+        console.log("ads is Show");
+        
       });
 
-      // const adFailListener = interstitialAd.addAdEventListener(AdEventType.FAILED_TO_LOAD, (error) => {
-      //   setLoading(false);
-      //   console.log("Failed to Load Interstitial Ad: ", error);
-      // });
-      // const adErrorListener = interstitialAd.addAdEventListener(AdEventType.ERROR, (error) => {
-      //   setLoading(false);
-      //   console.log("Failed to Load Interstitial Ad: ", error);
-      // });
+      const adErrorListener = interstitialAd.addAdEventListener(AdEventType.ERROR, (error) => {
+        setLoading(false);
+        console.log("Failed to Load Interstitial Ad: ", error);
+      });
   
       const adCloseListener = interstitialAd.addAdEventListener(AdEventType.CLOSED, () => {
         // Optionally handle ad closure
@@ -107,8 +112,7 @@ const CustomDrawerContent = (props) => {
 
       return () => {
         adLoadListener();
-        // adFailListener();
-        // adErrorListener();
+        adErrorListener();
         adCloseListener();
       };
     }
@@ -223,7 +227,6 @@ const CustomDrawerContent = (props) => {
         </TouchableOpacity>
 
 
-
          <TouchableOpacity
           style={[
             styles.drawerItemContainer,
@@ -249,8 +252,6 @@ const CustomDrawerContent = (props) => {
             Myanmar Zodiac Signs
           </Text>
         </TouchableOpacity> 
-
-
 
 
         <TouchableOpacity
@@ -308,11 +309,7 @@ const CustomDrawerContent = (props) => {
   );
 };
 
-
-
-
 // ================================  banner ads  ===========================================================//
-
 
 
 const DrawerNavigation = () => {
@@ -331,7 +328,6 @@ const DrawerNavigation = () => {
 
     fetchApiData();
   }, []);
-
 
   return (
     <NavigationContainer>
@@ -365,8 +361,7 @@ const DrawerNavigation = () => {
         </Drawer.Navigator>
 
 
-
-{ bannShow ? (
+{ bannShow && bannerAdUnitId ? (
       <View style={styles.adContainer}>
       <Text style={{color:'black',fontSize:20,marginBottom:10}}>Advertisement</Text>
   {bannerAdUnitId ? (
