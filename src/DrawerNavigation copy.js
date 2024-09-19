@@ -90,15 +90,12 @@ const CustomDrawerContent = (props) => {
         interstitialAd.show();
       });
 
-      // const adFailListener = interstitialAd.addAdEventListener(AdEventType.FAILED_TO_LOAD, (error) => {
-      //   setLoading(false);
-      //   console.log("Failed to Load Interstitial Ad: ", error);
-      // });
       // const adErrorListener = interstitialAd.addAdEventListener(AdEventType.ERROR, (error) => {
       //   setLoading(false);
       //   console.log("Failed to Load Interstitial Ad: ", error);
       // });
   
+
       const adCloseListener = interstitialAd.addAdEventListener(AdEventType.CLOSED, () => {
         // Optionally handle ad closure
       });
@@ -107,7 +104,6 @@ const CustomDrawerContent = (props) => {
 
       return () => {
         adLoadListener();
-        // adFailListener();
         // adErrorListener();
         adCloseListener();
       };

@@ -23,7 +23,7 @@ import Svg, { Path } from "react-native-svg";
 import Holidaydata from "../calenderData/holidays";
 import Loader from "./loader";
 import { AdContext, AdProvider } from './adsContext';  // Import AdContext and AdProvider
-
+import { InterstitialAd, AdEventType, AdManager } from 'react-native-google-mobile-ads';
 
 
 const Calender = () => {
@@ -55,6 +55,8 @@ const Calender = () => {
 
   const { adCount, incrementAdCount } = useContext(AdContext);
 
+  const [clickCount, setClickCount] = useState(0);
+  const [adLoaded, setAdLoaded] = useState(false);
 
 
 
@@ -243,6 +245,7 @@ const Calender = () => {
     var day = data.EnglishDay;
     var toDayDateClass = data.englishDaysClass;
     var js = data.js;
+    
 
     const today = isToday(day);
     const selected = isSelectedDay(day);
@@ -268,9 +271,11 @@ const Calender = () => {
               year: year,
             });
             setSelectedJs(js);
+          
           }}
           activeOpacity={0.7}
         >
+
           <View style={styles.selectedDayCircle}>
             <View style={styles.dayContent}>
               <Text style={styles.dayText}>{day}</Text>
@@ -291,6 +296,7 @@ const Calender = () => {
             year: year,
           });
           setSelectedJs(js);
+          incrementAdCount();
         }}
         activeOpacity={0.7}
       >
@@ -326,8 +332,35 @@ const Calender = () => {
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.containerHeader}>
           {
-            loading && <Loader isMainScreen={isMainScreen} />
+            // loading && <Loader isMainScreen={isMainScreen} />
           }
+
+
+
+{loading && (
+  <View style={{ 
+    justifyContent: 'center',  // Centers vertically
+    alignItems: 'center',  // Centers horizontally
+    position: 'absolute', // Ensure it stays in the center
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  }}>
+    <View style={{ 
+      width: 100,    // Set the width to create a square
+      height: 100,   // Same as width for the square shape
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderRadius: 20, // Add some border radius for smooth edges
+      padding: 20,
+      zIndex: 900,    // Ensures the loader stays on top
+      backgroundColor:'white',
+    }}>
+      <Loader isMainScreen={isMainScreen} />
+    </View>
+  </View>
+)}
 
           <View>
             <View style={{ backgroundColor: "pink", flexDirection: "row" }}>
@@ -433,6 +466,9 @@ const Calender = () => {
                     )
                   )}
                 </View>
+
+
+                
                 <View style={styles.daysContainer}>
                   {calenderData.map((dayData, index) =>
                     Object.keys(dayData).length > 0

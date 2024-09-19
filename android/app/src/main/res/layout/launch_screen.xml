@@ -10,4 +10,5 @@
     android:src="@drawable/myanmarimg" 
     android:scaleType="fitCenter" 
      android:layout_centerInParent="true" />
+
 </RelativeLayout>

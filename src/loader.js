@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
     zIndex: 900,
     height: screenHeight,  // Full screen height
     width: screenWidth,    // Full screen width
-    backgroundColor: "#fff",
+    // backgroundColor: "#fff",
   },
   container: {
     flex: 1,
@@ -40,8 +40,8 @@ const styles = StyleSheet.create({
     zIndex: 900,
     height: screenHeight, // 50% of screen height
     width: screenWidth,         // Full screen width
-    backgroundColor: "#fff",
-    opacity: 0.5,
+    // backgroundColor: "#fff",
+    // opacity: 0.5,
   },
 });
 
