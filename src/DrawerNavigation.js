@@ -84,10 +84,10 @@ const CustomDrawerContent = (props) => {
   useEffect(() => {
     if (adCount > 0 && adCount % apidata?.ads.interstitial_ad_interval === 0 && apidata?.ads.ad_status === "1")
     {
-      console.log("Showing Interstitial Ad with ID: ", apidata.ad_status);
+      console.log("Showing Interstitial Ad with ID: ", apidata.ads.ad_status);
       const adUnitId = Platform.select({
-        android: apidata.ads.admob_interstitial_unit_id,   // Use AdMob ID for Android
-        ios: apidata.ads.applovin_interstitial_unit_id,    // Use AppLovin ID for iOS
+        android: apidata.ads.android_adsid.admob_interstitial_unit_id,   // Use AdMob ID for Android
+        ios: apidata.ads.ios_adsid.admob_interstitial_unit_id,    // Use AppLovin ID for iOS
       });
       const interstitialAd = InterstitialAd.createForAdRequest(adUnitId);  // Use dynamic ad unit ID
       setLoading(true);
@@ -320,7 +320,11 @@ const DrawerNavigation = () => {
     const fetchApiData = async () => {
       try {
         const response = await axios.get('https://atharvainfinity.com/atharvainfinity/ios/calendar/myanmar/myanmar_caladsapi.json');
-        setBannerAdUnitId(response.data?.meta.ads.admob_banner_unit_id);
+        if (Platform.OS === 'android') {
+          setBannerAdUnitId(response.data?.meta.ads.android_adsid.admob_banner_unit_id);
+        } else if (Platform.OS === 'ios') {
+          setBannerAdUnitId(response.data?.meta.ads.ios_adsid.admob_banner_unit_id);
+        }
       } catch (error) {
         console.error('Error fetching API data:', error);
       }
