@@ -4,14 +4,16 @@ import React, { useState, useEffect, useContext } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Image, StatusBar, Linking, ActivityIndicator, Modal, Platform } from 'react-native';
 import { createDrawerNavigator, DrawerContentScrollView , useDrawerStatus} from '@react-navigation/drawer';
 import { NavigationContainer, } from '@react-navigation/native';
-
+// import UnityAds from 'react-native-unity-ads';
 import Calendar from './Calendar';  
 import Holidays from './Holidays';
 import Emcalendar from './Emcalendar';
 import Share from 'react-native-share';
 import MyanmarZodiacSigns from './MyanmarZodiacSigns';
-
-import { BannerAd, BannerAdSize, InterstitialAd, AdEventType } from 'react-native-google-mobile-ads';
+// import { InterstitialAd as AppLovinInterstitialAd } from 'react-native-applovin-max';
+// import { BannerAd, BannerAdSize, InterstitialAd, AdEventType } from 'react-native-google-mobile-ads';
+import { InterstitialAd as AdMobInterstitialAd, AdEventType , BannerAd, BannerAdSize, InterstitialAd} from 'react-native-google-mobile-ads';
+import { InterstitialAd as AppLovinInterstitialAd } from 'react-native-applovin-max';
 import { AdContext, AdProvider } from './adsContext';  // Context to manage Ad count
 import axios from 'axios';
 
@@ -80,13 +82,29 @@ const CustomDrawerContent = (props) => {
     fetchApiData();  // Fetch the dynamic ad unit ID once on component mount
   }, []);
 
+  // useEffect(() => {
+  //   if(apidata){
+  //     initializeUnityAds();
+  //   }
+  // }, []);
+
+  // const initializeUnityAds = async () => {
+  //   try {
+  //     await UnityAds.initialize(apidata.ads.android_adsid.unity_game_id, true);
+  //     console.log('Unity Ads Initialized');
+  //   } catch (error) {
+  //     console.error('Unity Ads Initialization Error:', error);
+  //   }
+  // };
+
   
   useEffect(() => {
     if (adCount > 0 && adCount % apidata?.ads.interstitial_ad_interval === 0 && apidata?.ads.ad_status === "1")
     {
       console.log("Showing Interstitial Ad with ID: ", apidata.ads.ad_status);
       const adUnitId = Platform.select({
-        android: apidata.ads.android_adsid.admob_interstitial_unit_id,   // Use AdMob ID for Android
+        android: apidata.ads.android_adsid.admob_interstitial_unit_id, // Use AdMob ID for Android
+        // android: "ca-app-pub-3940256099942544/1033173722",
         ios: apidata.ads.ios_adsid.admob_interstitial_unit_id,    // Use AppLovin ID for iOS
       });
       const interstitialAd = InterstitialAd.createForAdRequest(adUnitId);  // Use dynamic ad unit ID
@@ -99,9 +117,18 @@ const CustomDrawerContent = (props) => {
         
       });
 
-      const adErrorListener = interstitialAd.addAdEventListener(AdEventType.ERROR, (error) => {
+      const adErrorListener = interstitialAd.addAdEventListener(AdEventType.ERROR, async (error) => {
         setLoading(false);
         console.log("Failed to Load Interstitial Ad: ", error);
+        showUnityInterstitialAd()
+        .then(() => {
+          setLoading(false);
+          console.log("Unity Ad showed");
+        })
+        .catch(error => {
+          setLoading(false);
+          console.log("Failed to show Unity Ad: ", error);
+        });
       });
   
       const adCloseListener = interstitialAd.addAdEventListener(AdEventType.CLOSED, () => {
@@ -117,6 +144,31 @@ const CustomDrawerContent = (props) => {
       };
     }
   }, [adCount, adUnitId]);
+
+  // const showUnityInterstitialAd = async () => {
+  //   try {
+  //     if (!UnityAds) {
+  //       console.error('UnityAds is not imported correctly');
+  //       return;
+  //     }
+  
+  //     if (!UnityAds.isReady) {
+  //       console.error('UnityAds.isReady is not available');
+  //       return;
+  //     }
+  
+  //     const isAdReady = await UnityAds.isReady(apidata.ads.android_adsid.unity_interstitial_placement_id);
+  //     if (isAdReady) {
+  //       await UnityAds.show(apidata.ads.android_adsid.unity_interstitial_placement_id);
+  //       console.log('Unity Ad shown');
+  //     } else {
+  //       console.log('Unity Ad is not ready');
+  //     }
+  //   } catch (error) {
+  //     console.error('Failed to show Unity Ad:', error);
+  //   }
+  // };
+
 
 
   useEffect(() => {
@@ -336,6 +388,7 @@ const DrawerNavigation = () => {
   return (
     <NavigationContainer>
       <StatusBar barStyle="dark-content" backgroundColor="#FFBABA" />
+
         <Drawer.Navigator
           drawerContent={(props) => (
             <CustomDrawerContent
