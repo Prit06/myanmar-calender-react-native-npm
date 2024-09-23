@@ -29,31 +29,13 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import React, { useEffect } from 'react'
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 // import {  NavigationContainer} from '@react-navigation/native';
 import DrawerNavigation from './src/DrawerNavigation';
 import SplashScreen from 'react-native-splash-screen';
 import { AdProvider } from './src/adsContext';
+
 
 const App = () => {
 
@@ -64,6 +46,7 @@ const App = () => {
 
     return () => clearTimeout(timer);
   }, []);
+
 
   
   return (
@@ -77,3 +60,24 @@ const App = () => {
 }
 
 export default App;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

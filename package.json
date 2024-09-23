@@ -27,8 +27,8 @@
     "react-native-screens": "^3.34.0",
     "react-native-share": "^10.2.1",
     "react-native-splash-screen": "^3.3.0",
-    "react-native-svg": "^15.5.0",
-    "react-native-unity-ads": "^1.0.3"
+    "react-native-svg": "^15.7.1",
+    "react-native-unity-ads-monetization": "^0.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
