@@ -8,7 +8,6 @@ import com.facebook.react.defaults.DefaultReactActivityDelegate
 import com.facebook.react.modules.network.OkHttpClientProvider
 import org.devio.rn.splashscreen.SplashScreen
 
-
 class MainActivity : ReactActivity() {
 
     /**
@@ -20,6 +19,8 @@ class MainActivity : ReactActivity() {
         OkHttpClientProvider.setOkHttpClientFactory(IgnoreSSLFactory())
         super.onCreate(savedInstanceState)
     }
+
+  
 
     /**
      * Returns the name of the main component registered from JavaScript.

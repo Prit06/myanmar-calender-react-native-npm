@@ -1,8 +1,6 @@
 //IgnoreSSLFactory.java
 package com.awesomepro;
 
-
-
 import com.facebook.react.modules.network.OkHttpClientFactory;
 import com.facebook.react.modules.network.OkHttpClientFactory;
 import com.facebook.react.modules.network.OkHttpClientProvider;

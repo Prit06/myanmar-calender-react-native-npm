@@ -90,6 +90,7 @@ const MyanmarZodiacSigns = () => {
 
                             <Image source={require('./assets/circle.png')}
                                 style={{ height: 350, width: 350, alignSelf: 'center' }}
+                                 resizeMode="contain"
                             />
                         </View>
 
@@ -211,6 +212,7 @@ const MyanmarZodiacSigns = () => {
 
                         <Image source={require('./assets/tiger.png')}
                             style={{ height: 230, width: "90%", alignSelf: 'center' }}
+                            resizeMode="contain"
                         />
 
                         <View style={{ backgroundColor: '#0000000d', padding: 8, marginHorizontal: 40, }}>
@@ -219,8 +221,6 @@ const MyanmarZodiacSigns = () => {
                             </Text>
                         </View>
                     </View>
-
-
 
 
 
@@ -285,6 +285,7 @@ const MyanmarZodiacSigns = () => {
 
                     <Image source={require('./assets/lion.png')}
                         style={{ height: 230, width: "90%", alignSelf: 'center' }}
+                         resizeMode="contain"
                     />
 
 
@@ -359,6 +360,7 @@ const MyanmarZodiacSigns = () => {
 
                     <Image source={require('./assets/elephent.png')}
                         style={{ height: 230, width: "90%", alignSelf: 'center' }}
+                         resizeMode="contain"
                     />
 
                     <View style={{ backgroundColor: '#0000000d', padding: 8, marginHorizontal: 50, }}>
@@ -428,6 +430,7 @@ const MyanmarZodiacSigns = () => {
 
                     <Image source={require('./assets/tuskless_elephants.png')}
                         style={{ height: 230, width: "90%", alignSelf: 'center' }}
+                         resizeMode="contain"
                     />
                     <View style={{ backgroundColor: '#0000000d', padding: 8, marginHorizontal: 50, }}>
                         <Text style={{ color: 'black', textAlign: 'center', fontStyle: 'italic' }}>
@@ -500,6 +503,7 @@ const MyanmarZodiacSigns = () => {
 
                     <Image source={require('./assets/rat.png')}
                         style={{ height: 230, width: "90%", alignSelf: 'center' }}
+                         resizeMode="contain"
                     />
                     <View style={{ backgroundColor: '#0000000d', padding: 8, marginHorizontal: 50, }}>
                         <Text style={{ color: 'black', textAlign: 'center', fontStyle: 'italic' }}>
@@ -573,6 +577,7 @@ const MyanmarZodiacSigns = () => {
 
                     <Image source={require('./assets/pig.png')}
                         style={{ height: 230, width: "90%", alignSelf: 'center' }}
+                         resizeMode="contain"
                     />
                     <View style={{ backgroundColor: '#0000000d', padding: 8, marginHorizontal: 50, }}>
                         <Text style={{ color: 'black', textAlign: 'center', fontStyle: 'italic' }}>
@@ -639,6 +644,7 @@ const MyanmarZodiacSigns = () => {
 
                     <Image source={require('./assets/dragon.png')}
                         style={{ height: 230, width: "90%", alignSelf: 'center' }}
+                         resizeMode="contain"
                     />
 
                     <View style={{ backgroundColor: '#0000000d', padding: 8, marginHorizontal: 50, }}>
@@ -703,6 +709,7 @@ const MyanmarZodiacSigns = () => {
 
                     <Image source={require('./assets/garuda.png')}
                         style={{ height: 230, width: "90%", alignSelf: 'center' }}
+                         resizeMode="contain"
                     />
 
                     <View style={{ backgroundColor: '#0000000d', padding: 8, marginHorizontal: 50, }}>
