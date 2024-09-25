@@ -11,11 +11,13 @@ import Share from 'react-native-share';
 import MyanmarZodiacSigns from './MyanmarZodiacSigns';
 import { AdEventType, BannerAd, BannerAdSize, InterstitialAd } from 'react-native-google-mobile-ads';
 // import { InterstitialAd as AppLovinInterstitialAd } from 'react-native-applovin-max';
-import { AppLovinMAX } from 'react-native-applovin-max';
+// import { AppLovinMAX } from 'react-native-applovin-max';
 import { AdContext, AdProvider } from './adsContext';  // Context to manage Ad count
 import axios from 'axios';
+// import UnityAds from 'react-native-unity-ads-monetization';
+// import {UnityBannerAd} from 'react-native-unity-ads-monetization';
 import UnityAds from 'react-native-unity-ads-monetization';
-
+import { UnityAdsBanner } from 'react-native-unity-ads-monetization';
 
 const Drawer = createDrawerNavigator();
 
@@ -81,12 +83,12 @@ const CustomDrawerContent = (props) => {
   }, []);
 
   useEffect(() => {
-    if (adCount > 0 && adCount % apidata?.ads.interstitial_ad_interval === 0 && apidata?.ads.ad_status === "1") {
+    if (adCount > 0 && adCount % apidata?.ads.interstitial_ad_interval === 0 && apidata?.ads.ad_status === "1" && Platform.OS !== 'ios') {
       console.log("Showing Interstitial Ad with ID: ", apidata.ads.ad_status);
       if (Platform.OS === 'android') {
       const adUnitId = Platform.select({
-        android: apidata.ads.android_adsid.admob_interstitial_unit_id, // Use AdMob ID for Android
-        // android: "ca-app-pub-3940256099942544/1033173711",
+        // android: apidata.ads.android_adsid.admob_interstitial_unit_id, // Use AdMob ID for Android
+        android: "ca-app-pub-3940256099942544/1033173711",
         ios: apidata.ads.ios_adsid.admob_interstitial_unit_id,    // Use AppLovin ID for iOS
       });
 
@@ -132,16 +134,16 @@ const CustomDrawerContent = (props) => {
     });
 
     const ad = InterstitialAd.createForAdRequest(adUnitId);  // Create interstitial ad instance
-    setLoading(true);
+    // setLoading(true);
 
     const adLoadListener = ad.addAdEventListener(AdEventType.LOADED, () => {
-      setLoading(false);
+      // setLoading(false);
       setInterstitialAd(ad); // Store the loaded ad
       console.log("Interstitial Ad loaded successfully");
     });
 
     const adErrorListener = ad.addAdEventListener(AdEventType.ERROR, (error) => {
-      setLoading(false);
+      // setLoading(false);
       console.log("Failed to load Interstitial Ad: ", error);
       showUnityAd();
     });
@@ -158,32 +160,27 @@ const CustomDrawerContent = (props) => {
     if (interstitialAd) {
       StatusBar.setHidden(true);  // Hide status bar when ad shows
       await interstitialAd.show();
+      setLoading(false);
       console.log("Interstitial Ad shown");
     } else {
       console.log("Interstitial Ad not ready to show yet");
     }
   };
 
-  useEffect(() => {
-    if(Platform.OS === 'ios'){
-      loadIosadmobads();
-    }
-    // Load ad when adCount is not equal to 3 and ad status is active
-  }, [adCount, apidata]);
-
   const loadIosadmobads = () => {
-    if (adCount !== apidata?.ads.interstitial_ad_interval && apidata?.ads.ad_status === "1") {
+    if (adCount > 0 && adCount % apidata?.ads.interstitial_ad_interval !== 0 && apidata?.ads.ad_status === "1") {
       loadInterstitialAd();
     }
   
     // Show ad when adCount equals 3
-    if (adCount === apidata?.ads.interstitial_ad_interval && apidata?.ads.ad_status === "1") {
+    if (adCount > 0 && adCount % apidata?.ads.interstitial_ad_interval === 0 && apidata?.ads.ad_status === "1") {
+      setLoading(true);
       showInterstitialAd();
     }
   }
   
   
-  //==================================== show Unity Ads  =======================================//
+  // ==================================== show Unity Ads ======================================= //
 
   
   const showUnityAd = () => {
@@ -214,7 +211,7 @@ const CustomDrawerContent = (props) => {
       },
       onAdLoadFailed: (placementId, error) => {
         console.log(`UnityAds.onAdLoadFailed: ${placementId}`, error);
-        showAppLovinAd();
+        // showAppLovinAd();
       },
     });
   
@@ -232,67 +229,64 @@ const CustomDrawerContent = (props) => {
       });
     }
 
-    const initializeAppLovinSdk = () => {
-      const appLovinSdkKey = Platform.select({
-        android: "iTwh_UVXAifQEJI0VaSCck97B9evnrT9g7Epl7OEtIRgVROTh5pFoGDiVGdWPasG1Knys15HQLeVriCHP_1WA6",
-        ios: "iTwh_UVXAifQEJI0VaSCck97B9evnrT9g7Epl7OEtIRgVROTh5pFoGDiVGdWPasG1Knys15HQLeVriCHP_1WA6",
-      });
+    // const initializeAppLovinSdk = () => {
+    //   const appLovinSdkKey = Platform.select({
+    //     android: "iTwh_UVXAifQEJI0VaSCck97B9evnrT9g7Epl7OEtIRgVROTh5pFoGDiVGdWPasG1Knys15HQLeVriCHP_1WA6",
+    //     ios: "iTwh_UVXAifQEJI0VaSCck97B9evnrT9g7Epl7OEtIRgVROTh5pFoGDiVGdWPasG1Knys15HQLeVriCHP_1WA6",
+    //   });
     
-      // Initialize AppLovin SDK
-      AppLovinMAX.initialize(appLovinSdkKey, (configuration) => {
-        console.log('AppLovin SDK initialized:', configuration);
-      });
-    };
+    //   // Initialize AppLovin SDK
+    //   AppLovinMAX.initialize(appLovinSdkKey, (configuration) => {
+    //     console.log('AppLovin SDK initialized:', configuration);
+    //   });
+    // };
   
 
     //=============================== AppLovin ads show  ===============================================//
 
-    const showAppLovinAd = () => {
-      console.log("Attempting to show AppLovin ad");
+    // const showAppLovinAd = () => {
+    //   console.log("Attempting to show AppLovin ad");
     
-      // Ensure the AppLovin SDK is initialized
-      initializeAppLovinSdk();
+    //   // Ensure the AppLovin SDK is initialized
+    //   initializeAppLovinSdk();
     
-      const appLovinInterstitialUnitId = Platform.select({
-        android: apidata.ads.android_adsid.applovin_interstitial_unit_id,
-        ios: apidata.ads.ios_adsid.applovin_interstitial_unit_id,
-      });
+    //   const appLovinInterstitialUnitId = Platform.select({
+    //     android: apidata.ads.android_adsid.applovin_interstitial_unit_id,
+    //     ios: apidata.ads.ios_adsid.applovin_interstitial_unit_id,
+    //   });
     
-      // Check if AppLovin SDK is initialized before loading the ad
-      if (!AppLovinMAX.isInitialized()) {
-        console.error("AppLovin SDK is not initialized. Please initialize it before showing ads.");
-        return;
-      }
+    //   // Check if AppLovin SDK is initialized before loading the ad
+    //   if (!AppLovinMAX.isInitialized()) {
+    //     console.error("AppLovin SDK is not initialized. Please initialize it before showing ads.");
+    //     return;
+    //   }
     
-      AppLovinMAX.loadInterstitial(appLovinInterstitialUnitId);
+    //   AppLovinMAX.loadInterstitial(appLovinInterstitialUnitId);
     
-      const appLovinLoadListener = AppLovinMAX.addInterstitialLoadedEventListener(() => {
-        setLoading(false);
-        if (AppLovinMAX.isInterstitialReady(appLovinInterstitialUnitId)) {
-          AppLovinMAX.showInterstitial(appLovinInterstitialUnitId);
-          console.log("AppLovin interstitial ad is shown");
-        }
-      });
+    //   const appLovinLoadListener = AppLovinMAX.addInterstitialLoadedEventListener(() => {
+    //     setLoading(false);
+    //     if (AppLovinMAX.isInterstitialReady(appLovinInterstitialUnitId)) {
+    //       AppLovinMAX.showInterstitial(appLovinInterstitialUnitId);
+    //       console.log("AppLovin interstitial ad is shown");
+    //     }
+    //   });
     
-      const appLovinErrorListener = AppLovinMAX.addInterstitialLoadFailedEventListener((errorCode) => {
-        setLoading(false);
-        console.log("Failed to load AppLovin Interstitial Ad: ", errorCode);
-      });
+    //   const appLovinErrorListener = AppLovinMAX.addInterstitialLoadFailedEventListener((errorCode) => {
+    //     setLoading(false);
+    //     console.log("Failed to load AppLovin Interstitial Ad: ", errorCode);
+    //   });
     
-      const appLovinCloseListener = AppLovinMAX.addInterstitialHiddenEventListener(() => {
-        console.log("AppLovin interstitial ad closed");
-      });
+    //   const appLovinCloseListener = AppLovinMAX.addInterstitialHiddenEventListener(() => {
+    //     console.log("AppLovin interstitial ad closed");
+    //   });
     
-      return () => {
-        appLovinLoadListener();
-        appLovinErrorListener();
-        appLovinCloseListener();
-      };
-    };
+    //   return () => {
+    //     appLovinLoadListener();
+    //     appLovinErrorListener();
+    //     appLovinCloseListener();
+    //   };
+    // };
     
-
-
-
 
 
   useEffect(() => {
@@ -485,12 +479,13 @@ const CustomDrawerContent = (props) => {
   );
 };
 
-// ================================  banner ads  ===========================================================//
+// =======================================  banner ads  ===========================================================//
 
 
 const DrawerNavigation = () => {
   const [bannerAdUnitId, setBannerAdUnitId] = useState(null);
   const [bannShow, setBannShow] = useState(true);
+  const [showUnityAd, setShowUnityAd] = useState(false); 
 
   useEffect(() => {
     const fetchApiData = async () => {
@@ -498,6 +493,7 @@ const DrawerNavigation = () => {
         const response = await axios.get('https://atharvainfinity.com/atharvainfinity/ios/calendar/myanmar/myanmar_caladsapi.json');
         if (Platform.OS === 'android') {
           setBannerAdUnitId(response.data?.meta.ads.android_adsid.admob_banner_unit_id);
+          // setBannerAdUnitId("");
         } else if (Platform.OS === 'ios') {
           setBannerAdUnitId(response.data?.meta.ads.ios_adsid.admob_banner_unit_id);
         }
@@ -508,6 +504,55 @@ const DrawerNavigation = () => {
 
     fetchApiData();
   }, []);
+  
+
+  useEffect(() => {
+
+      const unityGameId = Platform.OS === 'android' ? '5402023' : '5402022';
+      console.log("call==============");
+      UnityAds.initialize(unityGameId, true) 
+      .then(() => UnityAds.loadAd("Banner_Android"))  // Load the interstitial ad using the placement ID
+      .catch(error => console.error('UnityAds initialization failed', error));
+  } , [])
+
+ 
+  // const renderAdMobBanner = () => {
+  //   if (!bannerAdUnitId || useUnityAds) {
+  //     return null;
+  //   }
+
+  //   return (
+  //     <BannerAd
+  //       unitId={bannerAdUnitId}
+  //       size={BannerAdSize.LARGE_BANNER}
+  //       onAdFailedToLoad={(error) => {
+  //         console.log('AdMob banner failed to load, error:', error);
+  //         setUseUnityAds(true);
+  //       }}
+  //       onAdLoaded={() => {
+  //         console.log('AdMob banner loaded successfully');
+  //       }}
+  //     />
+  //   );
+  // };
+
+  // const renderUnityBanner = () => {
+  //   // if (false) {
+  //   //   return null;
+  //   // }
+
+  //   return (
+  //     <UnityBanner 
+  //       adUnitId={Platform.OS === 'android' ? 'Banner_Android' : 'Banner_iOS'}
+  //       size="banner"
+  //       onAdLoaded={() => console.log('Unity banner loaded successfully')}
+  //       onAdFailedToLoad={(error) =>
+  //         console.log('Unity banner failed to load, error:', error)
+  //       }
+  //     />
+  //   );
+  // };
+
 
   return (
     <NavigationContainer>
@@ -542,22 +587,47 @@ const DrawerNavigation = () => {
       </Drawer.Navigator>
 
 
-      {bannShow && bannerAdUnitId ? (
+     {bannShow ? (
         <View style={styles.adContainer}>
           <Text style={{ color: 'black', fontSize: 20, marginBottom: 10 }}>Advertisement</Text>
           {bannerAdUnitId ? (
             <BannerAd
               unitId={bannerAdUnitId}
               size={BannerAdSize.LARGE_BANNER}
+              onAdFailedToLoad={(error) => {
+                console.log('AdMob Banner Ad failed to load:', error);
+                // initializeUnityAds();  // Switch to Unity ad if AdMob fails
+              }}
             />
-          ) : (
-            <Text>Loading Banner Ad...</Text>
-          )}
+          ) : (   
+            <>
+            <View style={styles.adContainer}>
+              <Text style={{ color: 'black', fontSize: 20, marginBottom: 10 }}>Unity Advertisement</Text>
+              {/* <UnityBannerAd
+              placementId={'Banner_Android'}
+                // adUnitId={'Banner_Android'} // Replace with your Unity Banner Ad Unit ID
+                onAdFailedToLoad={(error) => {
+                  console.error('Unity Banner Ad failed to load:', error);
+                }}
+                /> */}
+            </View>
+            </>
+          ) 
+          }
         </View>
 
-      )
+      )   
         : ""
       }
+      
+       <View style={styles.adContainer}>
+              <Text style={{ color: 'black', fontSize: 20, marginBottom: 10 }}>Unity Advertisement</Text>
+                <UnityAdsBanner
+                  placementId="Banner_Android"
+                  onError={(error) => console.log("Banner Ad Error: ", error)}
+                  onLoaded={() => console.log("Banner Ad Loaded")}
+                />
+        </View>
 
     </NavigationContainer>
   );
@@ -650,49 +720,3 @@ const styles = StyleSheet.create({
 });
 
 export default DrawerNavigation;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
