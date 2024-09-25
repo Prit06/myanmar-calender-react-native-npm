@@ -12,6 +12,7 @@ import MyanmarZodiacSigns from './MyanmarZodiacSigns';
 import { AdEventType, BannerAd, BannerAdSize, InterstitialAd } from 'react-native-google-mobile-ads';
 // import { InterstitialAd as AppLovinInterstitialAd } from 'react-native-applovin-max';
 // import { AppLovinMAX } from 'react-native-applovin-max';
+import AppLovinMAX, { Configuration } from "react-native-applovin-max";
 import { AdContext, AdProvider } from './adsContext';  // Context to manage Ad count
 import axios from 'axios';
 // import UnityAds from 'react-native-unity-ads-monetization';
@@ -83,209 +84,235 @@ const CustomDrawerContent = (props) => {
   }, []);
 
   useEffect(() => {
-    if (adCount > 0 && adCount % apidata?.ads.interstitial_ad_interval === 0 && apidata?.ads.ad_status === "1" && Platform.OS !== 'ios') {
-      console.log("Showing Interstitial Ad with ID: ", apidata.ads.ad_status);
-      if (Platform.OS === 'android') {
-      const adUnitId = Platform.select({
-        // android: apidata.ads.android_adsid.admob_interstitial_unit_id, // Use AdMob ID for Android
-        android: "ca-app-pub-3940256099942544/1033173711",
-        ios: apidata.ads.ios_adsid.admob_interstitial_unit_id,    // Use AppLovin ID for iOS
+  //   if (adCount > 0 && adCount % apidata?.ads.interstitial_ad_interval === 0 && apidata?.ads.ad_status === "1" && Platform.OS !== 'ios') {
+  //     console.log("Showing Interstitial Ad with ID: ", apidata.ads.ad_status);
+  //     if (Platform.OS === 'android') {
+  //     const adUnitId = Platform.select({
+  //       // android: apidata.ads.android_adsid.admob_interstitial_unit_id, // Use AdMob ID for Android
+  //       android: "ca-app-pub-3940256099942544/1033173711",
+  //       ios: apidata.ads.ios_adsid.admob_interstitial_unit_id,    // Use AppLovin ID for iOS
+  //     });
+
+  //     const interstitialAd = InterstitialAd.createForAdRequest(adUnitId);  // Use dynamic ad unit ID
+  //     setLoading(true);
+
+  //     const adLoadListener = interstitialAd.addAdEventListener(AdEventType.LOADED, () => {
+  //       setLoading(false);
+  //       interstitialAd.show();
+  //       console.log("ads is Show");
+  //     });
+
+  //     const adErrorListener = interstitialAd.addAdEventListener(AdEventType.ERROR, (error) => {
+  //       setLoading(false);
+  //       console.log("Failed to Load Interstitial Ad: ", error);
+  //       showUnityAd();
+  //     });
+
+  //     const adCloseListener = interstitialAd.addAdEventListener(AdEventType.CLOSED, () => {
+  //       // Optionally handle ad closure
+  //     });
+
+  //     interstitialAd.load();
+
+  //     return () => {
+  //       adLoadListener();
+  //       adErrorListener();
+  //       adCloseListener();
+  //     };
+  //   }
+  //  }else if (Platform.OS === 'ios') {
+  //   loadIosadmobads();
+  //  }
+  if(adCount == 1){
+    initializeAppLovinSdk()
+  }
+  if (adCount > 0 && adCount % apidata?.ads.interstitial_ad_interval !== 0 && apidata?.ads.ad_status === "1") {
+      // loadInterstitialAd();
+      const appLovinInterstitialUnitId = Platform.select({
+        android: apidata.ads.android_adsid.applovin_interstitial_unit_id,
+        ios: apidata.ads.ios_adsid.applovin_interstitial_unit_id,
       });
 
-      const interstitialAd = InterstitialAd.createForAdRequest(adUnitId);  // Use dynamic ad unit ID
-      setLoading(true);
-
-      const adLoadListener = interstitialAd.addAdEventListener(AdEventType.LOADED, () => {
-        setLoading(false);
-        interstitialAd.show();
-        console.log("ads is Show");
-      });
-
-      const adErrorListener = interstitialAd.addAdEventListener(AdEventType.ERROR, (error) => {
-        setLoading(false);
-        console.log("Failed to Load Interstitial Ad: ", error);
-        showUnityAd();
-      });
-
-      const adCloseListener = interstitialAd.addAdEventListener(AdEventType.CLOSED, () => {
-        // Optionally handle ad closure
-      });
-
-      interstitialAd.load();
-
-      return () => {
-        adLoadListener();
-        adErrorListener();
-        adCloseListener();
-      };
-    }
-   }else if (Platform.OS === 'ios') {
-    loadIosadmobads();
-   }
-  }, [adCount, adUnitId]);
-
-
-  const loadInterstitialAd = () => {
-    console.log("Loading Interstitial Ad...");
-
-    const adUnitId = Platform.select({
-      android: apidata.ads.android_adsid.admob_interstitial_unit_id,   // AdMob ID for Android
-      ios: apidata.ads.ios_adsid.admob_interstitial_unit_id,    // AdMob ID for iOS
-    });
-
-    const ad = InterstitialAd.createForAdRequest(adUnitId);  // Create interstitial ad instance
-    // setLoading(true);
-
-    const adLoadListener = ad.addAdEventListener(AdEventType.LOADED, () => {
-      // setLoading(false);
-      setInterstitialAd(ad); // Store the loaded ad
-      console.log("Interstitial Ad loaded successfully");
-    });
-
-    const adErrorListener = ad.addAdEventListener(AdEventType.ERROR, (error) => {
-      // setLoading(false);
-      console.log("Failed to load Interstitial Ad: ", error);
-      showUnityAd();
-    });
-
-    ad.load(); // Load the ad
-
-    return () => {
-      adLoadListener();
-      adErrorListener();
-    };
-  };
-
-  const showInterstitialAd = async () => {
-    if (interstitialAd) {
-      StatusBar.setHidden(true);  // Hide status bar when ad shows
-      await interstitialAd.show();
-      setLoading(false);
-      console.log("Interstitial Ad shown");
-    } else {
-      console.log("Interstitial Ad not ready to show yet");
-    }
-  };
-
-  const loadIosadmobads = () => {
-    if (adCount > 0 && adCount % apidata?.ads.interstitial_ad_interval !== 0 && apidata?.ads.ad_status === "1") {
-      loadInterstitialAd();
+      AppLovinMAX.loadInterstitial(appLovinInterstitialUnitId);
     }
   
     // Show ad when adCount equals 3
     if (adCount > 0 && adCount % apidata?.ads.interstitial_ad_interval === 0 && apidata?.ads.ad_status === "1") {
-      setLoading(true);
-      showInterstitialAd();
+      // setLoading(true);
+      // showInterstitialAd();
+      showAppLovinAd()
     }
-  }
+  
+  }, [adCount, adUnitId]);
+
+
+  // const loadInterstitialAd = () => {
+  //   console.log("Loading Interstitial Ad...");
+
+  //   const adUnitId = Platform.select({
+  //     android: apidata.ads.android_adsid.admob_interstitial_unit_id,   // AdMob ID for Android
+  //     ios: apidata.ads.ios_adsid.admob_interstitial_unit_id,    // AdMob ID for iOS
+  //   });
+
+  //   const ad = InterstitialAd.createForAdRequest(adUnitId);  // Create interstitial ad instance
+  //   // setLoading(true);
+
+  //   const adLoadListener = ad.addAdEventListener(AdEventType.LOADED, () => {
+  //     // setLoading(false);
+  //     setInterstitialAd(ad); // Store the loaded ad
+  //     console.log("Interstitial Ad loaded successfully");
+  //   });
+
+  //   const adErrorListener = ad.addAdEventListener(AdEventType.ERROR, (error) => {
+  //     // setLoading(false);
+  //     console.log("Failed to load Interstitial Ad: ", error);
+  //     showUnityAd();
+  //   });
+
+  //   ad.load(); // Load the ad
+
+  //   return () => {
+  //     adLoadListener();
+  //     adErrorListener();
+  //   };
+  // };
+
+  // const showInterstitialAd = async () => {
+  //   if (interstitialAd) {
+  //     StatusBar.setHidden(true);  // Hide status bar when ad shows
+  //     await interstitialAd.show();
+  //     setLoading(false);
+  //     console.log("Interstitial Ad shown");
+  //   } else {
+  //     console.log("Interstitial Ad not ready to show yet");
+  //   }
+  // };
+
+  // const loadIosadmobads = () => {
+  //   if (adCount > 0 && adCount % apidata?.ads.interstitial_ad_interval !== 0 && apidata?.ads.ad_status === "1") {
+  //     loadInterstitialAd();
+  //   }
+  
+  //   // Show ad when adCount equals 3
+  //   if (adCount > 0 && adCount % apidata?.ads.interstitial_ad_interval === 0 && apidata?.ads.ad_status === "1") {
+  //     setLoading(true);
+  //     showInterstitialAd();
+  //   }
+  // }
   
   
   // ==================================== show Unity Ads ======================================= //
 
   
-  const showUnityAd = () => {
-    const gameId = Platform.select({
-      android: apidata.ads.android_adsid.unity_game_id,
-      ios: apidata.ads.ios_adsid.unity_game_id,
-    });
+  // const showUnityAd = () => {
+  //   const gameId = Platform.select({
+  //     android: apidata.ads.android_adsid.unity_game_id,
+  //     ios: apidata.ads.ios_adsid.unity_game_id,
+  //   });
 
-    const interstitialPlacementId = Platform.select({
-      android: apidata.ads.android_adsid.unity_interstitial_placement_id,
-      // android: "Interstitial_Androiu",
-      ios: apidata.ads.ios_adsid.unity_interstitial_placement_id,
-    });
+  //   const interstitialPlacementId = Platform.select({
+  //     // android: apidata.ads.android_adsid.unity_interstitial_placement_id,
+  //     android: "Interstitial_Androiu",
+  //     ios: apidata.ads.ios_adsid.unity_interstitial_placement_id,
+  //   });
 
-    // Initialize Unity Ads
-    UnityAds.initialize(gameId, true)
-      .then(() => UnityAds.loadAd(interstitialPlacementId))  // Load the interstitial ad using the placement ID
-      .catch(error => console.error('UnityAds initialization failed', error));
+  //   // Initialize Unity Ads
+  //   UnityAds.initialize(gameId, true)
+  //     .then(() => UnityAds.loadAd(interstitialPlacementId))  // Load the interstitial ad using the placement ID
+  //     .catch(error => console.error('UnityAds initialization failed', error));
   
-    // Set listeners for ad loading
-    UnityAds.setOnUnityAdsLoadListener({
-      onAdLoaded: (placementId) => {
-        console.log(`UnityAds.onAdLoaded: ${placementId}`);
-        if (placementId === interstitialPlacementId) {
-          // setUnityLoaded(true);
-          showAdIfReady(interstitialPlacementId);
-        }
-      },
-      onAdLoadFailed: (placementId, error) => {
-        console.log(`UnityAds.onAdLoadFailed: ${placementId}`, error);
-        // showAppLovinAd();
-      },
-    });
+  //   // Set listeners for ad loading
+  //   UnityAds.setOnUnityAdsLoadListener({
+  //     onAdLoaded: (placementId) => {
+  //       console.log(`UnityAds.onAdLoaded: ${placementId}`);
+  //       if (placementId === interstitialPlacementId) {
+  //         // setUnityLoaded(true);
+  //         showAdIfReady(interstitialPlacementId);
+  //       }
+  //     },
+  //     onAdLoadFailed: (placementId, error) => {
+  //       console.log(`UnityAds.onAdLoadFailed: ${placementId}`, error);
+  //       initializeAppLovinSdk();
+        
+  //     },
+  //   });
   
-  }
+  // }
 
-  // Optionally, show the ad when it's loaded
-  const showAdIfReady = (placementId) => {
-    UnityAds.showAd(placementId)
-      .then(() => {
-        console.log('Unity ad shown successfully');
-      })
-      .catch(error => {
-        console.error('UnityAds.showAd failed', error);
-        UnityAds.loadAd(placementId); // Try to load a new ad if showing failed
-      });
-    }
+  // // Optionally, show the ad when it's loaded
+  // const showAdIfReady = (placementId) => {
+  //   UnityAds.showAd(placementId)
+  //     .then(() => {
+  //       console.log('Unity ad shown successfully');
+  //     })
+  //     .catch(error => {
+  //       console.error('UnityAds.showAd failed', error);
+  //       UnityAds.loadAd(placementId); // Try to load a new ad if showing failed
+  //     });
+  //   }
 
-    // const initializeAppLovinSdk = () => {
-    //   const appLovinSdkKey = Platform.select({
-    //     android: "iTwh_UVXAifQEJI0VaSCck97B9evnrT9g7Epl7OEtIRgVROTh5pFoGDiVGdWPasG1Knys15HQLeVriCHP_1WA6",
-    //     ios: "iTwh_UVXAifQEJI0VaSCck97B9evnrT9g7Epl7OEtIRgVROTh5pFoGDiVGdWPasG1Knys15HQLeVriCHP_1WA6",
-    //   });
+  const initializeAppLovinSdk = async() => {
+    const appLovinSdkKey = Platform.select({
+      android: "iTwh_UVXAifQEJI0VaSCck97B9evnrT9g7Epl7OEtIRgVROTh5pFoGDiVGdWPasG1Knys15HQLeVriCHP_1WA6",
+      ios: "iTwh_UVXAifQEJI0VaSCck97B9evnrT9g7Epl7OEtIRgVROTh5pFoGDiVGdWPasG1Knys15HQLeVriCHP_1WA6",
+    });
     
-    //   // Initialize AppLovin SDK
-    //   AppLovinMAX.initialize(appLovinSdkKey, (configuration) => {
-    //     console.log('AppLovin SDK initialized:', configuration);
-    //   });
-    // };
+  
+    // Initialize AppLovin SDK
+    // console.log("AppLovinMAX", AppLovinMAX);
+    
+    await AppLovinMAX.initialize('iTwh_UVXAifQEJI0VaSCck97B9evnrT9g7Epl7OEtIRgVROTh5pFoGDiVGdWPasG1Knys15HQLeVriCHP_1WA6');
+    console.log("241");
+    
+    // AppLovinMAX.initialize(appLovinSdkKey, (configuration) => {
+    //   console.log('AppLovin SDK initialized:', configuration);
+    // });
+  };
   
 
     //=============================== AppLovin ads show  ===============================================//
 
-    // const showAppLovinAd = () => {
-    //   console.log("Attempting to show AppLovin ad");
+    const showAppLovinAd = () => {
+      console.log("Attempting to show AppLovin ad");
+      
+      // Ensure the AppLovin SDK is initialized
     
-    //   // Ensure the AppLovin SDK is initialized
-    //   initializeAppLovinSdk();
+      // const appLovinInterstitialUnitId = Platform.select({
+      //   android: apidata.ads.android_adsid.applovin_interstitial_unit_id,
+      //   ios: apidata.ads.ios_adsid.applovin_interstitial_unit_id,
+      // });
     
-    //   const appLovinInterstitialUnitId = Platform.select({
-    //     android: apidata.ads.android_adsid.applovin_interstitial_unit_id,
-    //     ios: apidata.ads.ios_adsid.applovin_interstitial_unit_id,
-    //   });
+      // // Check if AppLovin SDK is initialized before loading the ad
+      // if (!AppLovinMAX.isInitialized()) {
+      //   console.error("AppLovin SDK is not initialized. Please initialize it before showing ads.");
+      //   return;
+      // }
     
-    //   // Check if AppLovin SDK is initialized before loading the ad
-    //   if (!AppLovinMAX.isInitialized()) {
-    //     console.error("AppLovin SDK is not initialized. Please initialize it before showing ads.");
-    //     return;
-    //   }
+      // AppLovinMAX.loadInterstitial(appLovinInterstitialUnitId);
     
-    //   AppLovinMAX.loadInterstitial(appLovinInterstitialUnitId);
+      const appLovinLoadListener = AppLovinMAX.addInterstitialLoadedEventListener(() => {
+        setLoading(false);
+        if (AppLovinMAX.isInterstitialReady(appLovinInterstitialUnitId)) {
+          AppLovinMAX.showInterstitial(appLovinInterstitialUnitId);
+          console.log("AppLovin interstitial ad is shown");
+        }
+      });
     
-    //   const appLovinLoadListener = AppLovinMAX.addInterstitialLoadedEventListener(() => {
-    //     setLoading(false);
-    //     if (AppLovinMAX.isInterstitialReady(appLovinInterstitialUnitId)) {
-    //       AppLovinMAX.showInterstitial(appLovinInterstitialUnitId);
-    //       console.log("AppLovin interstitial ad is shown");
-    //     }
-    //   });
+      const appLovinErrorListener = AppLovinMAX.addInterstitialLoadFailedEventListener((errorCode) => {
+        setLoading(false);
+        console.log("Failed to load AppLovin Interstitial Ad: ", errorCode);
+      });
     
-    //   const appLovinErrorListener = AppLovinMAX.addInterstitialLoadFailedEventListener((errorCode) => {
-    //     setLoading(false);
-    //     console.log("Failed to load AppLovin Interstitial Ad: ", errorCode);
-    //   });
+      const appLovinCloseListener = AppLovinMAX.addInterstitialHiddenEventListener(() => {
+        console.log("AppLovin interstitial ad closed");
+      });
     
-    //   const appLovinCloseListener = AppLovinMAX.addInterstitialHiddenEventListener(() => {
-    //     console.log("AppLovin interstitial ad closed");
-    //   });
-    
-    //   return () => {
-    //     appLovinLoadListener();
-    //     appLovinErrorListener();
-    //     appLovinCloseListener();
-    //   };
-    // };
+      return () => {
+        appLovinLoadListener();
+        appLovinErrorListener();
+        appLovinCloseListener();
+      };
+    };
     
 
 
@@ -490,6 +517,7 @@ const DrawerNavigation = () => {
   const [showUnityAd, setShowUnityAd] = useState(false); 
   const [admobFailed, setAdmobFailed] = useState(false);
 
+
   useEffect(() => {
     const fetchApiData = async () => {
       try {
@@ -512,7 +540,9 @@ const DrawerNavigation = () => {
   useEffect(() => {
     const unityGameId = Platform.OS === 'android' ? '5402023' : '5402022';
     UnityAds.initialize(unityGameId, true)
-      .then(() => UnityAds.loadAd('Banner_Android'))
+      .then(() => UnityAds.loadAd('Banner_Android'),
+    console.log("ads init")
+    )
       .catch(error => console.error('UnityAds initialization failed', error));
   }, []);
 
@@ -520,8 +550,7 @@ const DrawerNavigation = () => {
     console.log('AdMob banner failed to load, falling back to Unity Ads.');
     setAdmobFailed(true);
   };
-
-  useEffect(() => {
+ useEffect(() => {
     if (admobFailed) {
       console.log('Attempting to show Unity Ad as fallback.');
       UnityAds.showAd('Banner_Android')
@@ -529,7 +558,6 @@ const DrawerNavigation = () => {
         .catch(error => console.error('Unity ad failed to show', error));
     }
   }, [admobFailed]);
-
 
   return (
     <NavigationContainer>
@@ -632,9 +660,14 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   adContainer: {
+    // alignItems: 'center',
+    // marginBottom: 20,
+    // backgroundColor: 'white',
+    width: '100%',
+    height: 50, // Height of the banner
+    justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
-    backgroundColor: 'white',
+    backgroundColor: '#fff', // Ad background
   },
   loaderText: {
     fontSize: 16,
