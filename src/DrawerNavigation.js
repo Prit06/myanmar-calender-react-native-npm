@@ -17,7 +17,7 @@ import axios from 'axios';
 // import UnityAds from 'react-native-unity-ads-monetization';
 // import {UnityBannerAd} from 'react-native-unity-ads-monetization';
 import UnityAds from 'react-native-unity-ads-monetization';
-import { UnityAdsBanner } from 'react-native-unity-ads-monetization';
+// import { UnityAdsBanner } from 'react-native-unity-ads-monetization';
 
 const Drawer = createDrawerNavigator();
 
@@ -479,6 +479,8 @@ const CustomDrawerContent = (props) => {
   );
 };
 
+
+
 // =======================================  banner ads  ===========================================================//
 
 
@@ -486,14 +488,15 @@ const DrawerNavigation = () => {
   const [bannerAdUnitId, setBannerAdUnitId] = useState(null);
   const [bannShow, setBannShow] = useState(true);
   const [showUnityAd, setShowUnityAd] = useState(false); 
+  const [admobFailed, setAdmobFailed] = useState(false);
 
   useEffect(() => {
     const fetchApiData = async () => {
       try {
         const response = await axios.get('https://atharvainfinity.com/atharvainfinity/ios/calendar/myanmar/myanmar_caladsapi.json');
         if (Platform.OS === 'android') {
-          setBannerAdUnitId(response.data?.meta.ads.android_adsid.admob_banner_unit_id);
-          // setBannerAdUnitId("");
+          // setBannerAdUnitId(response.data?.meta.ads.android_adsid.admob_banner_unit_id);
+          setBannerAdUnitId("ca-app-pub-3940256099942544/921458974");
         } else if (Platform.OS === 'ios') {
           setBannerAdUnitId(response.data?.meta.ads.ios_adsid.admob_banner_unit_id);
         }
@@ -507,51 +510,25 @@ const DrawerNavigation = () => {
   
 
   useEffect(() => {
-
-      const unityGameId = Platform.OS === 'android' ? '5402023' : '5402022';
-      console.log("call==============");
-      UnityAds.initialize(unityGameId, true) 
-      .then(() => UnityAds.loadAd("Banner_Android"))  // Load the interstitial ad using the placement ID
+    const unityGameId = Platform.OS === 'android' ? '5402023' : '5402022';
+    UnityAds.initialize(unityGameId, true)
+      .then(() => UnityAds.loadAd('Banner_Android'))
       .catch(error => console.error('UnityAds initialization failed', error));
-  } , [])
+  }, []);
 
- 
-  // const renderAdMobBanner = () => {
-  //   if (!bannerAdUnitId || useUnityAds) {
-  //     return null;
-  //   }
+  const handleAdFailedToLoad = () => {
+    console.log('AdMob banner failed to load, falling back to Unity Ads.');
+    setAdmobFailed(true);
+  };
 
-  //   return (
-  //     <BannerAd
-  //       unitId={bannerAdUnitId}
-  //       size={BannerAdSize.LARGE_BANNER}
-  //       onAdFailedToLoad={(error) => {
-  //         console.log('AdMob banner failed to load, error:', error);
-  //         setUseUnityAds(true);
-  //       }}
-  //       onAdLoaded={() => {
-  //         console.log('AdMob banner loaded successfully');
-  //       }}
-  //     />
-  //   );
-  // };
-
-  // const renderUnityBanner = () => {
-  //   // if (false) {
-  //   //   return null;
-  //   // }
-
-  //   return (
-  //     <UnityBanner 
-  //       adUnitId={Platform.OS === 'android' ? 'Banner_Android' : 'Banner_iOS'}
-  //       size="banner"
-  //       onAdLoaded={() => console.log('Unity banner loaded successfully')}
-  //       onAdFailedToLoad={(error) =>
-  //         console.log('Unity banner failed to load, error:', error)
-  //       }
-  //     />
-  //   );
-  // };
+  useEffect(() => {
+    if (admobFailed) {
+      console.log('Attempting to show Unity Ad as fallback.');
+      UnityAds.showAd('Banner_Android')
+        .then(() => console.log('Unity ad displayed'))
+        .catch(error => console.error('Unity ad failed to show', error));
+    }
+  }, [admobFailed]);
 
 
   return (
@@ -580,54 +557,34 @@ const DrawerNavigation = () => {
           },
         }}
       >
+        
         <Drawer.Screen name="Myanmar Calendar" component={Calendar} />
         <Drawer.Screen name="Emcalendar" component={Emcalendar} />
         <Drawer.Screen name="Holidays" component={Holidays} />
         <Drawer.Screen name="MyanmarZodiacSigns" component={MyanmarZodiacSigns} />
       </Drawer.Navigator>
-
-
+      
      {bannShow ? (
         <View style={styles.adContainer}>
-          <Text style={{ color: 'black', fontSize: 20, marginBottom: 10 }}>Advertisement</Text>
-          {bannerAdUnitId ? (
+        {!admobFailed ? (
+        bannerAdUnitId ? (
+          <>
+            <Text style={{ color: 'black', fontSize: 20, marginBottom: 10 }}>Advertisement</Text>
             <BannerAd
               unitId={bannerAdUnitId}
               size={BannerAdSize.LARGE_BANNER}
-              onAdFailedToLoad={(error) => {
-                console.log('AdMob Banner Ad failed to load:', error);
-                // initializeUnityAds();  // Switch to Unity ad if AdMob fails
-              }}
+              onAdFailedToLoad={handleAdFailedToLoad}
             />
-          ) : (   
-            <>
-            <View style={styles.adContainer}>
-              <Text style={{ color: 'black', fontSize: 20, marginBottom: 10 }}>Unity Advertisement</Text>
-              {/* <UnityBannerAd
-              placementId={'Banner_Android'}
-                // adUnitId={'Banner_Android'} // Replace with your Unity Banner Ad Unit ID
-                onAdFailedToLoad={(error) => {
-                  console.error('Unity Banner Ad failed to load:', error);
-                }}
-                /> */}
-            </View>
-            </>
-          ) 
-          }
+          </>
+        ) : null
+      ) : (
+        <Text style={{ color: 'black', fontSize: 20, marginBottom: 10 }}>Unity Ad Loading...</Text> // Indicate that Unity Ad is being displayed
+      )}
         </View>
 
       )   
         : ""
       }
-      
-       <View style={styles.adContainer}>
-              <Text style={{ color: 'black', fontSize: 20, marginBottom: 10 }}>Unity Advertisement</Text>
-                <UnityAdsBanner
-                  placementId="Banner_Android"
-                  onError={(error) => console.log("Banner Ad Error: ", error)}
-                  onLoaded={() => console.log("Banner Ad Loaded")}
-                />
-        </View>
 
     </NavigationContainer>
   );
