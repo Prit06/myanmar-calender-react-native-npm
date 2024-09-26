@@ -23,6 +23,11 @@ target 'AwesomePro' do
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
+  pod 'asdaily-rn-unityads', :path => '../..'
+  
+  pod 'UnityAds'
+
+
   target 'AwesomeProTests' do
     inherit! :complete
     # Pods for testing
