@@ -22,8 +22,6 @@ target 'AwesomePro' do
     # An absolute path to your application root.
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
-
-  pod 'asdaily-rn-unityads', :path => '../react-native-unityads'
   
   pod 'UnityAds'
 

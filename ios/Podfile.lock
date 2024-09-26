@@ -1,8 +1,5 @@
 PODS:
   - AppLovinSDK (13.0.0)
-  - asdaily-rn-unityads (0.1.1):
-    - React-Core
-    - UnityAds
   - boost (1.83.0)
   - BVLinearGradient (2.8.3):
     - React-Core
@@ -1363,7 +1360,6 @@ PODS:
   - Yoga (0.0.0)
 
 DEPENDENCIES:
-  - asdaily-rn-unityads (from `../react-native-unityads`)
   - boost (from `../node_modules/react-native/third-party-podspecs/boost.podspec`)
   - BVLinearGradient (from `../node_modules/react-native-linear-gradient`)
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
@@ -1443,8 +1439,6 @@ SPEC REPOS:
     - UnityAds
 
 EXTERNAL SOURCES:
-  asdaily-rn-unityads:
-    :path: "../react-native-unityads"
   boost:
     :podspec: "../node_modules/react-native/third-party-podspecs/boost.podspec"
   BVLinearGradient:
@@ -1581,7 +1575,6 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   AppLovinSDK: c0ecb434df24008b6ecdd7f1e5b8587bc45ff381
-  asdaily-rn-unityads: c00a40adb9d868d5a65670cbb3ef75584f25500a
   boost: d3f49c53809116a5d38da093a8aa78bf551aed09
   BVLinearGradient: 880f91a7854faff2df62518f0281afb1c60d49a3
   DoubleConversion: 76ab83afb40bddeeee456813d9c04f67f78771b5
@@ -1653,6 +1646,6 @@ SPEC CHECKSUMS:
   UnityAds: 1af6c4fdd7030c2593c58f520504e167561175ab
   Yoga: 950bbfd7e6f04790fdb51149ed51df41f329fcc8
 
-PODFILE CHECKSUM: f475a475cabce10d7f86a58489773defece6d634
+PODFILE CHECKSUM: 0ea98ce5cebff7548428d66f1e2ca4ad095eae00
 
 COCOAPODS: 1.15.2
