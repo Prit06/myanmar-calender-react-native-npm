@@ -562,7 +562,7 @@ const DrawerNavigation = () => {
     console.log('AdMob banner failed to load, falling back to Unity Ads.');
     setAdmobFailed(true);
     setShowUnityBanner(true); // Trigger showing Unity banner ads
-    // ubitcall();
+    ubitcall();
   };
 
   const ubitcall = () => {
