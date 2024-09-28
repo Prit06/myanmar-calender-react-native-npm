@@ -10,7 +10,8 @@ import {
   DrawerLayoutAndroid,
   Image,
   Linking,
- 
+  Modal,
+
 } from "react-native";
 import LinearGradient from 'react-native-linear-gradient';
 import {
@@ -57,7 +58,7 @@ const Calender = () => {
 
   const [clickCount, setClickCount] = useState(0);
   const [adLoaded, setAdLoaded] = useState(false);
-
+  const [modalVisible, setModalVisible] = useState(false);
 
 
   const toggleModal = (js) => {
@@ -82,7 +83,7 @@ const Calender = () => {
     setCurrentDate(today);
     calenderDataFun();
     staticDataFun();
-  }, []); 
+  }, []);
 
 
   useEffect(() => {
@@ -93,7 +94,7 @@ const Calender = () => {
     getDaysData(selectedJs);
   }, [month, year]);
 
-  
+
   useEffect(() => {
     if (!loading) {
       startLoading(2000);
@@ -245,7 +246,7 @@ const Calender = () => {
     var day = data.EnglishDay;
     var toDayDateClass = data.englishDaysClass;
     var js = data.js;
-    
+
 
     const today = isToday(day);
     const selected = isSelectedDay(day);
@@ -271,7 +272,7 @@ const Calender = () => {
               year: year,
             });
             setSelectedJs(js);
-          
+
           }}
           activeOpacity={0.7}
         >
@@ -337,32 +338,32 @@ const Calender = () => {
 
 
 
-{loading && (
-  <View style={{ 
-    height:"70%",
-    justifyContent: 'center',  // Centers vertically
-    alignItems: 'center',  // Centers horizontally
-    position: 'absolute', // Ensure it stays in the center
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  }}>
-    
-    <View style={{ 
-      width: 90,    // Set the width to create a square
-      height: 90,   // Same as width for the square shape
-      justifyContent: 'center',
-      alignItems: 'center',
-      borderRadius: 20, // Add some border radius for smooth edges
-      padding: 20,
-      zIndex: 900,    // Ensures the loader stays on top
-      backgroundColor:'white',
-    }}>
-      <Loader isMainScreen={isMainScreen} />
-    </View>
-  </View>
-)}
+          {loading && (
+            <View style={{
+              height: "70%",
+              justifyContent: 'center',  // Centers vertically
+              alignItems: 'center',  // Centers horizontally
+              position: 'absolute', // Ensure it stays in the center
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+            }}>
+
+              <View style={{
+                width: 90,    // Set the width to create a square
+                height: 90,   // Same as width for the square shape
+                justifyContent: 'center',
+                alignItems: 'center',
+                borderRadius: 20, // Add some border radius for smooth edges
+                padding: 20,
+                zIndex: 900,    // Ensures the loader stays on top
+                backgroundColor: 'white',
+              }}>
+                <Loader isMainScreen={isMainScreen} />
+              </View>
+            </View>
+          )}
 
           <View>
             <View style={{ backgroundColor: "pink", flexDirection: "row" }}>
@@ -442,6 +443,56 @@ const Calender = () => {
               </View>
 
 
+
+
+
+
+
+
+
+
+
+              <View style={styles.container}>
+                {/* Clickable Text */}
+                <TouchableOpacity onPress={() => setModalVisible(true)}>
+                  <Text
+                    style={{
+                      margin: 10,
+                      textAlign: 'center',
+                      fontWeight: 'bold',
+                      color: 'black',
+                    }}
+                  >
+                    {headerLine}
+                  </Text>
+                </TouchableOpacity>
+
+                {/* Modal Component */}
+                <Modal
+                  animationType="slide"
+                  transparent={true}
+                  visible={modalVisible}
+                  onRequestClose={() => setModalVisible(false)}
+                >
+                  <View style={styles.modalContainer}>
+                    <View style={styles.modalView}>
+                      <Text style={styles.modalText}>This is a modal!</Text>
+
+                      <TouchableOpacity
+                        style={styles.closeButton}
+                        onPress={() => setModalVisible(false)}
+                      >
+                        <Text style={styles.closeButtonText}>Close Modal</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </Modal>
+              </View>
+
+
+
+
+              {/* 
               <View>
                 <Text
                   style={{
@@ -454,6 +505,22 @@ const Calender = () => {
                   {headerLine}
                 </Text>
               </View>
+ */}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
               <LinearGradient
                 colors={["#FFEDED", "#FFEDED"]}
@@ -470,7 +537,7 @@ const Calender = () => {
                 </View>
 
 
-                
+
                 <View style={styles.daysContainer}>
                   {calenderData.map((dayData, index) =>
                     Object.keys(dayData).length > 0
@@ -1027,6 +1094,28 @@ const styles = StyleSheet.create({
     fontSize: 24,
   },
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
 });
 
 export default Calender;

@@ -65,8 +65,13 @@ const CustomDrawerContent = (props) => {
 
   const fetchApiData = async () => {
     try {
-      const response = await axios.get('https://atharvainfinity.com/atharvainfinity/ios/calendar/myanmar/myanmar_caladsapi.json', {
+      const response = await axios.get('https://myanmarcalendar.com/myanmar_caladsapi.json', {
       });
+      console.log("response", response);
+      
+      // const response = await axios.get('https://atharvainfinity.com/atharvainfinity/ios/calendar/myanmar/myanmar_caladsapi.json', {
+      // const response = await axios.get('https://atharvainfinity.com/atharvainfinity/ios/calendar/myanmar/myanmar_caladsapi.json', {
+      // });
 
       setapidata(response.data?.meta); // Fetch and set the dynamic ad unit ID
     } catch (error) {
@@ -503,10 +508,11 @@ const DrawerNavigation = () => {
   useEffect(() => {
     const fetchApiData = async () => {
       try {
-        const response = await axios.get('https://atharvainfinity.com/atharvainfinity/ios/calendar/myanmar/myanmar_caladsapi.json');
+        const response = await axios.get('https://myanmarcalendar.com/myanmar_caladsapi.json');
+        // const response = await axios.get('https://atharvainfinity.com/atharvainfinity/ios/calendar/myanmar/myanmar_caladsapi.json');
         if (Platform.OS === 'android') {
-          // setBannerAdUnitId(response.data?.meta.ads.android_adsid.admob_banner_unit_id);
-          setBannerAdUnitId("ca-app-pub-3940256099942544/921458974");
+          setBannerAdUnitId(response.data?.meta.ads.android_adsid.admob_banner_unit_id);
+          // setBannerAdUnitId("ca-app-pub-3940256099942544/921458974");
         } else if (Platform.OS === 'ios') {
           setBannerAdUnitId(response.data?.meta.ads.ios_adsid.admob_banner_unit_id);
         }
