@@ -65,14 +65,10 @@ const CustomDrawerContent = (props) => {
 
   const fetchApiData = async () => {
     try {
-      const response = await axios.get('https://myanmarcalendar.com/myanmar_caladsapi.json', {
+      const response = await axios.get('https://atharvainfinity.com/atharvainfinity/ios/calendar/myanmar/myanmar_caladsapi.json', {
       });
       console.log("response", response);
-      
-      // const response = await axios.get('https://atharvainfinity.com/atharvainfinity/ios/calendar/myanmar/myanmar_caladsapi.json', {
-      // const response = await axios.get('https://atharvainfinity.com/atharvainfinity/ios/calendar/myanmar/myanmar_caladsapi.json', {
-      // });
-
+    
       setapidata(response.data?.meta); // Fetch and set the dynamic ad unit ID
     } catch (error) {
       console.error('Error fetching API data:', error);
@@ -499,7 +495,7 @@ const DrawerNavigation = () => {
   const [admobFailed, setAdmobFailed] = useState(false);
   const [unityAdsInitialized, setUnityAdsInitialized] = useState(false);
   const [showUnityBanner, setShowUnityBanner] = useState(false);
-
+  const [responseData ,setresponseData] = useState(null);
 
   const logStatus = (message) => {
     console.log(message); // Add your logging logic here
@@ -508,8 +504,9 @@ const DrawerNavigation = () => {
   useEffect(() => {
     const fetchApiData = async () => {
       try {
-        const response = await axios.get('https://myanmarcalendar.com/myanmar_caladsapi.json');
+        const response = await axios.get('https://atharvainfinity.com/atharvainfinity/ios/calendar/myanmar/myanmar_caladsapi.json');
         // const response = await axios.get('https://atharvainfinity.com/atharvainfinity/ios/calendar/myanmar/myanmar_caladsapi.json');
+        setresponseData(response.data?.meta.ads);
         if (Platform.OS === 'android') {
           setBannerAdUnitId(response.data?.meta.ads.android_adsid.admob_banner_unit_id);
           // setBannerAdUnitId("ca-app-pub-3940256099942544/921458974");
@@ -536,12 +533,17 @@ const DrawerNavigation = () => {
       );
 
   useEffect(() => {
-    Unityads.initialize("5402023", 1, (callback) => { // Test mode 1, production 0
+     if(!responseData) return
+    const unity_game_id = Platform.select({
+      android: responseData.android_adsid.unity_game_id,
+      ios: responseData.ios_adsid.unity_game_id,
+    });
+    Unityads.initialize(unity_game_id, 1, (callback) => { // Test mode 1, production 0
       logStatus('SDK Initialized: ' + callback);
       setUnityAdsInitialized(true);
       attachAdListeners();
     });
-  }, []);
+  }, [responseData]);
 
   function attachAdListeners() {
     if (!Unityads || typeof Unityads.addEventListener !== 'function') {
@@ -566,9 +568,11 @@ const DrawerNavigation = () => {
   };
 
   const ubitcall = () => {
-    console.log("Banner_Android show");
-    
-    Unityads.loadBottomBanner("Banner_Android");
+    const unity_banner_placement_id = Platform.select({
+      android: responseData.android_adsid.unity_banner_placement_id,
+      ios: responseData.ios_adsid.unity_banner_placement_id,
+    });
+    Unityads.loadBottomBanner(unity_banner_placement_id);
   }
 
   const unloadBottomBanner = () => {

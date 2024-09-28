@@ -20,6 +20,7 @@ const Model = () => {
     <View style={styles.container}>
 
       {/* Version Update Modal */}
+
       <Modal
         animationType="slide"
         transparent={true}
@@ -33,7 +34,7 @@ const Model = () => {
               Please update the app to the new version to continue reposting.
             </Text>
 
-            <View style={{ borderBottomColor: 'black', borderBottomWidth: 1, marginVertical: 10, width: '112%',marginBottom: 0 }} />
+            <View style={{ borderBottomColor: 'black', borderBottomWidth: 1, marginVertical: 10, width: '112%', marginBottom: 0 }} />
 
             <View style={styles.buttonContainer}>
               <TouchableOpacity
@@ -43,7 +44,7 @@ const Model = () => {
                 <Text style={styles.buttontq}>NO, THANKS</Text>
               </TouchableOpacity>
 
-              <View style={{borderLeftColor: 'black', borderLeftWidth: 1,  height: '144%', marginHorizontal: 10,}} />
+              <View style={{ borderLeftColor: 'black', borderLeftWidth: 1, height: '144%', marginHorizontal: 10, }} />
 
               <TouchableOpacity
                 style={styles.button}
@@ -82,33 +83,35 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     color: 'black',
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
   },
   modalMessage: {
+    fontSize: 16,
     color: 'black',
     textAlign: 'center',
     marginBottom: 20,
   },
   buttonContainer: {
     flexDirection: 'row',
-    justifyContent:'center',
-    
+    justifyContent: 'center',
   },
   button: {
     padding: 5,
     borderRadius: 5,
     width: '48%', // Adjusting width for two button
-  
+
   },
   buttontq: {
-    marginTop:20,
+    marginTop: 10,
+    fontWeight: 'bold',
     color: 'red',
     textAlign: 'center',
   },
   buttonupdate: {
-    marginTop:20,
+    marginTop: 10,
+    fontWeight: 'bold',
     color: 'green',
     textAlign: 'center',
   },

@@ -50,7 +50,7 @@ const App = () => {
   }, []);
 
 
-  const [versionmodel, setversionmodel]= useState(true);
+  // const [versionmodel, setversionmodel]= useState(true);
 
 
   
@@ -58,7 +58,7 @@ const App = () => {
     <GestureHandlerRootView style={{flex: 1}}>
       <AdProvider>
         <DrawerNavigation />
-        <Model versionmodel={versionmodel} setversionmodel={setversionmodel}/>
+        {/* <Model versionmodel={versionmodel} setversionmodel={setversionmodel}/> */}
       </AdProvider>
     
     </GestureHandlerRootView>
