@@ -5,7 +5,6 @@ import { createDrawerNavigator, DrawerContentScrollView, useDrawerStatus } from 
 import { NavigationContainer, } from '@react-navigation/native';
 import Calendar from './Calendar';
 import Holidays from './Holidays';
-
 import Emcalendar from './Emcalendar';
 import Share, { Button } from 'react-native-share';
 import MyanmarZodiacSigns from './MyanmarZodiacSigns';
@@ -31,11 +30,9 @@ const CustomDrawerContent = (props) => {
 
   const [apidata, setapidata] = useState({ ads: {} });
 
-
   const openURL = (url) => {
     Linking.openURL(url).catch((err) => console.error("Couldn't load page", err));
   };
-
 
   const shareContent = () => {
     const shareOptions = {
@@ -601,10 +598,6 @@ const DrawerNavigation = () => {
     };
 
   }, [bannunity]) 
-
-
-
-
 
   useEffect(() => {
     // Cleanup function to unload the banner ad on unmount

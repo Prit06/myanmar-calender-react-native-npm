@@ -10,7 +10,7 @@ import {
   DrawerLayoutAndroid,
   Image,
   Linking,
- 
+
 } from "react-native";
 import LinearGradient from 'react-native-linear-gradient';
 import {
@@ -53,13 +53,10 @@ const Calender = () => {
   const [loading, setLoading] = useState(false);
   const [isMainScreen, setIsMainScreen] = useState(false);
 
+
   const { adCount, incrementAdCount } = useContext(AdContext);
 
-  const [clickCount, setClickCount] = useState(0);
-  const [adLoaded, setAdLoaded] = useState(false);
-
-
-
+  
   // const toggleModal = (js) => {
   //   setModalData(js);
   //   setModalVisible(!isModalVisible);
@@ -73,7 +70,6 @@ const Calender = () => {
     }, time);
   };
 
-
   useEffect(() => {
     startLoading(5000);
     const today = new Date();
@@ -82,7 +78,7 @@ const Calender = () => {
     setCurrentDate(today);
     calenderDataFun();
     staticDataFun();
-  }, []); 
+  }, []);
 
 
   useEffect(() => {
@@ -93,7 +89,7 @@ const Calender = () => {
     getDaysData(selectedJs);
   }, [month, year]);
 
-  
+
   useEffect(() => {
     if (!loading) {
       startLoading(2000);
@@ -218,7 +214,6 @@ const Calender = () => {
     setYear(newYear);
   };
 
-
   const changeYear = (value) => {
     setLoading(true)
     setYear(year + value);
@@ -245,7 +240,7 @@ const Calender = () => {
     var day = data.EnglishDay;
     var toDayDateClass = data.englishDaysClass;
     var js = data.js;
-    
+
 
     const today = isToday(day);
     const selected = isSelectedDay(day);
@@ -271,7 +266,7 @@ const Calender = () => {
               year: year,
             });
             setSelectedJs(js);
-          
+
           }}
           activeOpacity={0.7}
         >
@@ -337,32 +332,35 @@ const Calender = () => {
 
 
 
-{loading && (
-  <View style={{ 
-    height:"70%",
-    justifyContent: 'center',  // Centers vertically
-    alignItems: 'center',  // Centers horizontally
-    position: 'absolute', // Ensure it stays in the center
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  }}>
-    
-    <View style={{ 
-      width: 90,    // Set the width to create a square
-      height: 90,   // Same as width for the square shape
-      justifyContent: 'center',
-      alignItems: 'center',
-      borderRadius: 20, // Add some border radius for smooth edges
-      padding: 20,
-      zIndex: 900,    // Ensures the loader stays on top
-      backgroundColor:'white',
-    }}>
-      <Loader isMainScreen={isMainScreen} />
-    </View>
-  </View>
-)}
+          {loading && (
+            <View style={{
+              height: "70%",
+              justifyContent: 'center',  // Centers vertically
+              alignItems: 'center',  // Centers horizontally
+              position: 'absolute', // Ensure it stays in the center
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+            }}>
+
+              <View style={{
+                width: 90,    // Set the width to create a square
+                height: 90,   // Same as width for the square shape
+                justifyContent: 'center',
+                alignItems: 'center',
+                borderRadius: 20, // Add some border radius for smooth edges
+                padding: 20,
+                zIndex: 900,    // Ensures the loader stays on top
+                backgroundColor: 'white',
+              }}>
+                <Loader isMainScreen={isMainScreen} />
+              </View>
+            </View>
+          )}
+
+
+
 
           <View>
             <View style={{ backgroundColor: "pink", flexDirection: "row" }}>
@@ -417,6 +415,13 @@ const Calender = () => {
               </View>
 
 
+
+
+
+
+
+
+
               <View style={styles.pickersContainer}>
                 <View style={styles.pickerWrapper}>
                   <CustomPicker
@@ -439,7 +444,39 @@ const Calender = () => {
                     items={languageData}
                   />
                 </View>
+
+
+
+                {loading && (
+                  <View style={{
+                    height: "70%",
+                    justifyContent: 'center',  // Centers vertically
+                    alignItems: 'center',  // Centers horizontally
+                    position: 'absolute', // Ensure it stays in the center
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                  }}>
+
+                    <View style={{
+                      width: 90,    // Set the width to create a square
+                      height: 90,   // Same as width for the square shape
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      borderRadius: 20, // Add some border radius for smooth edges
+                      padding: 20,
+                      zIndex: 900,    // Ensures the loader stays on top
+                      backgroundColor: 'white',
+                    }}>
+                      <Loader isMainScreen={isMainScreen} />
+                    </View>
+                  </View>
+                )}
+
               </View>
+
+
 
 
 
@@ -488,7 +525,7 @@ const Calender = () => {
                 </View>
 
 
-                
+
                 <View style={styles.daysContainer}>
                   {calenderData.map((dayData, index) =>
                     Object.keys(dayData).length > 0
