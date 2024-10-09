@@ -62,6 +62,14 @@ const EmCalender = () => {
 
   const { adCount, incrementAdCount } = useContext(AdContext);
   
+  const scrollViewRef = useRef(null);
+
+  const scrollToTop = () => {
+    if (scrollViewRef.current) {
+        scrollViewRef.current.scrollToEnd({ animated: true });
+      }
+  };
+
 
 
   const toggleModal = (js) => {
@@ -319,6 +327,7 @@ const EmCalender = () => {
               year: year,
             });
             setSelectedJs(js);
+            scrollToTop();
           }}
           activeOpacity={0.7}
         >
@@ -343,6 +352,7 @@ const EmCalender = () => {
           });
           setSelectedJs(js);
           incrementAdCount();
+          scrollToTop();
         }}
         activeOpacity={0.7}
       >
@@ -378,7 +388,7 @@ const EmCalender = () => {
       {/* {
         firstloading ? <Loader isMainScreen={true} /> : (
            */}
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <ScrollView contentContainerStyle={styles.scrollContainer}  ref={scrollViewRef}>
         <View style={styles.containerHeader}>
           
 

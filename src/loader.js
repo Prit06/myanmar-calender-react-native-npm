@@ -21,6 +21,7 @@ const Loader = ({isMainScreen}) => {
     );
 };
 
+
 const styles = StyleSheet.create({
   containerMain: {
     flex: 1,

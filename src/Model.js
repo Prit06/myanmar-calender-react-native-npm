@@ -1,19 +1,19 @@
 import React, { useState } from 'react';
 import { Modal, Text, View, TouchableOpacity, StyleSheet } from 'react-native';
 
-const Model = () => {
-  const [versionmodel, setversionmodel] = useState(true); // Modal starts visible for demonstration
+
+
+const Model = (props) => {
+
 
   const handleUpdate = () => {
-    // Add logic to navigate to update link or app store
     console.log('Update app');
-    setversionmodel(false);
+    props.setversionmodel(false);
   };
 
   const handleNoThanks = () => {
-    // Logic for when user selects "No, Thanks"
     console.log('User chose not to update');
-    setversionmodel(false);
+    props.setversionmodel(false);
   };
 
   return (
@@ -24,7 +24,7 @@ const Model = () => {
       <Modal
         animationType="slide"
         transparent={true}
-        visible={versionmodel}
+        visible={props.versionmodel}
         onRequestClose={handleNoThanks} // Handle back button press
       >
         <View style={styles.modalContainer}>
@@ -37,14 +37,14 @@ const Model = () => {
             <View style={{ borderBottomColor: 'black', borderBottomWidth: 1, marginVertical: 10, width: '112%', marginBottom: 0 }} />
 
             <View style={styles.buttonContainer}>
-              <TouchableOpacity
+              {/* <TouchableOpacity
                 style={styles.button}
                 onPress={handleNoThanks}
               >
                 <Text style={styles.buttontq}>NO, THANKS</Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
 
-              <View style={{ borderLeftColor: 'black', borderLeftWidth: 1, height: '144%', marginHorizontal: 10, }} />
+              {/* <View style={{ borderLeftColor: 'black', borderLeftWidth: 1, height: '144%', marginHorizontal: 10, }} /> */}
 
               <TouchableOpacity
                 style={styles.button}
@@ -117,5 +117,4 @@ const styles = StyleSheet.create({
   },
 
 });
-
 export default Model;
