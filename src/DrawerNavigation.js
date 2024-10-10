@@ -13,6 +13,7 @@ import { AdContext, AdProvider } from './adsContext';
 import axios from 'axios';
 import UnityAds from 'react-native-unity-ads-monetization';
 
+
 const Drawer = createDrawerNavigator();
 
 const platform = Platform.OS;
@@ -58,10 +59,10 @@ const CustomDrawerContent = (props) => {
 
   const fetchApiData = async () => {
     try {
-      // const response = await axios.get('https://atharvainfinity.com/atharvainfinity/ios/calendar/myanmar/myanmar_caladsapi.json', {
-      // });
-      const response = await axios.get('https://myanmarcalendar.com/myanmar_caladsapi.json', {
+      const response = await axios.get('https://atharvainfinity.com/atharvainfinity/ios/calendar/myanmar/myanmar_caladsapi.json', {
       });
+      // const response = await axios.get('https://myanmarcalendar.com/myanmar_caladsapi.json', {
+      // });
 
       setapidata(response.data?.meta);
     } catch (error) {
@@ -159,16 +160,16 @@ const CustomDrawerContent = (props) => {
 
   const showInterstitialAd = async () => {
     if (interstitialAd) {
-      StatusBar.setHidden(true);  // Hide status bar when ad shows
+     StatusBar.setHidden(true);  // Hide status bar when ad shows
       await interstitialAd.show();
-      setLoading(false);
+    //  setLoading(false);
       console.log("Interstitial Ad shown");
     } else {
       console.log("Interstitial Ad not ready to show yet");
     }
   };
 
-  const loadIosadmobads = () => {
+  const loadIosadmobads =  async () => {
     if (adCount > 0 && adCount % apidata?.ads.interstitial_ad_interval !== 0 && apidata?.ads.ad_status === "1") {
       loadInterstitialAd();
     }
@@ -177,7 +178,16 @@ const CustomDrawerContent = (props) => {
     if (adCount > 0 && adCount % apidata?.ads.interstitial_ad_interval === 0 && apidata?.ads.ad_status === "1") {
       props.setLangCalTypeButton(false);
       setLoading(true);
-      showInterstitialAd();
+      setTimeout( async () => {
+        setLoading(false); // Hide loader
+        console.log('Process Complete!');
+        setTimeout(() => {
+          showInterstitialAd();
+        },30);
+        // Call the function after the loading completes
+     //   showInterstitialAd();
+      }, 2000);
+       
     }
   }
 
@@ -602,18 +612,40 @@ const DrawerNavigation = () => {
         <Drawer.Screen name="MyanmarZodiacSigns" component={MyanmarZodiacSigns} />
       </Drawer.Navigator>
 
+      
+
         
-      {bannShow ? (
+      {/* {bannShow ? (
+        <View style={[
+          adsValue === "admob" ? styles.adContainer : adsValue === "unity" ? styles.unityadContainer : null,
+          { height: adsValue === "admob" ? 100 : adsValue === "unity" ? 100 : 0 } // Adjust height for AdMob and Unity
+        ]}>
+        
+            <>{
+              
+              <Text style={{ color: 'black', fontSize: 18, marginBottom: 10 }}>Advertisement</Text>
+             
+            }
+              <BannerAd
+                unitId={bannerAdUnitId}
+                size={BannerAdSize.LARGE_BANNER}
+                onAdFailedToLoad={handleAdFailedToLoad}
+                onAdLoaded={handleAdLoaded}
+              />
+            </>
+         
+        </View>
+      ) : null} */}
+
+{bannShow ? (
         <View style={adsValue === "admob" ? styles.adContainer : (adsValue === "unity" ? styles.unityadContainer : null)}>
          {!admobFailed && bannerAdUnitId ? (
             <>{
               adsValue === "admob" ? 
               <Text style={{ color: 'black', fontSize: 18, marginBottom: 10 }}>Advertisement</Text>
               : (
-                adsValue === "unity" ? 
-                ""
-                :
-                ""
+                adsValue === "unity" ?  
+                "" : ""
               )
             }
               <BannerAd
@@ -635,6 +667,7 @@ const DrawerNavigation = () => {
 
         </View>
       ) : null}
+
 
     </NavigationContainer>
   );
