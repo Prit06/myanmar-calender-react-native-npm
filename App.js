@@ -38,8 +38,6 @@ const App = () => {
   useEffect(() => {
     const fetchAppVersion = async () => {
       const version = await DeviceInfo.getVersion();
-      console.log("version", version);
-      console.log("apiver" , appVersion);
       if(version < appVersion){
       setversionmodel(true)
       }
