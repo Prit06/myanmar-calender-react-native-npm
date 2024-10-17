@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect, useRef, useContext } from "react";
 import {
   View,
@@ -13,23 +11,27 @@ import {
 
 } from "react-native";
 import LinearGradient from 'react-native-linear-gradient';
+
 import {
-  getCalenderData,
-  getCalenderDaysData,
-  getStaticData,
+  getMCalenderData,
+  getMCalenderStaticData,
+  getMCalenderDaysData,
 } from "../calenderData/calenderData";
 import CustomPicker from "./CustomPicker";
 import Svg, { Path } from "react-native-svg";
 import Holidaydata from "../calenderData/holidays";
 import Loader from "./loader";
+import { ceMmDateTime } from "../calenderData/calender";
+
+import { InterstitialAd, AdEventType } from 'react-native-google-mobile-ads';
 import { AdContext, AdProvider } from './adsContext';  // Import AdContext and AdProvider
-import { InterstitialAd, AdEventType, AdManager } from 'react-native-google-mobile-ads';
 
 
-const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
+
+const EmCalender = ({ setLangCalTypeButton, langCalTypeButton }) => {
   var dt = new Date();
   const [day, setDay] = useState(dt.getDate());
-  const [calenderData, setCalenderData] = useState([]);
+  const [MCalenderData, setMCalenderData] = useState([]);
   const [WeekdayHeader, setWeekdayHeader] = useState([]);
   const [headerLine, setHeaderLine] = useState("");
   const [monthData, setMonthData] = useState([]);
@@ -37,26 +39,37 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
   const [typeData, setTypeData] = useState([]);
   const drawer = useRef(null);
   const [drawerPosition, setDrawerPosition] = useState("left");
-  const [year, setYear] = useState(2021);
-  const [month, setMonth] = useState(1);
+  const [year, setYear] = useState(null);
+  const [month, setMonth] = useState(null);
   const [calendarType, setCalendarType] = useState(0);
   const [selectedJs, setSelectedJs] = useState(null);
   const [language, setLanguage] = useState(0);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
-  const [modelData, setModelData] = useState({});
+  const [modelData, setModelData] = useState([]);
   const [holidays, setHolidays] = useState([]);
   const [fullMoon, setFullMoon] = useState([]);
   const [newMoon, setNewMoon] = useState([]);
   const [waxingMoon, setWaxingMoon] = useState([]);
   const [WaningMoon, setWaningMoon] = useState([]);
-  const [loading, setLoading] = useState(false);
+  // const [firstloading, setFirstLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [isMainScreen, setIsMainScreen] = useState(false);
-
+  const [englishMonth, setEnglishMonth] = useState("")
+  const [englishYears, setEnglishYears] = useState("")
+  const [currentYear, setCurrentYear] = useState(null);
+  const [currentMonth, setCurrentMonth] = useState(null);
 
   const { adCount, incrementAdCount } = useContext(AdContext);
 
-  // console.log("langCalTypeButton", langCalTypeButton);
+  const scrollViewRef = useRef(null);
+
+  const scrollToTop = () => {
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollToEnd({ animated: true });
+    }
+  };
+
 
 
   // const toggleModal = (js) => {
@@ -64,20 +77,6 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
   //   setModalVisible(!isModalVisible);
   // };
 
-
-  // const startLoading = (time) => {
-  //   // setLoading(true);
-  //   // Simulate a network request or any other async operation
-  //   setLoading(true);
-  //   setTimeout( async () => {
-  //     setLoading(false); // Hide loader
-  //     setLangCalTypeButton(false)
-  //     console.log('Process Complete!');
-  //     // setTimeout(() => {
-  //     //   showInterstitialAd();
-  //     // },30);
-  //   }, 2000);
-  // };
 
 
   const startLoading = (time) => {
@@ -90,36 +89,46 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
   };
 
 
+
+
+
+// =====16/10/2024===============
+
+
+  // const startLoadingMain = (time) => {
+  //   setTimeout(() => {
+  //     setLoading(false);
+  //   }, time);
+  // };
+
+
+
+
+
+
+  // useEffect(() => {
+  //   // calenderDataFun();
+  //   staticDataFun();
+  //   // setSelectedDate(null)
+  // }, [year, month]);
+
   useEffect(() => {
-    startLoading(2000);
-    const today = new Date();
-    setYear(today?.getFullYear());
-    setMonth(today.getMonth() + 1);
-    setCurrentDate(today);
+    setLoading(true);
     calenderDataFun();
     staticDataFun();
-  }, []);
-
-
-  useEffect(() => {
-    if (!loading) {
-      startLoading(2000);
-    }
-    calenderDataFun();
     getDaysData(selectedJs);
+    // }, [month, year, calendarType, language]);
   }, [month, year]);
 
   useEffect(() => {
-    
-    // if (!loading) {
-    //   startLoading(2000);
-    // }
-    //  if (langCalTypeButton || loading) {
-    //   console.log("calender", langCalTypeButton);
-    //   startLoading(2000);
-    // }
+    setLoading(true);
+    getDaysData(selectedJs);
+  }, [currentMonth, currentYear]);
 
+  useEffect(() => {
+    setLoading(true);
     calenderDataFun();
+    staticDataFun();
     async function changeTypeDataSetFun() {
       var js = await selectedDateDataFunction()
       if (js) {
@@ -132,17 +141,22 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
     changeTypeDataSetFun()
   }, [calendarType, language]);
 
-
-
   const selectedDateDataFunction = async () => {
     if (!selectedDate) return false
-    var data = await getCalenderData(selectedDate?.month + 1, selectedDate?.year, calendarType, language)
+    var data = await getMCalenderData(selectedDate?.month + 1, selectedDate?.year, calendarType, language)
     data = data?.calenderArr
     toDateJs = data.find((dayData) => {
       return dayData.EnglishDay == +selectedDate.EnglishDay;
     });
     return toDateJs?.js
   }
+
+  useEffect(() => {
+    const today = new Date();
+    // setFirstLoading(true)
+    setLoading(true)
+    setCurrentDate(today);
+  }, []);
 
   useEffect(() => {
     if (selectedJs) {
@@ -159,21 +173,40 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
     fetchHolidayData();
   }, []);
 
+  useEffect(() => {
+    const fullMoonDays = MCalenderData
+      .filter((ele) => ele.englishMoonPhaseAndDay === "Full Moon")
+      .map((ele) => ele.EnglishDay);
+    setFullMoon(fullMoonDays);
+
+    const newMoonDays = MCalenderData
+      .filter((ele) => ele.englishMoonPhaseAndDay === "New Moon")
+      .map((ele) => ele.EnglishDay);
+    setNewMoon(newMoonDays);
+
+    const WaxingDay = MCalenderData
+      .filter((ele) => ele.englishMoonPhaseAndDay === "Waxing 8")
+      .map((ele) => ele.EnglishDay);
+    setWaxingMoon(WaxingDay);
+
+    const WaningDay = MCalenderData
+      .filter((ele) => ele.englishMoonPhaseAndDay === "Waning 8")
+      .map((ele) => ele.EnglishDay);
+    setWaningMoon(WaningDay);
+  }, [MCalenderData]);
+
   const filteredHolidays = holidays.filter((ele) => {
-    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    var monthName = monthNames[month - 1]
-    var removeValue = [monthName, year.toString()]
-    var dateArr = ele.date.split(" ").filter(item => !removeValue.includes(item)).toString();
-    ele.dateStr = dateArr
-    return ele.date.includes(monthName) && ele.date.includes(year)
+    const date = new Date(ele.date);
+    const holidayMonth = date.getMonth(); // 0 for January, 11 for December
+    const holidayYear = date?.getFullYear();
+
+    return holidayMonth + 1 === month && holidayYear === year; // Adjust month and year variables accordingly
   });
 
   const getDaysData = async (js, status) => {
-    // var staticData = await getCalenderDaysData(js, calendarType, language);
-    // setModelData(staticData);
     var jsId = js
-    if (currentDate?.getMonth() + 1 == month && currentDate?.getFullYear() == year && !status) {
-      var data = await getCalenderData(currentDate?.getMonth() + 1, currentDate?.getFullYear(), calendarType, language)
+    if (currentMonth == month && currentYear == year && !status) {
+      var data = await getMCalenderData(currentMonth, currentYear, calendarType, language)
       data = data?.calenderArr
       toDateJs = data.find((dayData) => {
         return dayData.englishDaysClass == "PriDayToday";
@@ -183,85 +216,96 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
       setSelectedDate(null)
     }
     if (jsId) {
-      var CalenderStaticData = await getCalenderDaysData(jsId, calendarType, language);
-      setModelData(CalenderStaticData);
+      var MCalenderStaticData = await getMCalenderDaysData(jsId, calendarType, language);
+      setModelData(MCalenderStaticData);
     }
   };
 
   const calenderDataFun = async () => {
-    var data = await getCalenderData(month, year, calendarType, language);
-    setCalenderData(data?.calenderArr);
+    var data = await getMCalenderData(month, year, calendarType, language);
+    if (!year) {
+      setYear(data?.year)
+      setMonth(data?.monthId)
+      setCurrentMonth(data?.monthId)
+      setCurrentYear(data?.year)
+    }
+
+    setMCalenderData(data?.calenderArr);
     setWeekdayHeader(data?.WeekdayHeader);
     setHeaderLine(data?.headerLine);
-    const fullMoonDays = data.calenderArr
-      .filter((ele) => ele.englishMoonPhaseAndDay === "Full Moon")
-      .map((ele) => ele.EnglishDay);
-    setFullMoon(fullMoonDays);
-
-    const newMoonDays = data.calenderArr
-      .filter((ele) => ele.englishMoonPhaseAndDay === "New Moon")
-      .map((ele) => ele.EnglishDay);
-    setNewMoon(newMoonDays);
-
-    const WaxingDay = data.calenderArr
-      .filter((ele) => ele.englishMoonPhaseAndDay === "Waxing 8")
-      .map((ele) => ele.EnglishDay);
-    setWaxingMoon(WaxingDay);
-
-    const WaningDay = data.calenderArr
-      .filter((ele) => ele.englishMoonPhaseAndDay === "Waning 8")
-      .map((ele) => ele.EnglishDay);
-    setWaningMoon(WaningDay);
-
-    if (calenderData) {
-      startLoading(500)
+    setEnglishYears(data.EnglishYear)
+    setEnglishMonth(data.englishMonth)
+    if (MCalenderData) {
+      startLoading(0);
+      startLoadingMain(500);
     }
-  };
+
+    if (!month && month != 0) {
+      var staticData = await getMCalenderStaticData(data?.year);
+      const currentMonth = staticData?.month?.findIndex(m => m.name === data?.month);
+      setMonth(currentMonth + 1)
+    }
+  }
 
   const staticDataFun = async () => {
-    var staticData = await getStaticData();
+    var staticData = await getMCalenderStaticData(year);
     setMonthData(staticData.month);
     setLanguageData(staticData.language);
     setTypeData(staticData.type);
   };
 
+  useEffect(() => {
+    const fetchHolidayData = async () => {
+      const data = await Holidaydata();
+      const shortMonth = englishMonth.slice(0, 3);
+      const updatedHolidays = data.holidays.filter(holiday => {
+        const [monthS, , holidayYear] = holiday.date.split(" ");
+        return monthS === shortMonth && holidayYear === englishYears;
+      });
+      setHolidays(updatedHolidays);
+    };
+
+    fetchHolidayData();
+  }, [englishMonth, englishYears]);
+
   const changeMonth = (value) => {
-    setLoading(true)
-    let newMonth = month + value;
-    let newYear = year;
-    if (newMonth < 1) {
-      newMonth = 12;
-      newYear -= 1;
-    } else if (newMonth > 12) {
-      newMonth = 1;
-      newYear += 1;
+    setLoading(true);
+    var v = value
+    var SY = 1577917828 / 4320000; //solar year (365.2587565)
+    var MO = 1954168.050623; //beginning of 0 ME
+    var me = month;
+    var mn = Number(me);
+    var ye = year;
+    var yn = Number(ye);
+    var j1 = Math.round(SY * yn + MO) + 1;
+    var j2 = Math.round(SY * (yn + 1) + MO);
+    var M1 = ceMmDateTime.j2m(j1);
+    var M2 = ceMmDateTime.j2m(j2);
+    var si = M1.mm; var ei = M2.mm;
+    if (mn == 0) mn = (v == 1) ? 4 : 3;
+    else if (mn == 4 && M1.myt != 0 && v != 1) mn = 0;
+    else if (mn == 3 && M1.myt != 0 && v == 1) mn = 0;
+    else {
+      mn += Number(v);
+      if (mn < si) { mn += 12; yn--; }
+      else if (mn > ei) { mn = mn % 12; yn++; }
     }
-    setMonth(newMonth);
-    setYear(newYear);
+    setMonth(mn);
+    setYear(yn);
   };
 
   const changeYear = (value) => {
-    setLoading(true)
-    setYear(year + value);
+    setLoading(true);
+    setYear(+year + value);
   };
 
   const isToday = (day) => {
     return (
-      currentDate?.getFullYear() === year &&
-      currentDate.getMonth() + 1 === month &&
-      currentDate.getDate() === day
+      currentYear == year &&
+      currentMonth + 1 == month &&
+      currentDate.getDate() == day
     );
   };
-
-
-  const scrollViewRef = useRef(null);
-
-  const scrollToTop = () => {
-    if (scrollViewRef.current) {
-        scrollViewRef.current.scrollToEnd({ animated: true });
-      }
-  };
-
 
   const isSelectedDay = (day) => {
     return (
@@ -271,7 +315,6 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
       selectedDate.EnglishDay == day
     );
   };
-
 
   const renderDay = (data, index) => {
     var day = data.EnglishDay;
@@ -283,10 +326,8 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
 
     let dayContainerStyle = [styles.dayContainer];
 
-    // if (today && selected) {
     if (toDayDateClass == "PriDayToday" && selected) {
       dayContainerStyle.push(styles.selectedAndTodayCircle);
-      // } else if (today) {
     } else if (toDayDateClass == "PriDayToday") {
       dayContainerStyle.push(styles.todayCircle);
     } else if (selected) {
@@ -295,7 +336,7 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
           key={index}
           style={styles.dayContainer}
           onPress={() => {
-            // setSelectedDate(new Date(year, month - 1, day));
+            // setSelectedDate(new Date(year, month, day));
             setSelectedDate({
               EnglishDay: day,
               month: month - 1,
@@ -306,7 +347,6 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
           }}
           activeOpacity={0.7}
         >
-
           <View style={styles.selectedDayCircle}>
             <View style={styles.dayContent}>
               <Text style={styles.dayText}>{day}</Text>
@@ -320,7 +360,7 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
         key={index}
         style={dayContainerStyle}
         onPress={() => {
-          // setSelectedDate(new Date(year, month - 1, day));
+          // setSelectedDate(new Date(year, month, day));
           setSelectedDate({
             EnglishDay: day,
             month: month - 1,
@@ -353,6 +393,7 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
     </View>
   );
 
+
   return (
     <DrawerLayoutAndroid
       ref={drawer}
@@ -360,18 +401,19 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
       drawerPosition={drawerPosition}
       renderNavigationView={navigationView}
     >
-
+      {/* {
+        firstloading ? <Loader isMainScreen={true} /> : (
+           */}
       <ScrollView contentContainerStyle={styles.scrollContainer} ref={scrollViewRef}>
         <View style={styles.containerHeader}>
-          {
-            // loading && <Loader isMainScreen={isMainScreen} />
-          }
 
 
 
-          {(loading || langCalTypeButton) && (
+
+
+          {loading && (
             <View style={{
-              height: "70%",
+              height: "80%",
               justifyContent: 'center',  // Centers vertically
               alignItems: 'center',  // Centers horizontally
               position: 'absolute', // Ensure it stays in the center
@@ -380,7 +422,6 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
               right: 0,
               bottom: 0,
             }}>
-
               <View style={{
                 width: 90,    // Set the width to create a square
                 height: 90,   // Same as width for the square shape
@@ -396,6 +437,10 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
             </View>
           )}
 
+
+
+
+          {/* loading && <Loader isMainScreen={isMainScreen} /> */}
 
           <View>
             <View style={{ backgroundColor: "pink", flexDirection: "row" }}>
@@ -416,7 +461,8 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
 
                   <View style={styles.pickerWrapper}>
                     <Text style={styles.monthText}>
-                      {monthData[month - 1]?.name}
+                      {/* {monthData[month + 1]?.name} */}
+                      {monthData?.find(e => e.id == month)?.name}
                     </Text>
                   </View>
 
@@ -451,6 +497,7 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
 
 
 
+
               <View style={styles.pickersContainer}>
                 <View style={styles.pickerWrapper}>
                   <CustomPicker
@@ -458,8 +505,6 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
                     onValueChange={(itemValue) => {
                       setCalendarType(itemValue);
                       incrementAdCount(); // Increment ad count when calendar type changes
-                      setLangCalTypeButton(true);
-                      startLoading(2000)
                     }}
                     items={typeData}
                   />
@@ -471,17 +516,11 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
                     onValueChange={(itemValue) => {
                       setLanguage(itemValue);
                       incrementAdCount(); // Increment ad count when language changes
-                      setLangCalTypeButton(true);
-                      startLoading(2000)
                     }}
                     items={languageData}
                   />
-
                 </View>
               </View>
-
-
-
 
 
 
@@ -498,16 +537,6 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
                 </Text>
               </View>
 
-
-
-
-
-
-
-
-
-
-
               <LinearGradient
                 colors={["#FFEDED", "#FFEDED"]}
                 style={styles.gradientBackground}
@@ -521,10 +550,8 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
                     )
                   )}
                 </View>
-
-
                 <View style={styles.daysContainer}>
-                  {calenderData.map((dayData, index) =>
+                  {MCalenderData.map((dayData, index) =>
                     Object.keys(dayData).length > 0
                       ? renderDay(dayData, index)
                       : renderEmptyDays(1)
@@ -565,8 +592,8 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
                   >
                     <Path
                       d="M3.74,14.44c0,2.04,0.5,3.93,1.51,5.65s2.37,3.1,4.1,4.1s3.61,1.51,5.65,1.51s3.92-0.5,5.65-1.51s3.09-2.37,4.09-4.1
- s1.51-3.61,1.51-5.65s-0.5-3.92-1.51-5.65s-2.37-3.09-4.09-4.09s-3.61-1.51-5.65-1.51S11.08,3.7,9.35,4.7s-3.1,2.37-4.1,4.09
- S3.74,12.4,3.74,14.44z"
+    s1.51-3.61,1.51-5.65s-0.5-3.92-1.51-5.65s-2.37-3.09-4.09-4.09s-3.61-1.51-5.65-1.51S11.08,3.7,9.35,4.7s-3.1,2.37-4.1,4.09
+    S3.74,12.4,3.74,14.44z"
                       fill="#000000"
                     />
                   </Svg>
@@ -652,67 +679,60 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
                   </Svg>
                 </View>
 
-
                 <View>
                   <Text
                     style={{ margin: 10, fontWeight: "bold", fontSize: 16, color: 'black' }}
                   >
                     Holiday and Observances
                   </Text>
-                  {filteredHolidays.length === 0 ? (
-                    <Text style={{ margin: 10, color: 'black' ,fontSize: 16,textAlign:'center'}}>
-                      No holidays this month
-                    </Text>
-                  ) : (
-                    filteredHolidays.map((holiday, index) => (
-                      <View
-                        key={index}
-                        style={{ flexDirection: "row", margin: 10 }}
+                  {holidays.map((holiday, index) => (
+                    <View
+                      key={index}
+                      style={{ flexDirection: "row", margin: 10 }}
+                    >
+                      <Text
+                        style={[
+                          styles.dateColorSet,
+                          { color: "#FF5454", fontWeight: "bold" },
+                        ]}
                       >
-                        <Text
-                          style={[
-                            styles.dateColorSet,
-                            { color: "#FF5454", fontWeight: "bold" },
-                          ]}
-                        >
-                          {holiday.dateStr}
-                        </Text>
-                        <Text style={{ marginLeft: 5, fontWeight: "bold" }}>
-                          :
-                        </Text>
-                        <Text
-                          style={[
-                            styles.holidayName,
-                            {
-                              color: "black",
-                              fontWeight: "bold",
-                              marginLeft: 5,
-                              width: "95%",
-                            },
-                          ]}
-                        >
-                          {holiday.name}
-                          {holiday.comments && holiday.comments !== "--"
-                            ? ` (${holiday.comments})`
-                            : ""}
-                        </Text>
-                      </View>
-                    ))
-                  )}
+                        {holiday.date.split(" ")[1]}
+                      </Text>
+                      <Text style={{ marginLeft: 5, fontWeight: "bold" }}>
+                        :
+                      </Text>
+                      <Text
+                        style={[
+                          styles.holidayName,
+                          {
+                            color: "black",
+                            fontWeight: "bold",
+                            marginLeft: 5,
+                            width: "95%",
+                          },
+                        ]}
+                      >
+                        {holiday.name}
+                        {holiday.comments && holiday.comments !== "--"
+                          ? ` (${holiday.comments})`
+                          : ""}
+                      </Text>
+                    </View>
+                  ))}
                 </View>
               </LinearGradient>
-
               <LinearGradient
                 colors={["#FFEDED", "#FFEDED"]}
                 style={styles.linearGradient}
               >
+                {/* <ScrollView contentContainerStyle={styles.scrollViewContent}> */}
                 <View style={styles.dateContainer}>
                   {modelData?.MyanmarDate && (
                     <>
                       <Text style={[styles.daFontSize, styles.sm]}>
                         {modelData.SasanaYear}
                       </Text>
-                      <Text style={[styles.daFontSize, styles.sm]}>
+                      <Text style={[styles.daFontSize, styles.sm]} >
                         {modelData.MyanmarYear}
                       </Text>
                       <Text
@@ -797,11 +817,25 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
                     <Text style={styles.daFoot}>{modelData.ImportantNote}</Text>
                   )}
                 </View>
+
+
               </LinearGradient>
+
+
+              {/* <NavigationContainer>
+                      <Stack.Navigator>
+                        <Stack.Screen name="settings" component={Settings} />
+                      </Stack.Navigator>
+                    </NavigationContainer> */}
+
             </View>
           </View>
+
         </View>
+
       </ScrollView>
+      {/* )
+      } */}
     </DrawerLayoutAndroid>
   );
 };
@@ -812,13 +846,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     position: "relative"
   },
-  container: {
-    flex: 1,
-    backgroundColor: "#FFBABA",
-  },
   sidebardetailsfirstsizeset: {
     color: '#727272',
     fontWeight: 700
+  },
+  container: {
+    flex: 1,
+    backgroundColor: "#FFBABA",
   },
   navigationContainer: {
     backgroundColor: "#FF5454",
@@ -873,15 +907,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginVertical: 10,
   },
-
   yearMonthContainer: {
     flexDirection: "row",
     alignItems: "center",
     flex: 1,
   },
-
   arrow: {
-    fontSize: 30,
+    fontSize: 20,
     color: "white",
     // marginHorizontal: 20,
   },
@@ -946,6 +978,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+
   monthText: {
     color: 'black',
   },
@@ -1023,10 +1056,6 @@ const styles = StyleSheet.create({
     color: "#555555",
     fontSize: 12,
   },
-  sm: {
-    color: 'black',
-  },
-
   FM: {
     borderRadius: 5,
     width: 10,
@@ -1035,6 +1064,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#CCCCCC",
   },
+
+  sm: {
+    color: 'black',
+  },
+
   NM: {
     borderRadius: 5,
     width: 10,
@@ -1079,13 +1113,11 @@ const styles = StyleSheet.create({
     paddingBottom: 5,
     color: 'black',
   },
-
   anchorFootMC: {
     textDecorationLine: "none",
     color: "#cca6f2",
     fontSize: 24,
   },
-
 });
 
-export default Calender;
+export default EmCalender;

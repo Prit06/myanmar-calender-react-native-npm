@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef ,useContext} from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import {
   View,
   Text,
@@ -8,7 +8,7 @@ import {
   DrawerLayoutAndroid,
   Image,
   Linking,
-  
+
 } from "react-native";
 import LinearGradient from 'react-native-linear-gradient';
 
@@ -28,7 +28,7 @@ import { AdContext, AdProvider } from './adsContext';  // Import AdContext and A
 
 
 
-const EmCalender = () => {
+const EmCalender = ({ setLangCalTypeButton, langCalTypeButton }) => {
   var dt = new Date();
   const [day, setDay] = useState(dt.getDate());
   const [MCalenderData, setMCalenderData] = useState([]);
@@ -61,28 +61,35 @@ const EmCalender = () => {
   const [currentMonth, setCurrentMonth] = useState(null);
 
   const { adCount, incrementAdCount } = useContext(AdContext);
-  
+
   const scrollViewRef = useRef(null);
 
   const scrollToTop = () => {
     if (scrollViewRef.current) {
-        scrollViewRef.current.scrollToEnd({ animated: true });
-      }
+      scrollViewRef.current.scrollToEnd({ animated: true });
+    }
   };
 
 
 
-  const toggleModal = (js) => {
-    setModalData(js);
-    setModalVisible(!isModalVisible);
-  };
+  // const toggleModal = (js) => {
+  //   setModalData(js);
+  //   setModalVisible(!isModalVisible);
+  // };
+
+
+
 
   const startLoading = (time) => {
+    // setLoading(true);
+    // Simulate a network request or any other async operation
     setTimeout(() => {
-      // setFirstLoading(false);
-      setLoading(false)
+      setLoading(false);
+      setLangCalTypeButton(false)
     }, time);
   };
+
+
 
   const startLoadingMain = (time) => {
     setTimeout(() => {
@@ -96,6 +103,16 @@ const EmCalender = () => {
   //   // setSelectedDate(null)
   // }, [year, month]);
 
+
+  useEffect(() => {
+    if (!loading) {
+      startLoading(2000);
+    }
+    calenderDataFun();
+    getDaysData(selectedJs);
+  }, [month, year]);
+
+
   useEffect(() => {
     setLoading(true);
     calenderDataFun();
@@ -104,10 +121,12 @@ const EmCalender = () => {
     // }, [month, year, calendarType, language]);
   }, [month, year]);
 
+
   useEffect(() => {
     setLoading(true);
     getDaysData(selectedJs);
   }, [currentMonth, currentYear]);
+
 
   useEffect(() => {
     setLoading(true);
@@ -125,6 +144,10 @@ const EmCalender = () => {
     changeTypeDataSetFun()
   }, [calendarType, language]);
 
+
+
+
+  
   const selectedDateDataFunction = async () => {
     if (!selectedDate) return false
     var data = await getMCalenderData(selectedDate?.month + 1, selectedDate?.year, calendarType, language)
@@ -388,44 +411,44 @@ const EmCalender = () => {
       {/* {
         firstloading ? <Loader isMainScreen={true} /> : (
            */}
-      <ScrollView contentContainerStyle={styles.scrollContainer}  ref={scrollViewRef}>
+      <ScrollView contentContainerStyle={styles.scrollContainer} ref={scrollViewRef}>
         <View style={styles.containerHeader}>
-          
 
 
 
 
-        {loading && (
-  <View style={{ 
-   height:"80%",
-    justifyContent: 'center',  // Centers vertically
-    alignItems: 'center',  // Centers horizontally
-    position: 'absolute', // Ensure it stays in the center
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  }}>
-    <View style={{ 
-      width: 90,    // Set the width to create a square
-      height: 90,   // Same as width for the square shape
-      justifyContent: 'center',
-      alignItems: 'center',
-      borderRadius: 20, // Add some border radius for smooth edges
-      padding: 20,
-      zIndex: 900,    // Ensures the loader stays on top
-      backgroundColor:'white',
-    }}>
-      <Loader isMainScreen={isMainScreen} />
-    </View>
-  </View>
-)}
+
+          {(loading || langCalTypeButton) && (
+            <View style={{
+              height: "80%",
+              justifyContent: 'center',  // Centers vertically
+              alignItems: 'center',  // Centers horizontally
+              position: 'absolute', // Ensure it stays in the center
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+            }}>
+              <View style={{
+                width: 90,    // Set the width to create a square
+                height: 90,   // Same as width for the square shape
+                justifyContent: 'center',
+                alignItems: 'center',
+                borderRadius: 20, // Add some border radius for smooth edges
+                padding: 20,
+                zIndex: 900,    // Ensures the loader stays on top
+                backgroundColor: 'white',
+              }}>
+                <Loader isMainScreen={isMainScreen} />
+              </View>
+            </View>
+          )}
 
 
 
-            
-            {/* loading && <Loader isMainScreen={isMainScreen} /> */}
-          
+
+          {/* loading && <Loader isMainScreen={isMainScreen} /> */}
+
           <View>
             <View style={{ backgroundColor: "pink", flexDirection: "row" }}>
               <TouchableOpacity
@@ -479,33 +502,6 @@ const EmCalender = () => {
                 </View>
               </View>
 
-              {/* <View style={styles.pickersContainer}>
-                <View style={styles.pickerWrapper}>
-                  <CustomPicker
-                    selectedValue={calendarType}
-                    onValueChange={(itemValue) => setCalendarType(itemValue)}
-                    items={typeData}
-                    setLoading={setLoading}
-                  />
-                </View>
-
-                <View style={styles.pickerWrapper}>
-                  <CustomPicker
-                    selectedValue={language}
-                    onValueChange={(itemValue) => setLanguage(itemValue)}
-                    items={languageData}
-                  />
-                </View>
-              </View> */}
-
-
-
-
-
-
-
-
-
 
 
 
@@ -516,6 +512,8 @@ const EmCalender = () => {
                     onValueChange={(itemValue) => {
                       setCalendarType(itemValue);
                       incrementAdCount(); // Increment ad count when calendar type changes
+                      setLangCalTypeButton(true);
+                      startLoading(2000)
                     }}
                     items={typeData}
                   />
@@ -527,6 +525,8 @@ const EmCalender = () => {
                     onValueChange={(itemValue) => {
                       setLanguage(itemValue);
                       incrementAdCount(); // Increment ad count when language changes
+                      setLangCalTypeButton(true);
+                      startLoading(2000)
                     }}
                     items={languageData}
                   />
@@ -924,7 +924,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   arrow: {
-    fontSize: 20,
+    fontSize: 30,
     color: "white",
     // marginHorizontal: 20,
   },

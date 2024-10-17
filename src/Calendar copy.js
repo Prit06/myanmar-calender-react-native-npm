@@ -65,21 +65,6 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
   // };
 
 
-  // const startLoading = (time) => {
-  //   // setLoading(true);
-  //   // Simulate a network request or any other async operation
-  //   setLoading(true);
-  //   setTimeout( async () => {
-  //     setLoading(false); // Hide loader
-  //     setLangCalTypeButton(false)
-  //     console.log('Process Complete!');
-  //     // setTimeout(() => {
-  //     //   showInterstitialAd();
-  //     // },30);
-  //   }, 2000);
-  // };
-
-
   const startLoading = (time) => {
     // setLoading(true);
     // Simulate a network request or any other async operation
@@ -110,7 +95,6 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
   }, [month, year]);
 
   useEffect(() => {
-    
     // if (!loading) {
     //   startLoading(2000);
     // }
@@ -118,7 +102,6 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
     //   console.log("calender", langCalTypeButton);
     //   startLoading(2000);
     // }
-
     calenderDataFun();
     async function changeTypeDataSetFun() {
       var js = await selectedDateDataFunction()
@@ -131,8 +114,6 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
     }
     changeTypeDataSetFun()
   }, [calendarType, language]);
-
-
 
   const selectedDateDataFunction = async () => {
     if (!selectedDate) return false
@@ -395,6 +376,8 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
               </View>
             </View>
           )}
+
+
 
 
           <View>

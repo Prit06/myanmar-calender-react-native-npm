@@ -25,7 +25,7 @@ const CustomDrawerContent = (props) => {
   const [interstitialAd, setInterstitialAd] = useState(null);
   const [adUnitId, setAdUnitId] = useState(null);
   const [apidata, setapidata] = useState({ ads: {} });
-  // const [adsFailed, setAdsFailed] = useState("failed");
+  const [adsFailed, setAdsFailed] = useState("failed");
 
   const openURL = (url) => {
     Linking.openURL(url).catch((err) => console.error("Couldn't load page", err));
@@ -56,30 +56,6 @@ const CustomDrawerContent = (props) => {
 
   // ========================== InterstitialAd ads ==============================================//
 
-  const loaderCheckAdsFunction = (adsFailed, lastAds, show) => {
-    console.log("adsFailed, lastAds, show", adsFailed, lastAds, show);
-    console.log("loading", loading);
-    
-    if(adsFailed == "admob" && lastAds){
-      if(loading && show) return
-      setLoading(show);
-      console.log("abmob ads show....", show);
-    }
-    if(adsFailed == "unity" && lastAds){
-      if(loading && show) return
-      setLoading(show);
-      console.log("unity ads show....", show);
-    }
-    if(adsFailed == "applovin" && lastAds){
-      if(loading && show) return
-      setLoading(show);
-      console.log("applovin ads show....", show);
-    }
-    if(!adsFailed || adsFailed != "admob" && adsFailed != "unity" && adsFailed != "applovin"){
-      setLoading(show);
-      console.log("no ads show....", show);
-    }
-  }
 
 
   const fetchApiData = async () => {
@@ -94,8 +70,11 @@ const CustomDrawerContent = (props) => {
       console.error('Error fetching API data:', error);
     }
   };
+
+
   useEffect(() => {
     fetchApiData();
+
   }, []);
 
   useEffect(() => {
@@ -110,26 +89,23 @@ const CustomDrawerContent = (props) => {
           });
 
           const interstitialAd = InterstitialAd.createForAdRequest(adUnitId);
-          // setLoading(true);
-          loaderCheckAdsFunction("admob", true, true)
+          setLoading(true);
 
           const adLoadListener = interstitialAd.addAdEventListener(AdEventType.LOADED, () => {
-            // setLoading(false);
-            loaderCheckAdsFunction("admob", true, true)
+            setLoading(false);
             interstitialAd.show();
             console.log("ads is Show");
           });
 
           const adErrorListener = interstitialAd.addAdEventListener(AdEventType.ERROR, (error) => {
-            // setLoading(false);
-            loaderCheckAdsFunction("admob", false, false)
+            setLoading(false);
             console.log("Failed to Load Interstitial Ad: ", error);
             showUnityAd();
           });
 
           const adCloseListener = interstitialAd.addAdEventListener(AdEventType.CLOSED, () => {
             // Optionally handle ad closure
-            loaderCheckAdsFunction("admob", true, false)
+            setLoading(false);
           });
 
           interstitialAd.load();
@@ -147,6 +123,7 @@ const CustomDrawerContent = (props) => {
       loadIosadmobads();
     }
   }, [adCount, adUnitId]);
+
 
   const loadInterstitialAd = () => {
     if (apidata?.ads?.admob_ads === "1") {
@@ -202,13 +179,14 @@ const CustomDrawerContent = (props) => {
     // Show ad when adCount equals 3
     if (adCount > 0 && adCount % apidata?.ads.interstitial_ad_interval === 0 && apidata?.ads.ad_status === "1") {
       props.setLangCalTypeButton(false);
-      // setLoading(true);
-      loaderCheckAdsFunction("admob", true, true)
+      setLoading(true);
       showInterstitialAd();
     }
   }
 
+
   // ==================================== show Unity Ads ======================================= //
+
 
   const showUnityAd = () => {
     const gameId = Platform.select({
@@ -231,28 +209,27 @@ const CustomDrawerContent = (props) => {
       onAdLoaded: (placementId) => {
         console.log(`UnityAds.onAdLoaded: ${placementId}`);
         if (placementId === interstitialPlacementId) {
-          // setLoading(true);
-          loaderCheckAdsFunction("unity", true, true)
+          setLoading(true);
           unityAdsloadingFun(interstitialPlacementId);
         }
       },
       onAdLoadFailed: (placementId, error) => {
         console.log(`UnityAds.onAdLoadFailed: ${placementId}`, error);
-        loaderCheckAdsFunction("unity", true, false)
         // showAppLovinAd();
       },
     });
 
   }
 
+
+
   const unityAdsloadingFun = (placementId) => {
-    loaderCheckAdsFunction("unity", true, true)
+    setLoading(true); // Show loader
     setTimeout(() => {
-      // setLoading(false); // Hide loader after 2 minutes (120000 ms)
-      loaderCheckAdsFunction("unity", true, false)
+      setLoading(false); // Hide loader after 2 minutes (120000 ms)
       console.log('Process Complete!');
       showAdIfReady(placementId); // Attempt to show ad
-    }, 2000); 
+    }, 4000); 
   };
 
   const showAdIfReady = (placementId) => {
@@ -634,10 +611,7 @@ const DrawerNavigation = () => {
         <Drawer.Screen name="Myanmar Calendar">
           {(props) => <Calendar {...props} langCalTypeButton={langCalTypeButton} setLangCalTypeButton={setLangCalTypeButton} />}
         </Drawer.Screen>
-        <Drawer.Screen name="Emcalendar">
-          {(props) => <Emcalendar {...props} langCalTypeButton={langCalTypeButton} setLangCalTypeButton={setLangCalTypeButton} />}
-        </Drawer.Screen>
-        {/* <Drawer.Screen name="Emcalendar" component={Emcalendar} /> */}
+        <Drawer.Screen name="Emcalendar" component={Emcalendar} />
         <Drawer.Screen name="Holidays" component={Holidays} />
         <Drawer.Screen name="MyanmarZodiacSigns" component={MyanmarZodiacSigns} />
       </Drawer.Navigator>
@@ -647,10 +621,10 @@ const DrawerNavigation = () => {
         <View style={adsValue === "admob" ? styles.adContainer : (adsValue === "unity" ? styles.unityadContainer : styles.noadsContainer)}>
           {
             adsValue === "admob" ?
-              <Text style={{ color: 'black', fontSize: 16, marginBottom: 10 }}>Advertisement</Text>
+              <Text style={{ color: 'black', fontSize: 18, marginBottom: 10 }}>Advertisement</Text>
               : (
                 adsValue === "unity" ?
-                  <Text style={{ color: 'black', fontSize: 16, marginBottom: 10 }}>Advertisement</Text>
+                  <Text style={{ color: 'black', fontSize: 18, marginBottom: 10 }}>Advertisement</Text>
                   :
                   ""
               )
@@ -660,7 +634,7 @@ const DrawerNavigation = () => {
             <>
               {adsValue === "admob" && (
                 <View style={{ position: 'absolute', top: 60, alignSelf: 'center' }}>
-                  <Text style={{ color: 'black', fontSize: 16 }}>Loading...</Text>
+                  <Text style={{ color: 'black', fontSize: 18 }}>Loading...</Text>
                 </View>
               )
               }
@@ -677,7 +651,7 @@ const DrawerNavigation = () => {
           showUnityBanner && (
             adsValue === "unity" && (
               <View style={{ position: 'absolute', top: 50, alignSelf: 'center' }}>
-                <Text style={{ color: 'black', fontSize: 16 }}>Loading...</Text>
+                <Text style={{ color: 'black', fontSize: 18 }}>Loading...</Text>
               </View>
             )
           )

@@ -303,19 +303,18 @@ public class UnityadsModule extends ReactContextBaseJavaModule implements IUnity
           LayoutParams lp = new LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.MATCH_PARENT);
           sCurrentActivity.addContentView(bottomBannerView,lp);
 
-          //RelativeLayout.LayoutParams bannerLayoutParams = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.WRAP_CONTENT);
-          //bannerLayoutParams.setMargins(5, 5, 5, 5);
+          // RelativeLayout.LayoutParams bannerLayoutParams = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.WRAP_CONTENT);
+          // bannerLayoutParams.setMargins(5, 5, 5, 5);
 
           int width = toPixelUnits(BANNER_WIDTH);
           int height = toPixelUnits(BANNER_HEIGHT);
           RelativeLayout.LayoutParams bannerLayoutParams = new RelativeLayout.LayoutParams(width, height);
           bannerLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
           bannerLayoutParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
+          bannerLayoutParams.setMargins(0, 20, 0, 30); // (left, top, right, bottom)
 
           //bottomBannerView.addView( applovin_adView, new android.widget.FrameLayout.LayoutParams( ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, Gravity.CENTER ) );
           bottomBannerView.addView( bottomBanner,bannerLayoutParams);
-
-
         }
       });
     }

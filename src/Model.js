@@ -1,26 +1,41 @@
-import React, { useState } from 'react';
-import { Modal, Text, View, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Modal, Text, View, TouchableOpacity, StyleSheet, Linking, BackHandler } from 'react-native';
 
 
 
 const Model = (props) => {
 
 
-  const handleUpdate = () => {
-    console.log('Update app');
-    props.setversionmodel(false);
-  };
+  useEffect(() => {
+    // Add event listener for back button when the modal is visible
+    if (props.versionmodel) {
+      const backHandler = BackHandler.addEventListener(
+        'hardwareBackPress',
+        handleNoThanks // Close the app on back button press
+      );
+
+      // Cleanup the event listener when modal is closed
+      return () => backHandler.remove();
+    }
+  }, [props.versionmodel]);
 
   const handleNoThanks = () => {
     console.log('User chose not to update');
-    props.setversionmodel(false);
+    // props.setversionmodel(false);
+    BackHandler.exitApp(); // Close the app
+  };  
+
+  const handleUpdate = () => {
+    const playStoreUrl = 'https://apps.apple.com/us/app/inreel-saver-repost-reel/id6479700632'; // Replace with your app's Play Store URL
+    Linking.openURL(playStoreUrl).catch((err) => 
+      console.error('Error opening URL:', err)
+    );
   };
 
   return (
     <View style={styles.container}>
 
       {/* Version Update Modal */}
-
       <Modal
         animationType="slide"
         transparent={true}
@@ -31,26 +46,17 @@ const Model = (props) => {
           <View style={styles.modalView}>
             <Text style={styles.modalTitle}>New version available</Text>
             <Text style={styles.modalMessage}>
-              Please update the app to the new version to continue reposting.
+              Please update the app to the new version to continue using the app.
             </Text>
 
-            <View style={{ borderBottomColor: 'black', borderBottomWidth: 1, marginVertical: 10, width: '112%', marginBottom: 0 }} />
+            <View style={styles.divider} />
 
             <View style={styles.buttonContainer}>
-              {/* <TouchableOpacity
-                style={styles.button}
-                onPress={handleNoThanks}
-              >
-                <Text style={styles.buttontq}>NO, THANKS</Text>
-              </TouchableOpacity> */}
-
-              {/* <View style={{ borderLeftColor: 'black', borderLeftWidth: 1, height: '144%', marginHorizontal: 10, }} /> */}
-
               <TouchableOpacity
                 style={styles.button}
                 onPress={handleUpdate}
               >
-                <Text style={styles.buttonupdate}>UPDATE</Text>
+                <Text style={styles.buttonUpdate}>UPDATE</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -62,11 +68,9 @@ const Model = (props) => {
 
 const styles = StyleSheet.create({
   container: {
-    // flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -79,7 +83,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 10,
     alignItems: 'center',
-    elevation: 5, // Optional shadow effect
+    elevation: 5,
   },
   modalTitle: {
     color: 'black',
@@ -93,6 +97,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20,
   },
+  divider: {
+    borderBottomColor: 'black',
+    borderBottomWidth: 1,
+    marginVertical: 10,
+    width: '100%',
+  },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -100,21 +110,37 @@ const styles = StyleSheet.create({
   button: {
     padding: 5,
     borderRadius: 5,
-    width: '48%', // Adjusting width for two button
-
+    width: '48%',
   },
-  buttontq: {
-    marginTop: 10,
-    fontWeight: 'bold',
-    color: 'red',
-    textAlign: 'center',
-  },
-  buttonupdate: {
+  buttonUpdate: {
     marginTop: 10,
     fontWeight: 'bold',
     color: 'green',
     textAlign: 'center',
   },
-
 });
+
 export default Model;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
