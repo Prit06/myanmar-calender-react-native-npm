@@ -9,7 +9,7 @@ import Emcalendar from './Emcalendar';
 import Share, { Button } from 'react-native-share';
 import MyanmarZodiacSigns from './MyanmarZodiacSigns';
 import { AdEventType, BannerAd, BannerAdSize, InterstitialAd } from 'react-native-google-mobile-ads';
-import { AdContext, AdProvider } from './adsContext';
+import { AdContext} from './adsContext';
 import axios from 'axios';
 import UnityAds from 'react-native-unity-ads-monetization';
 
@@ -297,11 +297,11 @@ const CustomDrawerContent = (props) => {
         <TouchableOpacity
           style={[
             styles.drawerItemContainer,
-            { backgroundColor: selectedItem === 'Calendar' ? '#FFBABA' : 'transparent' }
+            { backgroundColor: selectedItem === 'English Calendar' ? '#FFBABA' : 'transparent' }
           ]}
           onPress={() => {
-            setSelectedItem('Calendar');
-            props.navigation.navigate('Myanmar Calendar');
+            setSelectedItem('English Calendar');
+            props.navigation.navigate('English Calendar');
             incrementAdCount();  // Increment ad count on click
           }}
         >
@@ -309,25 +309,27 @@ const CustomDrawerContent = (props) => {
             source={require('./assets/calendar.png')}
             style={[
               styles.drawerItemImage,
-              { tintColor: selectedItem === 'Calendar' ? '#FF3030' : 'white' }
+              { tintColor: selectedItem === 'English Calendar' ? '#FF3030' : 'white' }
             ]}
           />
           <Text style={[
             styles.drawerItemText,
-            { color: selectedItem === 'Calendar' ? '#FF3030' : 'white' }
+            { color: selectedItem === 'English Calendar' ? '#FF3030' : 'white' }
           ]}>
-            Calendar
+            English Calendar
           </Text>
         </TouchableOpacity>
+
+
 
         <TouchableOpacity
           style={[
             styles.drawerItemContainer,
-            { backgroundColor: selectedItem === 'EmCalendar' ? '#FFBABA' : 'transparent' }
+            { backgroundColor: selectedItem === 'Myanmar Calendar' ? '#FFBABA' : 'transparent' }
           ]}
           onPress={() => {
-            setSelectedItem('EmCalendar');
-            props.navigation.navigate('Emcalendar');
+            setSelectedItem('Myanmar Calendar');
+            props.navigation.navigate('Myanmar Calendar');
             incrementAdCount();
           }}
         >
@@ -335,14 +337,14 @@ const CustomDrawerContent = (props) => {
             source={require('./assets/cal.png')}
             style={[
               styles.drawerItemImage,
-              { tintColor: selectedItem === 'EmCalendar' ? '#FF3030' : 'white' }
+              { tintColor: selectedItem === 'Myanmar Calendar' ? '#FF3030' : 'white' }
             ]}
           />
           <Text style={[
             styles.drawerItemText,
-            { color: selectedItem === 'EmCalendar' ? '#FF3030' : 'white' }
+            { color: selectedItem === 'Myanmar Calendar' ? '#FF3030' : 'white' }
           ]}>
-            {"Em > Calendar"}
+            {"Myanmar Calendar"}
           </Text>
         </TouchableOpacity>
 
@@ -593,14 +595,7 @@ const DrawerNavigation = () => {
     setShowUnityBanner(false);
   };
 
-  // useEffect(() => {
-  //   // Cleanup function to unload the banner ad on unmount
-  //   return () => {
-  //     if (admobFailed) {
-  //       unloadBottomBanner();
-  //     }
-  //   };
-  // }, [unityAdsInitialized]); // Run on unmount or when Unity Ads initializes
+  
 
   return (
     <NavigationContainer>
@@ -631,10 +626,10 @@ const DrawerNavigation = () => {
           },
         }}
       >
-        <Drawer.Screen name="Myanmar Calendar">
+        <Drawer.Screen name="English Calendar">
           {(props) => <Calendar {...props} langCalTypeButton={langCalTypeButton} setLangCalTypeButton={setLangCalTypeButton} />}
         </Drawer.Screen>
-        <Drawer.Screen name="Emcalendar">
+        <Drawer.Screen name="Myanmar Calendar">
           {(props) => <Emcalendar {...props} langCalTypeButton={langCalTypeButton} setLangCalTypeButton={setLangCalTypeButton} />}
         </Drawer.Screen>
         {/* <Drawer.Screen name="Emcalendar" component={Emcalendar} /> */}

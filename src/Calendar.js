@@ -10,6 +10,7 @@ import {
   DrawerLayoutAndroid,
   Image,
   Linking,
+  ActivityIndicator,
 
 } from "react-native";
 import LinearGradient from 'react-native-linear-gradient';
@@ -22,9 +23,8 @@ import CustomPicker from "./CustomPicker";
 import Svg, { Path } from "react-native-svg";
 import Holidaydata from "../calenderData/holidays";
 import Loader from "./loader";
-import { AdContext, AdProvider } from './adsContext';  // Import AdContext and AdProvider
-import { InterstitialAd, AdEventType, AdManager } from 'react-native-google-mobile-ads';
-
+import { AdContext } from './adsContext';  // Import AdContext and AdProvider
+1
 
 const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
   var dt = new Date();
@@ -52,36 +52,10 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
   const [WaningMoon, setWaningMoon] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isMainScreen, setIsMainScreen] = useState(false);
-
-
   const { adCount, incrementAdCount } = useContext(AdContext);
-
-  // console.log("langCalTypeButton", langCalTypeButton);
-
-
-  // const toggleModal = (js) => {
-  //   setModalData(js);
-  //   setModalVisible(!isModalVisible);
-  // };
-
-
-  // const startLoading = (time) => {
-  //   // setLoading(true);
-  //   // Simulate a network request or any other async operation
-  //   setLoading(true);
-  //   setTimeout( async () => {
-  //     setLoading(false); // Hide loader
-  //     setLangCalTypeButton(false)
-  //     console.log('Process Complete!');
-  //     // setTimeout(() => {
-  //     //   showInterstitialAd();
-  //     // },30);
-  //   }, 2000);
-  // };
 
 
   const startLoading = (time) => {
-    // setLoading(true);
     // Simulate a network request or any other async operation
     setTimeout(() => {
       setLoading(false);
@@ -110,14 +84,7 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
   }, [month, year]);
 
   useEffect(() => {
-    
-    // if (!loading) {
-    //   startLoading(2000);
-    // }
-    //  if (langCalTypeButton || loading) {
-    //   console.log("calender", langCalTypeButton);
-    //   startLoading(2000);
-    // }
+
 
     calenderDataFun();
     async function changeTypeDataSetFun() {
@@ -258,8 +225,8 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
 
   const scrollToTop = () => {
     if (scrollViewRef.current) {
-        scrollViewRef.current.scrollToEnd({ animated: true });
-      }
+      scrollViewRef.current.scrollToEnd({ animated: true });
+    }
   };
 
 
@@ -368,7 +335,7 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
           }
 
 
-
+          {/*        
           {(loading || langCalTypeButton) && (
             <View style={{
               height: "70%",
@@ -394,7 +361,73 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
                 <Loader isMainScreen={isMainScreen} />
               </View>
             </View>
-          )}
+          )}  */}
+
+          {/* 
+          {(loading || langCalTypeButton) && (
+          <View
+          style={{
+            // height: '100%',   // Take up the full screen height
+            justifyContent: 'center',  // Center vertically
+            alignItems: 'center',  // Center horizontally
+            position: 'absolute',  // Absolute positioning to ensure it covers the full screen
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            // zIndex: 900,   // Ensure the loader stays on top
+          }}>
+              <View
+                style={{
+                  width: '15%',   // Set the width to 15% of the screen width
+                  aspectRatio: 1,  // Maintain a square shape (width and height are equal)
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  borderRadius: 20,  // Rounded edges
+                  padding: 20,
+                  backgroundColor: 'white',  // Background for the loader
+                  zIndex: 1000,   // Ensures the loader stays above everything else
+                }}>
+                <Loader isMainScreen={isMainScreen} />
+              </View>
+            </View>
+          )} */}
+
+
+
+
+
+          {(loading || langCalTypeButton) && (
+            <View
+              style={{
+                height:"60%",
+                justifyContent: 'center', // Center vertically
+                alignItems: 'center',     // Center horizontally
+                position: 'absolute',     // Absolute positioning to ensure it covers the full screen
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+              }}>
+              <View
+                style={{
+                  width: '15%',            // Set the width to 15% of the screen width
+                  aspectRatio: 1,          // Maintain a square shape (width and height are equal)
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  borderRadius: 20,        // Rounded edges
+                  padding: 20,
+                  backgroundColor: 'white',// Background for the loader
+                  zIndex:10,            // Ensures the loader stays above everything else
+                }}>
+                <ActivityIndicator
+                  style={{ transform: [{ scale: 1.1 }] }}  // Scale up the loader
+                  size="large"
+                  color="#7B61FF"  // Custom color for the loader
+                />
+              </View>
+            </View>
+          )} 
 
 
           <View>
@@ -482,9 +515,6 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
 
 
 
-
-
-
               <View>
                 <Text
                   style={{
@@ -497,13 +527,6 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
                   {headerLine}
                 </Text>
               </View>
-
-
-
-
-
-
-
 
 
 
@@ -660,7 +683,7 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
                     Holiday and Observances
                   </Text>
                   {filteredHolidays.length === 0 ? (
-                    <Text style={{ margin: 10, color: 'black' ,fontSize: 16,textAlign:'center'}}>
+                    <Text style={{ margin: 10, color: 'black', fontSize: 16, textAlign: 'center' }}>
                       No holidays this month
                     </Text>
                   ) : (
@@ -881,7 +904,7 @@ const styles = StyleSheet.create({
   },
 
   arrow: {
-    fontSize: 30,
+    fontSize: 23,
     color: "white",
     // marginHorizontal: 20,
   },

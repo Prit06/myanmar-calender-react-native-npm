@@ -8,6 +8,7 @@ import {
   DrawerLayoutAndroid,
   Image,
   Linking,
+  ActivityIndicator,
 
 } from "react-native";
 import LinearGradient from 'react-native-linear-gradient';
@@ -22,9 +23,7 @@ import Svg, { Path } from "react-native-svg";
 import Holidaydata from "../calenderData/holidays";
 import Loader from "./loader";
 import { ceMmDateTime } from "../calenderData/calender";
-
-import { InterstitialAd, AdEventType } from 'react-native-google-mobile-ads';
-import { AdContext, AdProvider } from './adsContext';  // Import AdContext and AdProvider
+import { AdContext } from './adsContext';  // Import AdContext and AdProvider
 
 
 
@@ -52,7 +51,6 @@ const EmCalender = ({ setLangCalTypeButton, langCalTypeButton }) => {
   const [newMoon, setNewMoon] = useState([]);
   const [waxingMoon, setWaxingMoon] = useState([]);
   const [WaningMoon, setWaningMoon] = useState([]);
-  // const [firstloading, setFirstLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isMainScreen, setIsMainScreen] = useState(false);
   const [englishMonth, setEnglishMonth] = useState("")
@@ -88,8 +86,6 @@ const EmCalender = ({ setLangCalTypeButton, langCalTypeButton }) => {
       setLangCalTypeButton(false)
     }, time);
   };
-
-
 
   const startLoadingMain = (time) => {
     setTimeout(() => {
@@ -147,7 +143,7 @@ const EmCalender = ({ setLangCalTypeButton, langCalTypeButton }) => {
 
 
 
-  
+
   const selectedDateDataFunction = async () => {
     if (!selectedDate) return false
     var data = await getMCalenderData(selectedDate?.month + 1, selectedDate?.year, calendarType, language)
@@ -160,7 +156,6 @@ const EmCalender = ({ setLangCalTypeButton, langCalTypeButton }) => {
 
   useEffect(() => {
     const today = new Date();
-    // setFirstLoading(true)
     setLoading(true)
     setCurrentDate(today);
   }, []);
@@ -408,15 +403,14 @@ const EmCalender = ({ setLangCalTypeButton, langCalTypeButton }) => {
       drawerPosition={drawerPosition}
       renderNavigationView={navigationView}
     >
-      {/* {
-        firstloading ? <Loader isMainScreen={true} /> : (
-           */}
+
       <ScrollView contentContainerStyle={styles.scrollContainer} ref={scrollViewRef}>
         <View style={styles.containerHeader}>
 
+          {
+            // loading && <Loader isMainScreen={isMainScreen} />
 
-
-
+          }
 
           {(loading || langCalTypeButton) && (
             <View style={{
@@ -447,7 +441,9 @@ const EmCalender = ({ setLangCalTypeButton, langCalTypeButton }) => {
 
 
 
-          {/* loading && <Loader isMainScreen={isMainScreen} /> */}
+
+
+
 
           <View>
             <View style={{ backgroundColor: "pink", flexDirection: "row" }}>
@@ -501,8 +497,6 @@ const EmCalender = ({ setLangCalTypeButton, langCalTypeButton }) => {
                   </TouchableOpacity>
                 </View>
               </View>
-
-
 
 
               <View style={styles.pickersContainer}>
@@ -833,12 +827,6 @@ const EmCalender = ({ setLangCalTypeButton, langCalTypeButton }) => {
               </LinearGradient>
 
 
-              {/* <NavigationContainer>
-                      <Stack.Navigator>
-                        <Stack.Screen name="settings" component={Settings} />
-                      </Stack.Navigator>
-                    </NavigationContainer> */}
-
             </View>
           </View>
 
@@ -924,7 +912,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   arrow: {
-    fontSize: 30,
+    fontSize: 23,
     color: "white",
     // marginHorizontal: 20,
   },
@@ -972,15 +960,11 @@ const styles = StyleSheet.create({
   daysContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    // width: "100%",
-    // alignItems: "center",
     justifyContent: "center",
   },
   dayContainer: {
     width: "14.28%",
-    // justifyContent: "center",
     alignItems: "center",
-    // marginVertical: 5,
     height: 45,
   },
   dayContent: {
