@@ -34,14 +34,14 @@ const Exitmodel = ({ onConfirm, onCancel }) => {
 
                     <View style={styles.buttonContainer}>
                         <TouchableOpacity style={styles.button} onPress={handleCancel}>
-                            <Text style={styles.buttonUpdate}>Restore</Text>
+                            <Text style={styles.buttonUpdate}>Rate Us</Text>
                         </TouchableOpacity>
 
                         <View style={{ borderRightColor: 'black', borderRightWidth: 1, height: '147%', marginHorizontal: 10 }} />
 
 
                         <TouchableOpacity style={styles.button} onPress={onConfirm}>
-                            <Text style={styles.buttonUpdate}>Exit</Text>
+                            <Text style={styles.buttonUpdate}>Exit App</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -49,8 +49,6 @@ const Exitmodel = ({ onConfirm, onCancel }) => {
         </Modal>
     );
 };
-
-
 
 
 const styles = StyleSheet.create({

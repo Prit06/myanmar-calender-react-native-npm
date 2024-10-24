@@ -9,9 +9,10 @@ import Emcalendar from './Emcalendar';
 import Share, { Button } from 'react-native-share';
 import MyanmarZodiacSigns from './MyanmarZodiacSigns';
 import { AdEventType, BannerAd, BannerAdSize, InterstitialAd } from 'react-native-google-mobile-ads';
-import { AdContext} from './adsContext';
+import { AdContext } from './adsContext';
 import axios from 'axios';
 import UnityAds from 'react-native-unity-ads-monetization';
+import {API_KEY} from '@env';
 
 const Drawer = createDrawerNavigator();
 
@@ -19,7 +20,7 @@ const platform = Platform.OS;
 
 const CustomDrawerContent = (props) => {
   const isDrawerOpen = useDrawerStatus() === 'open';
-  const { adCount, incrementAdCount, isBennerAds } = useContext(AdContext);
+  const { adCount, incrementAdCount, isBennerAds, isConnected } = useContext(AdContext);
   const [selectedItem, setSelectedItem] = useState(null);
   const [loading, setLoading] = useState(false);
   const [interstitialAd, setInterstitialAd] = useState(null);
@@ -27,10 +28,11 @@ const CustomDrawerContent = (props) => {
   const [apidata, setapidata] = useState({ ads: {} });
   // const [adsFailed, setAdsFailed] = useState("failed");
 
+
+
   const openURL = (url) => {
     Linking.openURL(url).catch((err) => console.error("Couldn't load page", err));
   };
-
 
   const shareContent = () => {
     const shareOptions = {
@@ -59,23 +61,23 @@ const CustomDrawerContent = (props) => {
   const loaderCheckAdsFunction = (adsFailed, lastAds, show) => {
     console.log("adsFailed, lastAds, show", adsFailed, lastAds, show);
     console.log("loading", loading);
-    
-    if(adsFailed == "admob" && lastAds){
-      if(loading && show) return
+
+    if (adsFailed == "admob" && lastAds) {
+      if (loading && show) return
       setLoading(show);
       console.log("abmob ads show....", show);
     }
-    if(adsFailed == "unity" && lastAds){
-      if(loading && show) return
+    if (adsFailed == "unity" && lastAds) {
+      if (loading && show) return
       setLoading(show);
       console.log("unity ads show....", show);
     }
-    if(adsFailed == "applovin" && lastAds){
-      if(loading && show) return
+    if (adsFailed == "applovin" && lastAds) {
+      if (loading && show) return
       setLoading(show);
       console.log("applovin ads show....", show);
     }
-    if(!adsFailed || adsFailed != "admob" && adsFailed != "unity" && adsFailed != "applovin"){
+    if (!adsFailed || adsFailed != "admob" && adsFailed != "unity" && adsFailed != "applovin") {
       setLoading(show);
       console.log("no ads show....", show);
     }
@@ -84,10 +86,12 @@ const CustomDrawerContent = (props) => {
 
   const fetchApiData = async () => {
     try {
-      // const response = await axios.get('https://atharvainfinity.com/atharvainfinity/ios/calendar/myanmar/myanmar_caladsapi.json', {
+    
+      const response = await axios.get(API_KEY, {
+        // const response = await axios.get('https://atharvainfinity.com/atharvainfinity/ios/calendar/myanmar/myanmar_caladsapi.json', {
+      });
+      // const response = await axios.get('https://myanmarcalendar.com/myanmar_caladsapi.json', {
       // });
-        const response = await axios.get('https://myanmarcalendar.com/myanmar_caladsapi.json', {
-        });
 
       setapidata(response.data?.meta);
     } catch (error) {
@@ -96,9 +100,11 @@ const CustomDrawerContent = (props) => {
   };
   useEffect(() => {
     fetchApiData();
-  }, []);
+  }, [isConnected]);
 
   useEffect(() => {
+    console.log("isConnected", isConnected);
+    
     if (adCount > 0 && adCount % apidata?.ads.interstitial_ad_interval === 0 && apidata?.ads.ad_status === "1" && Platform.OS !== 'ios') {
       console.log("Showing Interstitial Ad with ID: ", apidata.ads.ad_status);
       if (Platform.OS === 'android') {
@@ -252,7 +258,7 @@ const CustomDrawerContent = (props) => {
       loaderCheckAdsFunction("unity", true, false)
       console.log('Process Complete!');
       showAdIfReady(placementId); // Attempt to show ad
-    }, 2000); 
+    }, 2000);
   };
 
   const showAdIfReady = (placementId) => {
@@ -320,8 +326,6 @@ const CustomDrawerContent = (props) => {
           </Text>
         </TouchableOpacity>
 
-
-
         <TouchableOpacity
           style={[
             styles.drawerItemContainer,
@@ -347,6 +351,8 @@ const CustomDrawerContent = (props) => {
             {"Myanmar Calendar"}
           </Text>
         </TouchableOpacity>
+
+
 
         <TouchableOpacity
           style={[
@@ -470,16 +476,17 @@ const DrawerNavigation = () => {
   const [responseData, setresponseData] = useState(null);
   const [langCalTypeButton, setLangCalTypeButton] = useState(false);
   const [adsValue, setadsValue] = useState("");
-
+  const { isConnected } = useContext(AdContext);
 
   const logStatus = (message) => {
     console.log(message);
   };
-
+r=
   useEffect(() => {
     const fetchApiData = async () => {
       try {
-        const response = await axios.get('https://atharvainfinity.com/atharvainfinity/ios/calendar/myanmar/myanmar_caladsapi.json');
+        const response = await axios.get(API_KEY);
+        // const response = await axios.get('https://atharvainfinity.com/atharvainfinity/ios/calendar/myanmar/myanmar_caladsapi.json');
 
         // const response = await axios.get('https://myanmarcalendar.com/myanmar_caladsapi.json');
         const dataSet = response.data?.meta.ads;
@@ -499,7 +506,7 @@ const DrawerNavigation = () => {
     };
 
     fetchApiData();
-  }, []);
+  }, [isConnected]);
 
 
   const Unityads = NativeModules.Unityads
@@ -595,7 +602,7 @@ const DrawerNavigation = () => {
     setShowUnityBanner(false);
   };
 
-  
+
 
   return (
     <NavigationContainer>
@@ -669,13 +676,13 @@ const DrawerNavigation = () => {
               />
             </>
           ) : (
-          showUnityBanner && (
-            adsValue === "unity" && (
-              <View style={{ position: 'absolute', top: 50, alignSelf: 'center' }}>
-                <Text style={{ color: 'black', fontSize: 16 }}>Loading...</Text>
-              </View>
+            showUnityBanner && (
+              adsValue === "unity" && (
+                <View style={{ position: 'absolute', top: 50, alignSelf: 'center' }}>
+                  <Text style={{ color: 'black', fontSize: 16 }}>Loading...</Text>
+                </View>
+              )
             )
-          )
           )}
         </View>
       ) : null}
@@ -774,7 +781,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'white',
     borderRadius: 20, // Add some border radius for smooth edges
-    padding: 20,     // Add padding for spacing inside the box
+    padding: 15,     // Add padding for spacing inside the box
   },
   hiddenBackground: {
     position: 'absolute',

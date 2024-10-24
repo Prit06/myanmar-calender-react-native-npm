@@ -11,6 +11,7 @@ import {
   Image,
   Linking,
   ActivityIndicator,
+  Dimensions,
 
 } from "react-native";
 import LinearGradient from 'react-native-linear-gradient';
@@ -24,7 +25,7 @@ import Svg, { Path } from "react-native-svg";
 import Holidaydata from "../calenderData/holidays";
 import Loader from "./loader";
 import { AdContext } from './adsContext';  // Import AdContext and AdProvider
-1
+const { height: screenHeight, width: screenWidth } = Dimensions.get('window');
 
 const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
   var dt = new Date();
@@ -127,7 +128,7 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
   }, []);
 
   const filteredHolidays = holidays.filter((ele) => {
-    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     var monthName = monthNames[month - 1]
     var removeValue = [monthName, year.toString()]
     var dateArr = ele.date.split(" ").filter(item => !removeValue.includes(item)).toString();
@@ -321,6 +322,46 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
   );
 
   return (
+    <>
+    {(loading || langCalTypeButton) && (
+      <View  style={{
+          height: screenHeight,
+          width: screenWidth,
+          position:"absolute",
+          top:-60,
+          display:"flex",
+          alignItems:"center",
+          justifyContent:"center",
+        
+      }}>
+        <View
+          style={{
+            // height: "50%",
+            justifyContent: "center", // Centers vertically
+            alignItems: "center", // Centers horizontally
+            display:"flex",
+          }}
+        >
+          <View
+            style={{
+              width: 70, // Set the width to create a square
+              height: 70, // Same as width for the square shape
+              justifyContent: "center",
+              alignItems: "center",
+              borderRadius: 20, // Add some border radius for smooth edges
+              zIndex: 900, // Ensures the loader stays on top
+              backgroundColor: "white",
+            }}
+          >
+            <ActivityIndicator
+              style={{ transform: [{ scale: 1.2 }] }} // Scale it for responsiveness
+              size="large"
+              color="#7B61FF"
+            />
+          </View>
+        </View>
+      </View>
+    )}
     <DrawerLayoutAndroid
       ref={drawer}
       drawerWidth={300}
@@ -335,10 +376,9 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
           }
 
 
-          {/*        
-          {(loading || langCalTypeButton) && (
+          {/* {(loading || langCalTypeButton) && (
             <View style={{
-              height: "70%",
+              height: "50%",
               justifyContent: 'center',  // Centers vertically
               alignItems: 'center',  // Centers horizontally
               position: 'absolute', // Ensure it stays in the center
@@ -347,11 +387,12 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
               right: 0,
               bottom: 0,
             }}>
-
               <View style={{
-                width: 90,    // Set the width to create a square
-                height: 90,   // Same as width for the square shape
+                width: 70,    // Set the width to create a square
+                height: 70,   // Same as width for the square shape
                 justifyContent: 'center',
+                alignItems: 'center',
+                alignContent: 'center',
                 alignItems: 'center',
                 borderRadius: 20, // Add some border radius for smooth edges
                 padding: 20,
@@ -361,73 +402,7 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
                 <Loader isMainScreen={isMainScreen} />
               </View>
             </View>
-          )}  */}
-
-          {/* 
-          {(loading || langCalTypeButton) && (
-          <View
-          style={{
-            // height: '100%',   // Take up the full screen height
-            justifyContent: 'center',  // Center vertically
-            alignItems: 'center',  // Center horizontally
-            position: 'absolute',  // Absolute positioning to ensure it covers the full screen
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            // zIndex: 900,   // Ensure the loader stays on top
-          }}>
-              <View
-                style={{
-                  width: '15%',   // Set the width to 15% of the screen width
-                  aspectRatio: 1,  // Maintain a square shape (width and height are equal)
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  borderRadius: 20,  // Rounded edges
-                  padding: 20,
-                  backgroundColor: 'white',  // Background for the loader
-                  zIndex: 1000,   // Ensures the loader stays above everything else
-                }}>
-                <Loader isMainScreen={isMainScreen} />
-              </View>
-            </View>
           )} */}
-
-
-
-
-
-          {(loading || langCalTypeButton) && (
-            <View
-              style={{
-                height:"60%",
-                justifyContent: 'center', // Center vertically
-                alignItems: 'center',     // Center horizontally
-                position: 'absolute',     // Absolute positioning to ensure it covers the full screen
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-              }}>
-              <View
-                style={{
-                  width: '15%',            // Set the width to 15% of the screen width
-                  aspectRatio: 1,          // Maintain a square shape (width and height are equal)
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  borderRadius: 20,        // Rounded edges
-                  padding: 20,
-                  backgroundColor: 'white',// Background for the loader
-                  zIndex:10,            // Ensures the loader stays above everything else
-                }}>
-                <ActivityIndicator
-                  style={{ transform: [{ scale: 1.1 }] }}  // Scale up the loader
-                  size="large"
-                  color="#7B61FF"  // Custom color for the loader
-                />
-              </View>
-            </View>
-          )} 
 
 
           <View>
@@ -442,12 +417,12 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
                 <View style={styles.yearMonthContainer}>
                   <TouchableOpacity
                     onPress={() => changeMonth(-1)}
-                    style={styles.arrowButtonMonth}
+          
                   >
                     <Text style={styles.arrow}>◀</Text>
                   </TouchableOpacity>
 
-                  <View style={styles.pickerWrapper}>
+                  <View style={styles.monthContainer}>
                     <Text style={styles.monthText}>
                       {monthData[month - 1]?.name}
                     </Text>
@@ -455,7 +430,6 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
 
                   <TouchableOpacity
                     onPress={() => changeMonth(1)}
-                    style={styles.arrowButtonMonth}
                   >
                     <Text style={styles.arrow}>▶</Text>
                   </TouchableOpacity>
@@ -481,8 +455,6 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
                   </TouchableOpacity>
                 </View>
               </View>
-
-
 
               <View style={styles.pickersContainer}>
                 <View style={styles.pickerWrapper}>
@@ -512,8 +484,6 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
 
                 </View>
               </View>
-
-
 
               <View>
                 <Text
@@ -684,7 +654,7 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
                   </Text>
                   {filteredHolidays.length === 0 ? (
                     <Text style={{ margin: 10, color: 'black', fontSize: 16, textAlign: 'center' }}>
-                      No holidays this month
+                      No Holidays This Month
                     </Text>
                   ) : (
                     filteredHolidays.map((holiday, index) => (
@@ -826,6 +796,7 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
         </View>
       </ScrollView>
     </DrawerLayoutAndroid>
+    </>
   );
 };
 
@@ -904,35 +875,42 @@ const styles = StyleSheet.create({
   },
 
   arrow: {
-    fontSize: 23,
+    fontSize: 18,
     color: "white",
+    
     // marginHorizontal: 20,
   },
+
   spacer: {
     flex: 1,
   },
+
   yearContainer: {
     marginHorizontal: 5,
     width: 80,
   },
   inputYear: {
-    fontSize: 15,
+    // fontSize: 15,
     color: "black",
     textAlign: "center",
     width: "100%",
   },
+  monthContainer:{
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection:'row',
+    // paddingHorizontal: 20, 
 
+  },
   pickerWrapper: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    flexDirection:'row',
+
   },
 
-  picker: {
-    height: 40,
-    width: "100%",
-    color: "black",
-  },
   pickersContainer: {
     flexDirection: "row",
     justifyContent: "space-around",

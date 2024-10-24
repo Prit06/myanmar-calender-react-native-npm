@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import DrawerNavigation from './src/DrawerNavigation';
@@ -8,38 +7,64 @@ import axios from 'axios';
 import Model from './src/Model';
 import DeviceInfo from 'react-native-device-info';
 import { AppOpenAd, AdEventType } from 'react-native-google-mobile-ads';
-import { BackHandler } from 'react-native';
+import { BackHandler, Modal, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import Exitmodel from './src/Exitmodel';
+import NetInfo from '@react-native-community/netinfo';
+import RNExitApp from 'react-native-exit-app';
+import { API_KEY } from '@env';
 
+import { Dimensions } from 'react-native';
+
+const { width } = Dimensions.get('window');
+var adFunLoad = false
 const App = () => {
+    console.log("main");
     const [versionModel, setVersionModel] = useState(false);
     const [appVersion, setAppVersion] = useState("");
     const [adClosed, setAdClosed] = useState(false);
-    const [isAdLoaded, setIsAdLoaded] = useState(false); // Track if the ad has been loaded
-    const [isAdsFailed, setIsAdsFailed] = useState(false); // Track if the ad has been loaded
+    const [adShow, setAdShow] = useState(false);
+    const [isAdLoaded, setIsAdLoaded] = useState(false);
+    const [isAdsFailed, setIsAdsFailed] = useState(false);
     const [apiData, setApiData] = useState("");
     const [exitModel, setExitModel] = useState(false);
+    const [isConnected, setIsConnected] = useState(true); // For offline modal
+    const [showOfflineModal, setShowOfflineModal] = useState(false); // State to manage offline modal
 
     useEffect(() => {
-        fetchApiData(); // Fetch API data and load the ad
+        console.log("userEft");
+        // Monitor network connection
+        const unsubscribe = NetInfo.addEventListener(state => {
+            setIsConnected(state.isConnected);
+            if(state.isConnected){
+                setShowOfflineModal(false);
+                fetchApiData();
+                // SplashScreen.hide();
+            }else{
+                setShowOfflineModal(true);
+                return
+            }
+        });
 
+        return () => {
+            unsubscribe();
+        };
+    }, [isConnected]);
+
+    useEffect(() => {
         const backAction = () => {
             if (exitModel) {
-                // If the exit confirmation modal is visible, close it
                 setExitModel(false);
-                return true; // Prevent default back button behavior
+                return true;
             } else {
-                // Show exit confirmation modal
                 setExitModel(true);
-                return true; // Prevent default back button behavior
+                return true;
             }
         };
 
-        // Add event listener for back button press
         const backHandler = BackHandler.addEventListener("hardwareBackPress", backAction);
 
         return () => {
-            backHandler.remove(); // Cleanup the event listener when component unmounts
+            backHandler.remove();
         };
     }, [exitModel]);
 
@@ -51,18 +76,19 @@ const App = () => {
 
     const fetchApiData = async () => {
         try {
-            // const response = await axios.get('https://atharvainfinity.com/atharvainfinity/ios/calendar/myanmar/myanmar_caladsapi.json');
-            const response = await axios.get('https://myanmarcalendar.com/myanmar_caladsapi.json', {});
+            const response = await axios.get(API_KEY);
+            // const response = await axios.get('https://myanmarcalendar.com/myanmar_caladsapi.json');
+            console.log("fub", adFunLoad);
+            
             const adsData = response.data?.meta?.ads;
             setApiData(adsData?.update_on);
-            // Store the ad configuration dynamically
             setAppVersion(adsData?.update);
-            loadAppOpenAd(adsData); // Load ad after fetching API data
-            // checkAppVersion(adsData?.update);
-
+            if (!adFunLoad) {
+                loadAppOpenAd(adsData);
+            }
         } catch (error) {
             console.error('Error fetching API data:', error);
-            SplashScreen.hide(); // Hide splash screen if there's an error
+            SplashScreen.hide();
         }
     };
 
@@ -72,77 +98,133 @@ const App = () => {
             const appOpenAd = AppOpenAd.createForAdRequest(adsData.android_adsid.admob_app_open_unit_id, {
                 requestNonPersonalizedAdsOnly: true,
             });
-
+            adFunLoad = true
             appOpenAd.addAdEventListener(AdEventType.LOADED, () => {
+                console.log("adsLoad");
                 setIsAdLoaded(true);
-                appOpenAd.show(); // Show the ad once it's loaded
+                adsShowFun()
                 SplashScreen.hide();
             });
 
             appOpenAd.addAdEventListener(AdEventType.CLOSED, () => {
-                setAdClosed(true); // Mark ad as closed
-                SplashScreen.hide(); // Hide the splash screen after the ad is closed
-                checkAppVersion(adsData?.update, adsData?.update_on); // Check app version after ad is closed
+                setAdClosed(true);
+                SplashScreen.hide();
+                checkAppVersion(adsData?.update, adsData?.update_on);
             });
 
-            // Handle ad load failure
             appOpenAd.addAdEventListener(AdEventType.ERROR, () => {
-                SplashScreen.hide(); // Hide the splash screen if ad fails to load
-                setIsAdsFailed(true)
+                SplashScreen.hide();
+                setIsAdsFailed(true);
             });
 
-            // Load the ad
             appOpenAd.load();
-
-            // Fallback in case the ad takes too long to load (e.g., 3 seconds timeout)
+            function adsShowFun() {
+                if (adFunLoad) {
+                    appOpenAd.show();
+                }
+                setAdShow(true)
+                // setIsAdLoaded(true);
+            }
             setTimeout(() => {
                 if (!isAdLoaded) {
-                    SplashScreen.hide(); // Hide the splash screen if ad hasn't loaded within 3 seconds
+                    SplashScreen.hide();
                 }
-            }, 3000); // 3-second fallback
+            }, 3000);
         } else {
-            // If ads are disabled or not available, hide the splash screen
             SplashScreen.hide();
         }
     };
 
     const checkAppVersion = async (latestVersion, update_on) => {
         const version = await DeviceInfo.getVersion();
-        console.log("Current version:", version);
-        console.log("Latest version:", latestVersion);
-        console.log("apiData.update_on", update_on);
-        
         if (version < latestVersion && update_on === 1) {
-            setVersionModel(true); // Show update modal if the version is outdated
+            setVersionModel(true);
         }
     };
 
     const handleModalClose = () => {
-        setVersionModel(false); // Hide the version update modal
+        setVersionModel(false);
     };
 
     const handleExitConfirm = () => {
-        // Implement the logic to exit the app
-        BackHandler.exitApp(); // This will close the app
+        setExitModel(false);
+        BackHandler.exitApp();
+        RNExitApp.exitApp();
     };
 
     const handleExitCancel = () => {
         setExitModel(false);
     };
 
+    const handleRetry = () => {
+        NetInfo.fetch().then(state => {
+            setIsConnected(state.isConnected);
+        });
+    };
+
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
-            <AdProvider>
+            <AdProvider isConnected={isConnected}>
                 <DrawerNavigation />
-                {/* Show version update modal if needed */}
                 {versionModel && <Model versionmodel={versionModel} setversionmodel={handleModalClose} />}
                 {exitModel && <Exitmodel onConfirm={handleExitConfirm} onCancel={handleExitCancel} />}
+
+                {/* /* Offline Modal */}
+                <Modal animationType="fade" transparent={true} visible={showOfflineModal}>
+
+                    <View style={styles.centeredView}>
+                        <View style={styles.modalView}>
+                            <Text style={styles.titleText}>Ooops!</Text>
+                            <Text style={styles.messageText}>No Internet Connection found. Check your connection.</Text>
+
+                            {/* Try Again Button */}
+                            <TouchableOpacity style={styles.retryButton} onPress={handleRetry}>
+                                <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 16, }}>RETRY</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </Modal>
+
             </AdProvider>
         </GestureHandlerRootView>
     );
 };
 
+const styles = StyleSheet.create({
+    centeredView: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+        modalView: {
+        width: width * 0.8,  // 80% of the screen width
+        // height: height * 0.2, // 20% of the screen height
+        backgroundColor: 'white',
+        borderRadius: 10,
+        padding: 15,
+        alignItems: 'center',
+    },
+    titleText: {
+        fontSize: 25,
+        fontWeight: 'bold',
+        color: '#333',
+        marginBottom: 10,
+    },
+    messageText: {
+        fontSize: 16,
+        textAlign: 'center',
+        color: '#666',
+        marginBottom: 20,
+    },
+    retryButton: {
+        width: '100%',
+        backgroundColor: '#FF3030',
+        padding: 12,
+        borderRadius: 5,
+        alignItems: 'center',
+    },
+
+});
+
 export default App;
-
-
-

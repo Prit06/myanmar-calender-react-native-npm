@@ -14,16 +14,19 @@ class MainActivity : ReactActivity() {
      * Called when the activity is first created.
      * This is where the splash screen is shown.
      */
+
+
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         SplashScreen.show(this) // Show the splash screen
         OkHttpClientProvider.setOkHttpClientFactory(IgnoreSSLFactory())
         super.onCreate(savedInstanceState)
     }
 
-  
 
     /**
-     * Returns the name of the main component registered from JavaScript.
+     * Returns the name of the main component registered from JavaScript.showInternetErrorDialog
      * This is used to schedule rendering of the component.
      */
     override fun getMainComponentName(): String = "AwesomePro"

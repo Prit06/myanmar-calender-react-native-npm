@@ -347,18 +347,18 @@ const getCalenderData = async (month, year, calenderType, calenderLanguage) => {
 const getStaticData = async () => {
   try {
     var ema = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
+      "January",
+      "February",
+      "March",
+      "April",
       "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
+      "June",
+      "July",
+      "Augest",
+      "September",
+      "October",
+      "November",
+      "December",
     ];
     var typeName = ["British", "Gregorian", "Julian"];
     var languageName = [
