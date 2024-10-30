@@ -14,7 +14,6 @@ export const AdProvider = ({ children, isConnected }) => {
     <AdContext.Provider value={{ adCount, incrementAdCount, resetAdCount, isConnected }}>
       {children}  
     </AdContext.Provider>
-    
   );
 };
 

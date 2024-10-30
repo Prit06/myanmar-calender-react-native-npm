@@ -405,6 +405,7 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
           )} */}
 
 
+
           <View>
             <View style={{ backgroundColor: "pink", flexDirection: "row" }}>
               <TouchableOpacity
@@ -497,8 +498,6 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
                   {headerLine}
                 </Text>
               </View>
-
-
 
 
               <LinearGradient
@@ -699,7 +698,7 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
                 colors={["#FFEDED", "#FFEDED"]}
                 style={styles.linearGradient}
               >
-                <View style={styles.dateContainer}>
+                <View>
                   {modelData?.MyanmarDate && (
                     <>
                       <Text style={[styles.daFontSize, styles.sm]}>
@@ -875,7 +874,7 @@ const styles = StyleSheet.create({
   },
 
   arrow: {
-    fontSize: 18,
+    fontSize: 22,
     color: "white",
     
     // marginHorizontal: 20,

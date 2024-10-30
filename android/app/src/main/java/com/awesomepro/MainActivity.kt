@@ -22,7 +22,7 @@ class MainActivity : ReactActivity() {
         SplashScreen.show(this) // Show the splash screen
         OkHttpClientProvider.setOkHttpClientFactory(IgnoreSSLFactory())
         super.onCreate(savedInstanceState)
-    }
+    }   
 
 
     /**

@@ -142,10 +142,6 @@ const EmCalender = ({ setLangCalTypeButton, langCalTypeButton }) => {
     changeTypeDataSetFun()
   }, [calendarType, language]);
 
-
-
-
-
   const selectedDateDataFunction = async () => {
     if (!selectedDate) return false
     var data = await getMCalenderData(selectedDate?.month + 1, selectedDate?.year, calendarType, language)
@@ -546,7 +542,6 @@ const EmCalender = ({ setLangCalTypeButton, langCalTypeButton }) => {
                   </View>
                 </View>
 
-
                 <View style={styles.pickersContainer}>
                   <View style={styles.pickerWrapper}>
                     <CustomPicker
@@ -574,7 +569,6 @@ const EmCalender = ({ setLangCalTypeButton, langCalTypeButton }) => {
                     />
                   </View>
                 </View>
-
 
 
                 <View>
@@ -824,8 +818,8 @@ const EmCalender = ({ setLangCalTypeButton, langCalTypeButton }) => {
                       ))
                     ) : (
                       <Text style={{ margin: 10, color: 'black', fontSize: 16, textAlign: 'center' }}>
-                      No Holidays This Month
-                    </Text>
+                        No Holidays This Month
+                      </Text>
                     )}
                   </View>
 
@@ -836,7 +830,7 @@ const EmCalender = ({ setLangCalTypeButton, langCalTypeButton }) => {
                   style={styles.linearGradient}
                 >
                   {/* <ScrollView contentContainerStyle={styles.scrollViewContent}> */}
-                  <View style={styles.dateContainer}>
+                  <View>
                     {modelData?.MyanmarDate && (
                       <>
                         <Text style={[styles.daFontSize, styles.sm]}>
@@ -928,10 +922,7 @@ const EmCalender = ({ setLangCalTypeButton, langCalTypeButton }) => {
                     )}
                   </View>
 
-
                 </LinearGradient>
-
-
               </View>
             </View>
 
@@ -970,12 +961,13 @@ const styles = StyleSheet.create({
     color: "#cca6f2",
     fontWeight: 700,
   },
+
   paragraph: {
     fontSize: 20,
     color: "white",
     textAlign: "center",
   },
-
+  
   gradientBackground: {
     marginTop: 10,
     borderRadius: 20,
@@ -1018,24 +1010,23 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: 'center',
     flex: 1,
-      paddingHorizontal: 10,
   },
-  arrow: {
-    fontSize: 18,
-    color: "white",
 
-    // marginHorizontal: 20,
+  arrow: {
+    fontSize: 22,
+    color: "white",
   },
+
   spacer: {
     flex: 1,
   },
+
   yearContainer: {
-    marginHorizontal: 5,
+    marginHorizontal: 7,
     width: 80,
   },
-  
+
   inputYear: {
-    // fontSize: 14,
     color: "black",
     textAlign: "center",
     width: "100%",
@@ -1046,25 +1037,24 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     flexDirection: 'row',
-    paddingHorizontal: 20,
   },
 
   pickerWrapper: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    
-      monthText: {
-        color: 'black',
-      },
     flexDirection: 'row',
+  },
+  
+  monthText: {
+    color: 'black',
   },
 
   pickersContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
   },
-  
+
   weekdaysContainer: {
     marginTop: 10,
     flexDirection: "row",
@@ -1072,21 +1062,25 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     width: "100%"
   },
+
   weekdayText: {
     color: "#FF5454",
     fontSize: 13,
     fontWeight: "bold",
   },
+
   daysContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "center",
   },
+
   dayContainer: {
     width: "14.28%",
     alignItems: "center",
     height: 45,
   },
+
   dayContent: {
     width: "100%",
     height: "100%",
@@ -1098,6 +1092,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "black",
   },
+
   todayCircle: {
     backgroundColor: "#3EBAFF",
     borderRadius: 30,
@@ -1106,6 +1101,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+
   selectedDayCircle: {
     backgroundColor: "#A5B9FF",
     borderRadius: 30,
@@ -1114,6 +1110,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+
   selectedAndTodayCircle: {
     backgroundColor: "#3EBAFF",
     borderRadius: 30,
@@ -1122,6 +1119,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  
   daFontSize: {
     fontSize: 16,
     paddingTop: 5,

@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Image, StatusBar, Linking, ActivityIndicator, Modal, Platform, NativeModules, DeviceEventEmitter } from 'react-native';
 import { createDrawerNavigator, DrawerContentScrollView, useDrawerStatus } from '@react-navigation/drawer';
 import { NavigationContainer, } from '@react-navigation/native';
@@ -23,12 +23,10 @@ const CustomDrawerContent = (props) => {
   const { adCount, incrementAdCount, isBennerAds, isConnected } = useContext(AdContext);
   const [selectedItem, setSelectedItem] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [interstitialAd, setInterstitialAd] = useState(null);
-  const [adUnitId, setAdUnitId] = useState(null);
-  const [apidata, setapidata] = useState({ ads: {} });
-  // const [adsFailed, setAdsFailed] = useState("failed");
+  const [apiData, setApiData] = useState(null);
 
-
+  const [adUnitIds, setAdUnitIds] = useState({})
+  const [adLoaded, setAdLoaded] = useState(false);;
 
   const openURL = (url) => {
     Linking.openURL(url).catch((err) => console.error("Couldn't load page", err));
@@ -52,233 +50,129 @@ const CustomDrawerContent = (props) => {
     } else {
       props.setBannShow(true)
       props.setBannunity(true)
-      // Handle drawer close event
+      // Handle drawer close event 
     }
   }, [isDrawerOpen]);
 
-  // ========================== InterstitialAd ads ==============================================//
-
-  const loaderCheckAdsFunction = (adsFailed, lastAds, show) => {
-    console.log("adsFailed, lastAds, show", adsFailed, lastAds, show);
-    console.log("loading", loading);
-
-    if (adsFailed == "admob" && lastAds) {
-      if (loading && show) return
-      setLoading(show);
-      console.log("abmob ads show....", show);
-    }
-    if (adsFailed == "unity" && lastAds) {
-      if (loading && show) return
-      setLoading(show);
-      console.log("unity ads show....", show);
-    }
-    if (adsFailed == "applovin" && lastAds) {
-      if (loading && show) return
-      setLoading(show);
-      console.log("applovin ads show....", show);
-    }
-    if (!adsFailed || adsFailed != "admob" && adsFailed != "unity" && adsFailed != "applovin") {
-      setLoading(show);
-      console.log("no ads show....", show);
-    }
-  }
-
-
-  const fetchApiData = async () => {
-    try {
-    
-      const response = await axios.get(API_KEY, {
-        // const response = await axios.get('https://atharvainfinity.com/atharvainfinity/ios/calendar/myanmar/myanmar_caladsapi.json', {
-      });
-      // const response = await axios.get('https://myanmarcalendar.com/myanmar_caladsapi.json', {
-      // });
-
-      setapidata(response.data?.meta);
-    } catch (error) {
-      console.error('Error fetching API data:', error);
-    }
-  };
   useEffect(() => {
     fetchApiData();
   }, [isConnected]);
 
+  const fetchApiData = async () => {
+    try {
+      const response = await axios.get(API_KEY); // Replace with your API endpoint
+      const apidata = response.data;
+      setApiData(response.data?.meta);
+      setAdUnitIds({
+        admobId: Platform.select({
+          android: apidata.meta.ads.android_adsid.admob_interstitial_unit_id,
+          ios: apidata.meta.ads.ios_adsid.admob_interstitial_unit_id,
+        }),
+        unityId: Platform.select({
+          android: apidata.meta.ads.android_adsid.unity_interstitial_placement_id,
+          ios: apidata.meta.ads.ios_adsid.unity_interstitial_placement_id,
+        }),
+        gameId: Platform.select({
+          android: apidata.meta.ads.android_adsid.unity_game_id,
+          ios: apidata.meta.ads.ios_adsid.unity_game_id,
+        }),
+        applovinId: Platform.select({
+          android: apidata.meta.ads.android_adsid.applovin_interstitial_id,
+          ios: apidata.meta.ads.ios_adsid.applovin_interstitial_id,
+        }),
+      });
+    } catch (error) {
+      console.error('Error fetching API data:', error);
+    }
+  };
+
   useEffect(() => {
-    console.log("isConnected", isConnected);
-    
-    if (adCount > 0 && adCount % apidata?.ads.interstitial_ad_interval === 0 && apidata?.ads.ad_status === "1" && Platform.OS !== 'ios') {
-      console.log("Showing Interstitial Ad with ID: ", apidata.ads.ad_status);
-      if (Platform.OS === 'android') {
-        props.setLangCalTypeButton(false);
-        if (apidata?.ads.admob_ads === "1") {
-          const adUnitId = Platform.select({
-            android: apidata.ads.android_adsid.admob_interstitial_unit_id,
-            ios: apidata.ads.ios_adsid.admob_interstitial_unit_id,
-          });
-
-          const interstitialAd = InterstitialAd.createForAdRequest(adUnitId);
-          // setLoading(true);
-          loaderCheckAdsFunction("admob", true, true)
-
-          const adLoadListener = interstitialAd.addAdEventListener(AdEventType.LOADED, () => {
-            // setLoading(false);
-            loaderCheckAdsFunction("admob", true, true)
-            interstitialAd.show();
-            console.log("ads is Show");
-          });
-
-          const adErrorListener = interstitialAd.addAdEventListener(AdEventType.ERROR, (error) => {
-            // setLoading(false);
-            loaderCheckAdsFunction("admob", false, false)
-            console.log("Failed to Load Interstitial Ad: ", error);
-            showUnityAd();
-          });
-
-          const adCloseListener = interstitialAd.addAdEventListener(AdEventType.CLOSED, () => {
-            // Optionally handle ad closure
-            loaderCheckAdsFunction("admob", true, false)
-          });
-
-          interstitialAd.load();
-
-          return () => {
-            adLoadListener();
-            adErrorListener();
-            adCloseListener();
-          };
-        } else {
-          showUnityAd();
-        }
+    if (adCount > 0 && adCount % apiData?.ads.interstitial_ad_interval === 0 && apiData?.ads.ad_status === "1") {
+      console.log("adUnitIds.admobId", adUnitIds.admobId);
+      setLoading(true);
+      if (apiData?.ads.admob_ads === "1"){
+        const interstitialAd = InterstitialAd.createForAdRequest(adUnitIds.admobId);
+        const adLoadListener = interstitialAd.addAdEventListener(AdEventType.LOADED, () => {
+          setAdLoaded(true);
+          setTimeout(() => {
+              interstitialAd.show();
+              setAdLoaded(false);
+          }, 500);
+        });
+        const adErrorListener = interstitialAd.addAdEventListener(AdEventType.ERROR, (error) => {
+          console.log("Failed to Load Interstitial Ad: ", error);
+          handleUnityAdShow()
+        });
+        const adCloseListener = interstitialAd.addAdEventListener(AdEventType.CLOSED, () => {
+          setLoading(false);
+        });
+        interstitialAd.load();
+        return () => {
+          adLoadListener();
+          adErrorListener();
+          adCloseListener();
+        };
+      }else{
+        handleUnityAdShow()
       }
-    } else if (Platform.OS === 'ios') {
-      loadIosadmobads();
     }
-  }, [adCount, adUnitId]);
+  }, [adCount, adUnitIds]);
 
-  const loadInterstitialAd = () => {
-    if (apidata?.ads?.admob_ads === "1") {
-      console.log("Loading Interstitial Ad...");
 
-      const adUnitId = Platform.select({
-        android: apidata.ads.android_adsid.admob_interstitial_unit_id,
-        ios: apidata.ads.ios_adsid.admob_interstitial_unit_id,
-      });
 
-      const ad = InterstitialAd.createForAdRequest(adUnitId);
-      // setLoading(true);
-
-      const adLoadListener = ad.addAdEventListener(AdEventType.LOADED, () => {
-        // setLoading(false);
-        setInterstitialAd(ad); // Store the loaded ad
-        console.log("Interstitial Ad loaded successfully");
-      });
-
-      const adErrorListener = ad.addAdEventListener(AdEventType.ERROR, (error) => {
-        // setLoading(false);
-        console.log("Failed to load Interstitial Ad: ", error);
-        showUnityAd();
-      });
-
-      ad.load(); // Load the ad
-
-      return () => {
-        adLoadListener();
-        adErrorListener();
-      };
-    } else {
-      showUnityAd();
-    }
-  };
-
-  const showInterstitialAd = async () => {
-    if (interstitialAd) {
-      StatusBar.setHidden(true);  // Hide status bar when ad shows
-      await interstitialAd.show();
-      setLoading(false);
-      console.log("Interstitial Ad shown");
-    } else {
-      console.log("Interstitial Ad not ready to show yet");
-    }
-  };
-
-  const loadIosadmobads = () => {
-    if (adCount > 0 && adCount % apidata?.ads.interstitial_ad_interval !== 0 && apidata?.ads.ad_status === "1") {
-      loadInterstitialAd();
-    }
-
-    // Show ad when adCount equals 3
-    if (adCount > 0 && adCount % apidata?.ads.interstitial_ad_interval === 0 && apidata?.ads.ad_status === "1") {
-      props.setLangCalTypeButton(false);
-      // setLoading(true);
-      loaderCheckAdsFunction("admob", true, true)
-      showInterstitialAd();
-    }
-  }
-
-  // ==================================== show Unity Ads ======================================= //
-
-  const showUnityAd = () => {
-    const gameId = Platform.select({
-      android: apidata.ads.android_adsid.unity_game_id,
-      ios: apidata.ads.ios_adsid.unity_game_id,
-    });
-
-    const interstitialPlacementId = Platform.select({
-      android: apidata.ads.android_adsid.unity_interstitial_placement_id,
-      ios: apidata.ads.ios_adsid.unity_interstitial_placement_id,
-    });
-
-    // Initialize Unity Ads
-    UnityAds.initialize(gameId, true)
-      .then(() => UnityAds.loadAd(interstitialPlacementId))
+  const handleUnityAdShow = async () => {
+    try {
+      await UnityAds.initialize(adUnitIds.gameId, true)
+      .then(() => UnityAds.loadAd(adUnitIds.unityId))
       .catch(error => console.error('UnityAds initialization failed', error));
 
-    // Set listeners for ad loading
-    UnityAds.setOnUnityAdsLoadListener({
-      onAdLoaded: (placementId) => {
-        console.log(`UnityAds.onAdLoaded: ${placementId}`);
-        if (placementId === interstitialPlacementId) {
-          // setLoading(true);
-          loaderCheckAdsFunction("unity", true, true)
-          unityAdsloadingFun(interstitialPlacementId);
-        }
-      },
-      onAdLoadFailed: (placementId, error) => {
-        console.log(`UnityAds.onAdLoadFailed: ${placementId}`, error);
-        loaderCheckAdsFunction("unity", true, false)
-        // showAppLovinAd();
-      },
-    });
-
-  }
-
-  const unityAdsloadingFun = (placementId) => {
-    loaderCheckAdsFunction("unity", true, true)
-    setTimeout(() => {
-      // setLoading(false); // Hide loader after 2 minutes (120000 ms)
-      loaderCheckAdsFunction("unity", true, false)
-      console.log('Process Complete!');
-      showAdIfReady(placementId); // Attempt to show ad
-    }, 2000);
+      await UnityAds.setOnUnityAdsLoadListener({
+        onAdLoaded: (placementId) => {
+          console.log(`UnityAds.onAdLoaded: ${placementId}`);
+          if (placementId === adUnitIds.unityId) {
+            setTimeout(() => {
+              showAdIfReady(adUnitIds.unityId)
+            }, 500);
+          }
+        },
+        onAdLoadFailed: (placementId, error) => {
+          console.log(`UnityAds.onAdLoadFailed: ${placementId}`, error);
+          setLoading(false);
+          // showAppLovinAd();
+        },
+      });
+    } catch (unityError) {
+      console.log("unityError", unityError);
+      showAppLovinAd()
+      // Fallback to AppLovin
+      // AppLovinMAX.loadInterstitial(adUnitIds.applovinId);
+      // AppLovinMAX.showInterstitial(adUnitIds.applovinId);
+    }
   };
 
-  const showAdIfReady = (placementId) => {
-    UnityAds.showAd(placementId)
+  const showAdIfReady = async(placementId) => {
+    await UnityAds.showAd(placementId)
       .then(() => {
         console.log('Unity ad shown successfully');
+        setLoading(false);
       })
       .catch(error => {
+        setLoading(false);
         console.error('UnityAds.showAd failed', error);
-        UnityAds.loadAd(placementId);
+        // showAppLovinAd()
+        // UnityAds.loadAd(placementId);
       });
   }
 
+  const showAppLovinAd = () => {
+  }
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 4000); // 4 seacond loader time ...........
-    return () => clearTimeout(timer);
-  }, []);
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     setLoading(false);
+  //   }, 4000); // 4 seacond loader time ...........
+  //   return () => clearTimeout(timer);
+  // }, []);
 
   return (
     <DrawerContentScrollView {...props}>
@@ -318,6 +212,7 @@ const CustomDrawerContent = (props) => {
               { tintColor: selectedItem === 'English Calendar' ? '#FF3030' : 'white' }
             ]}
           />
+          
           <Text style={[
             styles.drawerItemText,
             { color: selectedItem === 'English Calendar' ? '#FF3030' : 'white' }
@@ -351,9 +246,6 @@ const CustomDrawerContent = (props) => {
             {"Myanmar Calendar"}
           </Text>
         </TouchableOpacity>
-
-
-
         <TouchableOpacity
           style={[
             styles.drawerItemContainer,
@@ -467,6 +359,7 @@ const CustomDrawerContent = (props) => {
 // ============================bannnr ads show ====================================================//
 
 const DrawerNavigation = () => {
+  const bannerRef = useRef(null);
   const [bannerAdUnitId, setBannerAdUnitId] = useState(null);
   const [bannShow, setBannShow] = useState(true);
   const [bannunity, setBannunity] = useState(true);
@@ -481,7 +374,7 @@ const DrawerNavigation = () => {
   const logStatus = (message) => {
     console.log(message);
   };
-r=
+
   useEffect(() => {
     const fetchApiData = async () => {
       try {
@@ -495,8 +388,16 @@ r=
           if (dataSet?.admob_ads === "1") {
             if (Platform.OS === 'android') {
               setBannerAdUnitId(response.data?.meta.ads.android_adsid.admob_banner_unit_id);
+              setadsValue("admob")
+              setAdmobFailed(false);
+              setShowUnityBanner(false);
+              if(bannerRef) bannerRef?.current?.loadAd()
             } else if (Platform.OS === 'ios') {
               setBannerAdUnitId(response.data?.meta.ads.ios_adsid.admob_banner_unit_id);
+              setadsValue("admob")
+              setAdmobFailed(false);
+              setShowUnityBanner(false);
+              bannerRef.current?.loadAd()
             }
           }
         }
@@ -509,6 +410,7 @@ r=
   }, [isConnected]);
 
 
+
   const Unityads = NativeModules.Unityads
     ? NativeModules.Unityads
     : new Proxy(
@@ -519,6 +421,7 @@ r=
         },
       }
     );
+
 
   useEffect(() => {
     if (!responseData) return
@@ -548,7 +451,6 @@ r=
       // logStatus('Interstitial ad failed to load: ' + errorInfo);
       console.log("onUnityAdsAdFailedToLoad", errorInfo);
     });
-
   }
 
   const handleAdFailedToLoad = () => {
@@ -576,6 +478,7 @@ r=
     }
   };
 
+
   useEffect(() => {
     if (bannunity && admobFailed) {
       ubitcall();
@@ -596,12 +499,12 @@ r=
     };
   }, [bannunity])
 
-  const handleAdLoaded = () => {
-    setadsValue("admob")
-    setAdmobFailed(false);
-    setShowUnityBanner(false);
-  };
-
+  // const handleAdLoaded = () => {
+  //   console.log("bannShow================", bannShow , bannerAdUnitId);
+  //   setadsValue("admob")
+  //   setAdmobFailed(false);
+  //   setShowUnityBanner(false);
+  // };
 
 
   return (
@@ -666,13 +569,12 @@ r=
                 </View>
               )
               }
-
-
               <BannerAd
                 unitId={bannerAdUnitId}
                 size={BannerAdSize.LARGE_BANNER}
                 onAdFailedToLoad={handleAdFailedToLoad}
-                onAdLoaded={handleAdLoaded}
+                // onAdLoaded={handleAdLoaded}
+                ref={bannerRef}
               />
             </>
           ) : (

@@ -18,7 +18,6 @@ import { Dimensions } from 'react-native';
 const { width } = Dimensions.get('window');
 var adFunLoad = false
 const App = () => {
-    console.log("main");
     const [versionModel, setVersionModel] = useState(false);
     const [appVersion, setAppVersion] = useState("");
     const [adClosed, setAdClosed] = useState(false);
@@ -31,15 +30,14 @@ const App = () => {
     const [showOfflineModal, setShowOfflineModal] = useState(false); // State to manage offline modal
 
     useEffect(() => {
-        console.log("userEft");
         // Monitor network connection
         const unsubscribe = NetInfo.addEventListener(state => {
             setIsConnected(state.isConnected);
-            if(state.isConnected){
+            if (state.isConnected) {
                 setShowOfflineModal(false);
                 fetchApiData();
                 // SplashScreen.hide();
-            }else{
+            } else {
                 setShowOfflineModal(true);
                 return
             }
@@ -70,6 +68,7 @@ const App = () => {
 
     useEffect(() => {
         if (isAdsFailed && apiData) {
+        // if (apiData) {
             checkAppVersion(appVersion, apiData?.update_on);
         }
     }, [isAdsFailed, apiData]);
@@ -78,10 +77,9 @@ const App = () => {
         try {
             const response = await axios.get(API_KEY);
             // const response = await axios.get('https://myanmarcalendar.com/myanmar_caladsapi.json');
-            console.log("fub", adFunLoad);
-            
+
             const adsData = response.data?.meta?.ads;
-            setApiData(adsData?.update_on);
+            setApiData(adsData);
             setAppVersion(adsData?.update);
             if (!adFunLoad) {
                 loadAppOpenAd(adsData);
@@ -92,6 +90,8 @@ const App = () => {
         }
     };
 
+
+
     const loadAppOpenAd = (adsData) => {
         if (adsData?.ad_status === "0" || adsData?.admob_ads === "0") setIsAdsFailed(true)
         if (adsData?.ad_status === "1" && adsData?.admob_ads === "1") {
@@ -100,7 +100,6 @@ const App = () => {
             });
             adFunLoad = true
             appOpenAd.addAdEventListener(AdEventType.LOADED, () => {
-                console.log("adsLoad");
                 setIsAdLoaded(true);
                 adsShowFun()
                 SplashScreen.hide();
@@ -135,9 +134,10 @@ const App = () => {
         }
     };
 
+
     const checkAppVersion = async (latestVersion, update_on) => {
         const version = await DeviceInfo.getVersion();
-        if (version < latestVersion && update_on === 1) {
+        if (version > latestVersion && update_on === 1) {
             setVersionModel(true);
         }
     };
@@ -197,7 +197,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
     },
-        modalView: {
+    
+    modalView: {
         width: width * 0.8,  // 80% of the screen width
         // height: height * 0.2, // 20% of the screen height
         backgroundColor: 'white',
@@ -205,6 +206,7 @@ const styles = StyleSheet.create({
         padding: 15,
         alignItems: 'center',
     },
+
     titleText: {
         fontSize: 25,
         fontWeight: 'bold',
