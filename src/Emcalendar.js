@@ -270,33 +270,37 @@ const EmCalender = ({ setLangCalTypeButton, langCalTypeButton }) => {
 
   const changeMonth = (value) => {
     setLoading(true);
-    var v = value
-    var SY = 1577917828 / 4320000; //solar year (365.2587565)
-    var MO = 1954168.050623; //beginning of 0 ME
-    var me = month;
-    var mn = Number(me);
-    var ye = year;
-    var yn = Number(ye);
-    var j1 = Math.round(SY * yn + MO) + 1;
-    var j2 = Math.round(SY * (yn + 1) + MO);
-    var M1 = ceMmDateTime.j2m(j1);
-    var M2 = ceMmDateTime.j2m(j2);
-    var si = M1.mm; var ei = M2.mm;
-    if (mn == 0) mn = (v == 1) ? 4 : 3;
-    else if (mn == 4 && M1.myt != 0 && v != 1) mn = 0;
-    else if (mn == 3 && M1.myt != 0 && v == 1) mn = 0;
-    else {
-      mn += Number(v);
-      if (mn < si) { mn += 12; yn--; }
-      else if (mn > ei) { mn = mn % 12; yn++; }
-    }
-    setMonth(mn);
-    setYear(yn);
+    setTimeout(() => {
+      var v = value
+      var SY = 1577917828 / 4320000; //solar year (365.2587565)
+      var MO = 1954168.050623; //beginning of 0 ME
+      var me = month;
+      var mn = Number(me);
+      var ye = year;
+      var yn = Number(ye);
+      var j1 = Math.round(SY * yn + MO) + 1;
+      var j2 = Math.round(SY * (yn + 1) + MO);
+      var M1 = ceMmDateTime.j2m(j1);
+      var M2 = ceMmDateTime.j2m(j2);
+      var si = M1.mm; var ei = M2.mm;
+      if (mn == 0) mn = (v == 1) ? 4 : 3;
+      else if (mn == 4 && M1.myt != 0 && v != 1) mn = 0;
+      else if (mn == 3 && M1.myt != 0 && v == 1) mn = 0;
+      else {
+        mn += Number(v);
+        if (mn < si) { mn += 12; yn--; }
+        else if (mn > ei) { mn = mn % 12; yn++; }
+      }
+      setMonth(mn);
+      setYear(yn);
+    }, 500);
   };
 
   const changeYear = (value) => {
     setLoading(true);
-    setYear(+year + value);
+    setTimeout(() => {
+      setYear(+year + value);
+    }, 500);
   };
 
   const isToday = (day) => {
@@ -399,12 +403,14 @@ const EmCalender = ({ setLangCalTypeButton, langCalTypeButton }) => {
         <View style={{
           height: screenHeight,
           width: screenWidth,
-          position: "absolute",
-          top: -60,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          flex: 1
+          position:"absolute",
+          top: - 60,
+          left: 0,
+          display:"flex",
+          alignItems:"center",
+          backgroundColor: 'rgba(0, 0, 0, 0)',
+          justifyContent:"center",
+          zIndex: 999,
         }}>
           <View
             style={{

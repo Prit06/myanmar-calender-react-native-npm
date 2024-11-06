@@ -195,22 +195,27 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
 
   const changeMonth = (value) => {
     setLoading(true)
-    let newMonth = month + value;
-    let newYear = year;
-    if (newMonth < 1) {
-      newMonth = 12;
-      newYear -= 1;
-    } else if (newMonth > 12) {
-      newMonth = 1;
-      newYear += 1;
-    }
-    setMonth(newMonth);
-    setYear(newYear);
+    setTimeout(() => {
+      let newMonth = month + value;
+      let newYear = year;
+      if (newMonth < 1) {
+        newMonth = 12;
+        newYear -= 1;
+      } else if (newMonth > 12) {
+        newMonth = 1;
+        newYear += 1;
+      }
+      setMonth(newMonth);
+      setYear(newYear);
+    }, 500);
   };
 
   const changeYear = (value) => {
     setLoading(true)
-    setYear(year + value);
+    setTimeout(() => {
+      setYear(year + value);
+    }, 500);
+    
   };
 
   const isToday = (day) => {
@@ -328,10 +333,13 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
           height: screenHeight,
           width: screenWidth,
           position:"absolute",
-          top:-60,
+          top: - 60,
+          left: 0,
           display:"flex",
           alignItems:"center",
+          backgroundColor: 'rgba(0, 0, 0, 0)',
           justifyContent:"center",
+          zIndex: 999,
         
       }}>
         <View
@@ -403,7 +411,6 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
               </View>
             </View>
           )} */}
-
 
 
           <View>
