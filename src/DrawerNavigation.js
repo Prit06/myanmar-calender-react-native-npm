@@ -270,8 +270,8 @@ const CustomDrawerContent = (props) => {
 
   const initializeAppLovinSdk = () => {
     const appLovinSdkKey = Platform.select({
-      android: SDK_KET,
-      ios: SDK_KET,
+      android: SDK_KEY,
+      ios: SDK_KEY,
     });
   
     // Initialize AppLovin SDK
