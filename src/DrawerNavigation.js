@@ -12,6 +12,7 @@ import { AdEventType, BannerAd, BannerAdSize, InterstitialAd } from 'react-nativ
 import { AdContext } from './adsContext';
 import axios from 'axios';
 import UnityAds from 'react-native-unity-ads-monetization';
+import { AppLovinMAX } from 'react-native-applovin-max';
 import {API_KEY} from '@env';
 
 const Drawer = createDrawerNavigator();
@@ -68,6 +69,7 @@ const CustomDrawerContent = (props) => {
       setAdUnitIds({
         admobId: Platform.select({
           android: apidata.meta.ads.android_adsid.admob_interstitial_unit_id,
+          // android: "ca-app-pub-3940256099942544/92145897413444",
           ios: apidata.meta.ads.ios_adsid.admob_interstitial_unit_id,
         }),
         unityId: Platform.select({
@@ -79,8 +81,8 @@ const CustomDrawerContent = (props) => {
           ios: apidata.meta.ads.ios_adsid.unity_game_id,
         }),
         applovinId: Platform.select({
-          android: apidata.meta.ads.android_adsid.applovin_interstitial_id,
-          ios: apidata.meta.ads.ios_adsid.applovin_interstitial_id,
+          android: apidata.meta.ads.android_adsid.applovin_interstitial_unit_id,
+          ios: apidata.meta.ads.ios_adsid.applovin_interstitial_unit_id,
         }),
       });
     } catch (error) {
@@ -88,8 +90,11 @@ const CustomDrawerContent = (props) => {
     }
   };
 
+
+
   useEffect(() => {
     if (adUnitIds.gameId) {
+
       // UnityAds.initialize(adUnitIds.gameId, true)
       //   .then(() => console.log("Unity Ads initialized"))
       //   .catch((error) => console.error("Unity Ads initialization failed", error));
@@ -204,6 +209,10 @@ const CustomDrawerContent = (props) => {
   // }
 
   // Show Unity Ad with Fallback
+
+
+
+
   const handleUnityAdShow = async () => {
     try {
       console.log("Attempting to show Unity Ad:", adUnitIds.unityId, "Game ID:", adUnitIds.gameId);
@@ -257,20 +266,59 @@ const CustomDrawerContent = (props) => {
         isAdShowing = false; // Reset the flag after the ad is shown or failed
       }
     }, 500);
-   
+  };
+
+  const initializeAppLovinSdk = () => {
+    const appLovinSdkKey = Platform.select({
+      android: SDK_KET,
+      ios: SDK_KET,
+    });
+  
+    // Initialize AppLovin SDK
+    AppLovinMAX.initialize(appLovinSdkKey, (configuration) => {
+      console.log('AppLovin SDK initialized:', configuration);
+    });
   };
 
 
-  const showAppLovinAd = () => {
-  }
+  // ====================================== Applovin Ads ==================================================//
 
-  // useEffect(() => {
-  //   const timer = setTimeout(() => {
-  //     setLoading(false);
-  //   }, 4000); // 4 seacond loader time ...........
-  //   return () => clearTimeout(timer);
-  // }, []);
-
+    const showAppLovinAd = () => {
+      console.log("Attempting to show AppLovin ad");
+    
+      // Ensure the AppLovin SDK is initialized
+      initializeAppLovinSdk();
+      // Check if AppLovin SDK is initialized before loading the ad
+      if (!AppLovinMAX.isInitialized()) {
+        console.error("AppLovin SDK is not initialized. Please initialize it before showing ads.");
+        return;
+      }
+      AppLovinMAX.loadInterstitial(adUnitIds.applovinId);
+      
+      const appLovinLoadListener = AppLovinMAX.addInterstitialLoadedEventListener(() => {
+        setLoading(false);
+        if (AppLovinMAX.isInterstitialReady(adUnitIds.applovinId)) {
+          AppLovinMAX.showInterstitial(adUnitIds.applovinId);
+          console.log("AppLovin interstitial ad is shown");
+        }
+      });
+    
+      const appLovinErrorListener = AppLovinMAX.addInterstitialLoadFailedEventListener((errorCode) => {
+        setLoading(false);
+        console.log("Failed to load AppLovin Interstitial Ad:", errorCode);
+      });
+    
+      const appLovinCloseListener = AppLovinMAX.addInterstitialHiddenEventListener(() => {
+        console.log("AppLovin interstitial ad closed");
+      });
+    
+      return () => {
+        appLovinLoadListener();
+        appLovinErrorListener();
+        appLovinCloseListener();
+      };
+    };
+    
   return (
     <DrawerContentScrollView {...props}>
       <Modal visible={loading} transparent>
@@ -487,6 +535,9 @@ const DrawerNavigation = () => {
           if (dataSet?.admob_ads === "1") {
             if (Platform.OS === 'android') {
               setBannerAdUnitId(response.data?.meta.ads.android_adsid.admob_banner_unit_id);
+              // setBannerAdUnitId( "ca-app-pub-3940256099942544/92145897414");
+
+
               setadsValue("admob")
               setAdmobFailed(false);
               setShowUnityBanner(false);
@@ -524,7 +575,6 @@ const DrawerNavigation = () => {
   }, [isConnected]);
 
 
-
   const Unityads = NativeModules.Unityads
     ? NativeModules.Unityads
     : new Proxy(
@@ -536,13 +586,13 @@ const DrawerNavigation = () => {
       }
     );
 
-
   useEffect(() => {
     if (!responseData) return
     const unity_game_id = Platform.select({
       android: responseData.android_adsid.unity_game_id,
       ios: responseData.ios_adsid.unity_game_id,
     });
+
     Unityads.initialize(unity_game_id, 1, (callback) => { // Test mode 1, production 0
       logStatus('SDK Initialized: ' + callback);
       attachAdListeners();
@@ -553,11 +603,11 @@ const DrawerNavigation = () => {
     }
   }, [responseData]);
 
-  function attachAdListeners() {
-    if (!Unityads || typeof Unityads.addEventListener !== 'function') {
-      console.log('Unityads.addEventListener is not a function');
-      return;
-    }
+      function attachAdListeners() {
+        if (!Unityads || typeof Unityads.addEventListener !== 'function') {
+          console.log('Unityads.addEventListener is not a function');
+          return;
+        }
 
     // Ad event listeners...
     Unityads.addEventListener('onUnityAdsAdFailedToLoad', (errorInfo) => {
@@ -589,12 +639,11 @@ const DrawerNavigation = () => {
     if (Unityads && typeof Unityads.unLoadBottomBanner === 'function') {
       Unityads.unLoadBottomBanner(); // Call the unload method
       setShowUnityBanner(false)
-      setadsValue("")
+      // setadsValue("")
       console.log("Bottom banner ad unloaded");
       logStatus('Bottom banner ad unloaded....');
     }
   };
-
 
   useEffect(() => {
    const bannerLoadListener = DeviceEventEmitter.addListener(
@@ -642,11 +691,9 @@ const DrawerNavigation = () => {
   //   setShowUnityBanner(false);
   // };
 
-
   return (
     <NavigationContainer>
       <StatusBar barStyle="dark-content" backgroundColor="#FFBABA" />
-
       <Drawer.Navigator
         drawerContent={(props) => (
           <CustomDrawerContent
@@ -683,7 +730,6 @@ const DrawerNavigation = () => {
         <Drawer.Screen name="MyanmarZodiacSigns" component={MyanmarZodiacSigns} />
       </Drawer.Navigator>
 
-
       {bannShow ? (
         <View style={adsValue === "admob" ? styles.adContainer : (adsValue === "unity" ? styles.unityadContainer : styles.noadsContainer)}>
           {
@@ -717,14 +763,14 @@ const DrawerNavigation = () => {
           ) : (
             showUnityBanner && (
               adsValue === "unity" && (
-                <View style={{ position: 'absolute', top: 50, alignSelf: 'center' }}>
-                  <Text style={{ color: 'black', fontSize: 20 }}>Loading......................</Text>
+                <View style={{ position: 'absolute', top: 50, alignSelf: 'center'}}>
+                  <Text style={{ color: 'black', fontSize:16 }}>Loading...</Text>
                 </View>
               )
             )
           )}
         </View>
-      ) : null}
+      ) : null} 
 
     </NavigationContainer>
   );
@@ -796,7 +842,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
     backgroundColor: 'white',
-    height: 0,
+    height: 100,
     // marginBottom: 0
   },
   loaderText: {

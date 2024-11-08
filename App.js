@@ -90,8 +90,6 @@ const App = () => {
         }
     };
 
-
-
     const loadAppOpenAd = (adsData) => {
         if (adsData?.ad_status === "0" || adsData?.admob_ads === "0") setIsAdsFailed(true)
         if (adsData?.ad_status === "1" && adsData?.admob_ads === "1") {
@@ -134,10 +132,9 @@ const App = () => {
         }
     };
 
-
     const checkAppVersion = async (latestVersion, update_on) => {
         const version = await DeviceInfo.getVersion();
-        if (version > latestVersion && update_on === 1) {
+        if (version < latestVersion && update_on === 1) {
             setVersionModel(true);
         }
     };
