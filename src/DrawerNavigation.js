@@ -583,6 +583,7 @@ const DrawerNavigation = () => {
   const [showUnityBanner, setShowUnityBanner] = useState(false);
   const [responseData, setresponseData] = useState(null);
   const [langCalTypeButton, setLangCalTypeButton] = useState(false);
+  const [isApiData, setIsApiData] = useState(false);
 
   var adLoadState = {
     notLoaded: 'NOT_LOADED',
@@ -630,22 +631,37 @@ const DrawerNavigation = () => {
       try {
         const response = await axios.get(API_KEY);
         const dataSet = response.data?.meta.ads;
-  
-        if (dataSet?.ad_status === "1") {
-          setresponseData(dataSet);
-          if (dataSet?.admob_ads === "1") {
-            setupAdMobBanner(dataSet);
-          } else {
-            // showUnityBannerFun();
-            setupAppLovinBanner()
+        setresponseData(dataSet);
+        if (responseData) {
+          if (dataSet?.ad_status === "1") {
+            if (responseData?.admob_ads === "1") {
+              setupAdMobBanner(dataSet);
+            } else {
+              // showUnityBannerFun();
+              setupAppLovinBanner()
+            }
+          }else{
+            setadsValue("");
+            setBannShow(false)
           }
+        }else{
+          setadsValue("");
+          setBannShow(false)
         }
       } catch (error) {
         console.log('Error fetching API data:', error);
       }
     };
     fetchApiData();
-  }, [isConnected]);
+  }, [isConnected, isApiData]);
+
+  useEffect(() => {
+    console.log("fsdfsf", responseData);
+    console.log("fsdfsf", isApiData);
+    if(!isApiData){
+      setIsApiData(true)
+    }
+  }, [responseData]);
 
   const setupAdMobBanner = (data) => {
     const adUnitId = Platform.OS === 'android'
@@ -681,7 +697,8 @@ const DrawerNavigation = () => {
     const unityPlacementId = Platform.OS === 'android'
       ? responseData?.android_adsid.unity_banner_placement_id
       : responseData?.ios_adsid.unity_banner_placement_id;
-  
+    console.log("unityPlacementId", unityPlacementId);
+    
     Unityads.loadBottomBanner(unityPlacementId);
     setShowUnityBanner(true);
   };
@@ -765,6 +782,8 @@ const DrawerNavigation = () => {
 }, []);
 
   const setupAppLovinBanner = () => {
+    console.log("unityPlacementId", responseData);
+    
     setadsValue("applovin");
     const adUnitId = Platform.OS === 'android'
     ? responseData?.android_adsid.applovin_banner_unit_id
