@@ -10,7 +10,9 @@ import {
   DrawerLayoutAndroid,
   Image,
   Linking,
- 
+  ActivityIndicator,
+  Dimensions,
+
 } from "react-native";
 import LinearGradient from 'react-native-linear-gradient';
 import {
@@ -22,11 +24,10 @@ import CustomPicker from "./CustomPicker";
 import Svg, { Path } from "react-native-svg";
 import Holidaydata from "../calenderData/holidays";
 import Loader from "./loader";
-import { AdContext, AdProvider } from './adsContext';  // Import AdContext and AdProvider
-import { InterstitialAd, AdEventType, AdManager } from 'react-native-google-mobile-ads';
+import { AdContext } from './adsContext';  // Import AdContext and AdProvider
+const { height: screenHeight, width: screenWidth } = Dimensions.get('window');
 
-
-const Calender = () => {
+const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
   var dt = new Date();
   const [day, setDay] = useState(dt.getDate());
   const [calenderData, setCalenderData] = useState([]);
@@ -52,37 +53,27 @@ const Calender = () => {
   const [WaningMoon, setWaningMoon] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isMainScreen, setIsMainScreen] = useState(false);
-
   const { adCount, incrementAdCount } = useContext(AdContext);
 
-  const [clickCount, setClickCount] = useState(0);
-  const [adLoaded, setAdLoaded] = useState(false);
-
-
-
-  const toggleModal = (js) => {
-    setModalData(js);
-    setModalVisible(!isModalVisible);
-  };
 
   const startLoading = (time) => {
-    // setLoading(true);
     // Simulate a network request or any other async operation
     setTimeout(() => {
       setLoading(false);
+      setLangCalTypeButton(false)
     }, time);
   };
 
 
   useEffect(() => {
-    startLoading(5000);
+    startLoading(2000);
     const today = new Date();
     setYear(today?.getFullYear());
     setMonth(today.getMonth() + 1);
     setCurrentDate(today);
     calenderDataFun();
     staticDataFun();
-  }, []); 
+  }, []);
 
 
   useEffect(() => {
@@ -93,11 +84,9 @@ const Calender = () => {
     getDaysData(selectedJs);
   }, [month, year]);
 
-  
   useEffect(() => {
-    if (!loading) {
-      startLoading(2000);
-    }
+
+
     calenderDataFun();
     async function changeTypeDataSetFun() {
       var js = await selectedDateDataFunction()
@@ -110,6 +99,7 @@ const Calender = () => {
     }
     changeTypeDataSetFun()
   }, [calendarType, language]);
+
 
 
   const selectedDateDataFunction = async () => {
@@ -138,7 +128,7 @@ const Calender = () => {
   }, []);
 
   const filteredHolidays = holidays.filter((ele) => {
-    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     var monthName = monthNames[month - 1]
     var removeValue = [monthName, year.toString()]
     var dateArr = ele.date.split(" ").filter(item => !removeValue.includes(item)).toString();
@@ -205,23 +195,27 @@ const Calender = () => {
 
   const changeMonth = (value) => {
     setLoading(true)
-    let newMonth = month + value;
-    let newYear = year;
-    if (newMonth < 1) {
-      newMonth = 12;
-      newYear -= 1;
-    } else if (newMonth > 12) {
-      newMonth = 1;
-      newYear += 1;
-    }
-    setMonth(newMonth);
-    setYear(newYear);
+    setTimeout(() => {
+      let newMonth = month + value;
+      let newYear = year;
+      if (newMonth < 1) {
+        newMonth = 12;
+        newYear -= 1;
+      } else if (newMonth > 12) {
+        newMonth = 1;
+        newYear += 1;
+      }
+      setMonth(newMonth);
+      setYear(newYear);
+    }, 500);
   };
-
 
   const changeYear = (value) => {
     setLoading(true)
-    setYear(year + value);
+    setTimeout(() => {
+      setYear(year + value);
+    }, 500);
+    
   };
 
   const isToday = (day) => {
@@ -232,6 +226,16 @@ const Calender = () => {
     );
   };
 
+
+  const scrollViewRef = useRef(null);
+
+  const scrollToTop = () => {
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollToEnd({ animated: true });
+    }
+  };
+
+
   const isSelectedDay = (day) => {
     return (
       selectedDate &&
@@ -241,11 +245,11 @@ const Calender = () => {
     );
   };
 
+
   const renderDay = (data, index) => {
     var day = data.EnglishDay;
     var toDayDateClass = data.englishDaysClass;
     var js = data.js;
-    
 
     const today = isToday(day);
     const selected = isSelectedDay(day);
@@ -271,7 +275,7 @@ const Calender = () => {
               year: year,
             });
             setSelectedJs(js);
-          
+            scrollToTop();
           }}
           activeOpacity={0.7}
         >
@@ -297,6 +301,7 @@ const Calender = () => {
           });
           setSelectedJs(js);
           incrementAdCount();
+          scrollToTop();
         }}
         activeOpacity={0.7}
       >
@@ -322,6 +327,49 @@ const Calender = () => {
   );
 
   return (
+    <>
+    {(loading || langCalTypeButton) && (
+      <View  style={{
+          height: screenHeight,
+          width: screenWidth,
+          position:"absolute",
+          top: - 60,
+          left: 0,
+          display:"flex",
+          alignItems:"center",
+          backgroundColor: 'rgba(0, 0, 0, 0)',
+          justifyContent:"center",
+          zIndex: 999,
+        
+      }}>
+        <View
+          style={{
+            // height: "50%",
+            justifyContent: "center", // Centers vertically
+            alignItems: "center", // Centers horizontally
+            display:"flex",
+          }}
+        >
+          <View
+            style={{
+              width: 70, // Set the width to create a square
+              height: 70, // Same as width for the square shape
+              justifyContent: "center",
+              alignItems: "center",
+              borderRadius: 20, // Add some border radius for smooth edges
+              zIndex: 900, // Ensures the loader stays on top
+              backgroundColor: "white",
+            }}
+          >
+            <ActivityIndicator
+              style={{ transform: [{ scale: 1.2 }] }} // Scale it for responsiveness
+              size="large"
+              color="#7B61FF"
+            />
+          </View>
+        </View>
+      </View>
+    )}
     <DrawerLayoutAndroid
       ref={drawer}
       drawerWidth={300}
@@ -329,40 +377,41 @@ const Calender = () => {
       renderNavigationView={navigationView}
     >
 
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <ScrollView contentContainerStyle={styles.scrollContainer} ref={scrollViewRef}>
         <View style={styles.containerHeader}>
           {
             // loading && <Loader isMainScreen={isMainScreen} />
           }
 
 
+          {/* {(loading || langCalTypeButton) && (
+            <View style={{
+              height: "50%",
+              justifyContent: 'center',  // Centers vertically
+              alignItems: 'center',  // Centers horizontally
+              position: 'absolute', // Ensure it stays in the center
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+            }}>
+              <View style={{
+                width: 70,    // Set the width to create a square
+                height: 70,   // Same as width for the square shape
+                justifyContent: 'center',
+                alignItems: 'center',
+                alignContent: 'center',
+                alignItems: 'center',
+                borderRadius: 20, // Add some border radius for smooth edges
+                padding: 20,
+                zIndex: 900,    // Ensures the loader stays on top
+                backgroundColor: 'white',
+              }}>
+                <Loader isMainScreen={isMainScreen} />
+              </View>
+            </View>
+          )} */}
 
-{loading && (
-  <View style={{ 
-    height:"70%",
-    justifyContent: 'center',  // Centers vertically
-    alignItems: 'center',  // Centers horizontally
-    position: 'absolute', // Ensure it stays in the center
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  }}>
-    
-    <View style={{ 
-      width: 90,    // Set the width to create a square
-      height: 90,   // Same as width for the square shape
-      justifyContent: 'center',
-      alignItems: 'center',
-      borderRadius: 20, // Add some border radius for smooth edges
-      padding: 20,
-      zIndex: 900,    // Ensures the loader stays on top
-      backgroundColor:'white',
-    }}>
-      <Loader isMainScreen={isMainScreen} />
-    </View>
-  </View>
-)}
 
           <View>
             <View style={{ backgroundColor: "pink", flexDirection: "row" }}>
@@ -376,12 +425,12 @@ const Calender = () => {
                 <View style={styles.yearMonthContainer}>
                   <TouchableOpacity
                     onPress={() => changeMonth(-1)}
-                    style={styles.arrowButtonMonth}
+          
                   >
                     <Text style={styles.arrow}>◀</Text>
                   </TouchableOpacity>
 
-                  <View style={styles.pickerWrapper}>
+                  <View style={styles.monthContainer}>
                     <Text style={styles.monthText}>
                       {monthData[month - 1]?.name}
                     </Text>
@@ -389,7 +438,6 @@ const Calender = () => {
 
                   <TouchableOpacity
                     onPress={() => changeMonth(1)}
-                    style={styles.arrowButtonMonth}
                   >
                     <Text style={styles.arrow}>▶</Text>
                   </TouchableOpacity>
@@ -416,7 +464,6 @@ const Calender = () => {
                 </View>
               </View>
 
-
               <View style={styles.pickersContainer}>
                 <View style={styles.pickerWrapper}>
                   <CustomPicker
@@ -424,6 +471,8 @@ const Calender = () => {
                     onValueChange={(itemValue) => {
                       setCalendarType(itemValue);
                       incrementAdCount(); // Increment ad count when calendar type changes
+                      setLangCalTypeButton(true);
+                      startLoading(2000)
                     }}
                     items={typeData}
                   />
@@ -435,12 +484,14 @@ const Calender = () => {
                     onValueChange={(itemValue) => {
                       setLanguage(itemValue);
                       incrementAdCount(); // Increment ad count when language changes
+                      setLangCalTypeButton(true);
+                      startLoading(2000)
                     }}
                     items={languageData}
                   />
+
                 </View>
               </View>
-
 
               <View>
                 <Text
@@ -454,6 +505,7 @@ const Calender = () => {
                   {headerLine}
                 </Text>
               </View>
+
 
               <LinearGradient
                 colors={["#FFEDED", "#FFEDED"]}
@@ -470,7 +522,6 @@ const Calender = () => {
                 </View>
 
 
-                
                 <View style={styles.daysContainer}>
                   {calenderData.map((dayData, index) =>
                     Object.keys(dayData).length > 0
@@ -600,54 +651,61 @@ const Calender = () => {
                   </Svg>
                 </View>
 
+
                 <View>
                   <Text
                     style={{ margin: 10, fontWeight: "bold", fontSize: 16, color: 'black' }}
                   >
                     Holiday and Observances
                   </Text>
-                  {filteredHolidays.map((holiday, index) => (
-                    <View
-                      key={index}
-                      style={{ flexDirection: "row", margin: 10 }}
-                    >
-                      <Text
-                        style={[
-                          styles.dateColorSet,
-                          { color: "#FF5454", fontWeight: "bold" },
-                        ]}
+                  {filteredHolidays.length === 0 ? (
+                    <Text style={{ margin: 10, color: 'black', fontSize: 16, textAlign: 'center' }}>
+                      No Holidays This Month
+                    </Text>
+                  ) : (
+                    filteredHolidays.map((holiday, index) => (
+                      <View
+                        key={index}
+                        style={{ flexDirection: "row", margin: 10 }}
                       >
-                        {holiday.dateStr}
-                      </Text>
-                      <Text style={{ marginLeft: 5, fontWeight: "bold" }}>
-                        :
-                      </Text>
-                      <Text
-                        style={[
-                          styles.holidayName,
-                          {
-                            color: "black",
-                            fontWeight: "bold",
-                            marginLeft: 5,
-                            width: "95%",
-                          },
-                        ]}
-                      >
-                        {holiday.name}
-                        {holiday.comments && holiday.comments !== "--"
-                          ? ` (${holiday.comments})`
-                          : ""}
-                      </Text>
-                    </View>
-                  ))}
+                        <Text
+                          style={[
+                            styles.dateColorSet,
+                            { color: "#FF5454", fontWeight: "bold" },
+                          ]}
+                        >
+                          {holiday.dateStr}
+                        </Text>
+                        <Text style={{ marginLeft: 5, fontWeight: "bold" }}>
+                          :
+                        </Text>
+                        <Text
+                          style={[
+                            styles.holidayName,
+                            {
+                              color: "black",
+                              fontWeight: "bold",
+                              marginLeft: 5,
+                              width: "95%",
+                            },
+                          ]}
+                        >
+                          {holiday.name}
+                          {holiday.comments && holiday.comments !== "--"
+                            ? ` (${holiday.comments})`
+                            : ""}
+                        </Text>
+                      </View>
+                    ))
+                  )}
                 </View>
               </LinearGradient>
+
               <LinearGradient
                 colors={["#FFEDED", "#FFEDED"]}
                 style={styles.linearGradient}
               >
-                {/* <ScrollView contentContainerStyle={styles.scrollViewContent}> */}
-                <View style={styles.dateContainer}>
+                <View>
                   {modelData?.MyanmarDate && (
                     <>
                       <Text style={[styles.daFontSize, styles.sm]}>
@@ -744,6 +802,7 @@ const Calender = () => {
         </View>
       </ScrollView>
     </DrawerLayoutAndroid>
+    </>
   );
 };
 
@@ -822,35 +881,42 @@ const styles = StyleSheet.create({
   },
 
   arrow: {
-    fontSize: 30,
+    fontSize: 22,
     color: "white",
+    
     // marginHorizontal: 20,
   },
+
   spacer: {
     flex: 1,
   },
+
   yearContainer: {
     marginHorizontal: 5,
     width: 80,
   },
   inputYear: {
-    fontSize: 15,
+    // fontSize: 15,
     color: "black",
     textAlign: "center",
     width: "100%",
   },
+  monthContainer:{
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection:'row',
+    // paddingHorizontal: 20, 
 
+  },
   pickerWrapper: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    flexDirection:'row',
+
   },
 
-  picker: {
-    height: 40,
-    width: "100%",
-    color: "black",
-  },
   pickersContainer: {
     flexDirection: "row",
     justifyContent: "space-around",

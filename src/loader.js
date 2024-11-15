@@ -9,7 +9,7 @@ const Loader = ({isMainScreen}) => {
         <>
         {
             isMainScreen ? 
-            <View style={styles.container}>
+            <View style={styles. containerMain}>
                 <ActivityIndicator size="large" color="#0000ff" />
             </View>
             : 
@@ -23,15 +23,13 @@ const Loader = ({isMainScreen}) => {
 
 const styles = StyleSheet.create({
   containerMain: {
+    height:"100%",
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     position: "absolute",
     zIndex: 900,
-    height: screenHeight,  // Full screen height
-    width: screenWidth,    // Full screen width
-    // backgroundColor: "#fff",
-  },
+},
   container: {
     flex: 1,
     justifyContent: 'center',
@@ -43,6 +41,44 @@ const styles = StyleSheet.create({
     // backgroundColor: "#fff",
     // opacity: 0.5,
   },
+
+
 });
 
 export default Loader;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
