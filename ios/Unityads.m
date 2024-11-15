@@ -96,28 +96,28 @@ RCT_EXPORT_METHOD(loadInterstitial:(NSString *)adUnitIdentifier)
 RCT_EXPORT_METHOD(loadBottomBanner:(NSString *)adUnitIdentifier)
 {
   
-  // Create a container view with a top margin
-  UIView *bannerContainerView = [[UIView alloc] initWithFrame:CGRectMake(0, 20, 0, 50)]; // Adjust 10 to the desired top margin
-  bannerContainerView.backgroundColor = [UIColor clearColor]; // Set background color as needed
-
-  // Initialize the banner view
-  self.bottomBannerView = [[UADSBannerView alloc] initWithPlacementId:adUnitIdentifier size:CGSizeMake(320, 50)];
-  self.bottomBannerView.delegate = self;
-
-  // Add the banner view to the container
-  [bannerContainerView addSubview:self.bottomBannerView];
-
-  // Add the container view to your main view at the desired position
-  [self addBannerViewToBottomView:bannerContainerView];
-
-  // Load the banner ad
-  [self.bottomBannerView load];
+//  // Create a container view with a top margin
+//  UIView *bannerContainerView = [[UIView alloc] initWithFrame:CGRectMake(0, 20, 0, 50)]; // Adjust 10 to the desired top margin
+//  bannerContainerView.backgroundColor = [UIColor clearColor]; // Set background color as needed
+//
+//  // Initialize the banner view
+//  self.bottomBannerView = [[UADSBannerView alloc] initWithPlacementId:adUnitIdentifier size:CGSizeMake(320, 50)];
+//  self.bottomBannerView.delegate = self;
+//
+//  // Add the banner view to the container
+//  [bannerContainerView addSubview:self.bottomBannerView];
+//
+//  // Add the container view to your main view at the desired position
+//  [self addBannerViewToBottomView:bannerContainerView];
+//
+//  // Load the banner ad
+//  [self.bottomBannerView load];
 
   	
-//    self.bottomBannerView = [[UADSBannerView alloc] initWithPlacementId:adUnitIdentifier size:CGSizeMake(320, 50)];
-//    self.bottomBannerView.delegate = self;
-//    [self addBannerViewToBottomView:self.bottomBannerView];
-//        [_bottomBannerView load];
+      self.bottomBannerView = [[UADSBannerView alloc] initWithPlacementId:adUnitIdentifier size:CGSizeMake(320, 50)];
+      self.bottomBannerView.delegate = self;
+      [self addBannerViewToBottomView:self.bottomBannerView];
+          [_bottomBannerView load];
 }
 
 RCT_EXPORT_METHOD(unLoadBottomBanner)
