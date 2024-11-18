@@ -38,6 +38,7 @@
     "react-native-version-check": "^1.1.0",
     "watchman": "^1.0.0"
   },
+  
   "devDependencies": {
     "@babel/core": "^7.20.0",
     "@babel/preset-env": "^7.20.0",

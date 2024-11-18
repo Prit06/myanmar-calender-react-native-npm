@@ -96,7 +96,6 @@ const CustomDrawerContent = (props) => {
   };
 
 
-
   useEffect(() => {
     const initializeUnityAds = async () => {
       console.log("adUnitIds.gameId", adUnitIds.gameId);
@@ -132,6 +131,7 @@ const CustomDrawerContent = (props) => {
       // if (adUnitIds.applovinId) {
       //   showAppLovinAd();
       // }
+      
       if (apiData?.ads.admob_ads === "1"){
         const interstitialAd = InterstitialAd.createForAdRequest(adUnitIds.admobId);
         const adLoadListener = interstitialAd.addAdEventListener(AdEventType.LOADED, () => {
@@ -286,63 +286,63 @@ const CustomDrawerContent = (props) => {
   // ====================================== Applovin Ads code start ==================================================//
 
   useEffect(() => {
-    const initializeAppLovin = async () => {
-      try {
-        // AppLovinMAX.setTermsAndPrivacyPolicyFlowEnabled(true);
-        // AppLovinMAX.setPrivacyPolicyUrl('https://your_company_name.com/privacy/'); // mandatory
-        // AppLovinMAX.setTermsOfServiceUrl('https://your_company_name.com/terms/'); // optional
-        // AppLovinMAX.setTestDeviceAdvertisingIds([]);
-        AppLovinMAX.initialize('iTwh_UVXAifQEJI0VaSCck97B9evnrT9g7Epl7OEtIRgVROTh5pFoGDiVGdWPasG1Knys15HQLeVriCHP_1WA6')
-        .then(config => {
-          setIsInitializedApplovin(true);
-          console.log('AppLovin SDK initialized successfully:', config);
-          // You can also check the config object to ensure everything is set up correctly
-        })
-        .catch(error => {
+    if(platform === "ios"){
+      const initializeAppLovin = async () => {
+        try {
+          // AppLovinMAX.setTermsAndPrivacyPolicyFlowEnabled(true);
+          // AppLovinMAX.setPrivacyPolicyUrl('https://your_company_name.com/privacy/'); // mandatory
+          // AppLovinMAX.setTermsOfServiceUrl('https://your_company_name.com/terms/'); // optional
+          // AppLovinMAX.setTestDeviceAdvertisingIds([]);
+          AppLovinMAX.initialize('iTwh_UVXAifQEJI0VaSCck97B9evnrT9g7Epl7OEtIRgVROTh5pFoGDiVGdWPasG1Knys15HQLeVriCHP_1WA6')
+          .then(config => {
+            setIsInitializedApplovin(true);
+            console.log('AppLovin SDK initialized successfully:', config);
+            // You can also check the config object to ensure everything is set up correctly
+          })
+          .catch(error => {
+            console.error('AppLovin SDK initialization failed:', error);
+          });
+        } catch (error) {
           console.error('AppLovin SDK initialization failed:', error);
-        });
-      } catch (error) {
-        console.error('AppLovin SDK initialization failed:', error);
-      }
-    };
-
-    initializeAppLovin();
-
-    const loadListeners = [
-      InterstitialApplovinAd.addAdLoadedEventListener((adInfo) => {
-        console.log('Interstitial ad loaded:', adInfo);
-      }),
-      InterstitialApplovinAd.addAdLoadFailedEventListener((errorInfo) => {
-        console.error('Interstitial ad failed to load:', errorInfo);
-        setLoading(false);
-      }),
-      InterstitialApplovinAd.addAdDisplayedEventListener((adInfo) => {
-        console.log('Interstitial ad displayed:', adInfo);
-      }),
-      InterstitialApplovinAd.addAdClickedEventListener(() => {
-        console.log('Interstitial ad clicked');
-      }),
-      InterstitialApplovinAd.addAdFailedToDisplayEventListener(() => {
-        console.error('Interstitial ad failed to display');
-        setLoading(false);
-      }),
-      InterstitialApplovinAd.addAdHiddenEventListener(() => {
-        console.log('Interstitial ad hidden');
-        setLoading(false);
-      }),
-      InterstitialApplovinAd.addAdRevenuePaidListener((adRevenueInfo) => {
-        console.log('Interstitial ad revenue paid:', adRevenueInfo);
-      }),
-    ];
-
-    // Clean up event listeners when the component is unmounted
-    return () => {
-      loadListeners.forEach(listener => listener?.remove());
-    };
+        }
+      };
+      initializeAppLovin();
+      const loadListeners = [
+        InterstitialApplovinAd.addAdLoadedEventListener((adInfo) => {
+          console.log('Interstitial ad loaded:', adInfo);
+        }),
+        InterstitialApplovinAd.addAdLoadFailedEventListener((errorInfo) => {
+          console.error('Interstitial ad failed to load:', errorInfo);
+          setLoading(false);
+        }),
+        InterstitialApplovinAd.addAdDisplayedEventListener((adInfo) => {
+          console.log('Interstitial ad displayed:', adInfo);
+        }),
+        InterstitialApplovinAd.addAdClickedEventListener(() => {
+          console.log('Interstitial ad clicked');
+        }),
+        InterstitialApplovinAd.addAdFailedToDisplayEventListener(() => {
+          console.error('Interstitial ad failed to display');
+          setLoading(false);
+        }),
+        InterstitialApplovinAd.addAdHiddenEventListener(() => {
+          console.log('Interstitial ad hidden');
+          setLoading(false);
+        }),
+        InterstitialApplovinAd.addAdRevenuePaidListener((adRevenueInfo) => {
+          console.log('Interstitial ad revenue paid:', adRevenueInfo);
+        }),
+      ];
+      // Clean up event listeners when the component is unmounted
+      return () => {
+        loadListeners.forEach(listener => listener?.remove());
+      };
+    }
   }, []);
 
   const showAppLovinAd = async () => {
     try {
+      if(platform === "android") return
       console.log("test app", InterstitialApplovinAd);
       const adUnitId = adUnitIds.applovinId;
       try {
@@ -756,44 +756,50 @@ const DrawerNavigation = () => {
    }, [])
 
    useEffect(() => {
-    applovinBenner.addAdLoadedEventListener((adInfo) => {
-      console.log('Banner ad loaded from ' + adInfo.networkName);
-      if(adInfo.networkName){
+    if(Platform.OS === 'ios'){
+      applovinBenner.addAdLoadedEventListener((adInfo) => {
+        console.log('Banner ad loaded from ' + adInfo.networkName);
+        if(adInfo.networkName){
+            setIsApplovinLoad(true)
+        }
+      });
+      applovinBenner.addAdLoadFailedEventListener((errorInfo) => {
+          console.log('Banner ad failed to load with error code ' + errorInfo.code + ' and message: ' + errorInfo.message);
           setIsApplovinLoad(true)
-      }
-    });
-    applovinBenner.addAdLoadFailedEventListener((errorInfo) => {
-        console.log('Banner ad failed to load with error code ' + errorInfo.code + ' and message: ' + errorInfo.message);
-        setIsApplovinLoad(true)
-        showUnityBannerFun();
-    });
-    applovinBenner.addAdClickedEventListener((/* adInfo: AdInfo */) => {
-        console.log('Banner ad clicked');
-    });
-    applovinBenner.addAdExpandedEventListener((/* adInfo: AdInfo */) => {
-        console.log('Banner ad expanded');
-    });
-    applovinBenner.addAdCollapsedEventListener((/* adInfo: AdInfo */) => {
-        console.log('Banner ad collapsed');
-    });
-    applovinBenner.addAdRevenuePaidListener((adInfo) => {
-        console.log('Banner ad revenue paid: ' + adInfo.revenue);
-    });
+          showUnityBannerFun();
+      });
+      applovinBenner.addAdClickedEventListener((/* adInfo: AdInfo */) => {
+          console.log('Banner ad clicked');
+      });
+      applovinBenner.addAdExpandedEventListener((/* adInfo: AdInfo */) => {
+          console.log('Banner ad expanded');
+      });
+      applovinBenner.addAdCollapsedEventListener((/* adInfo: AdInfo */) => {
+          console.log('Banner ad collapsed');
+      });
+      applovinBenner.addAdRevenuePaidListener((adInfo) => {
+          console.log('Banner ad revenue paid: ' + adInfo.revenue);
+      });
+    }
 }, []);
 
   const setupAppLovinBanner = () => {
-    console.log("unityPlacementId", responseData);
+    if(Platform.OS === 'ios'){
+      console.log("unityPlacementId", responseData);
+      
+      setadsValue("applovin");
+      const adUnitId = Platform.OS === 'android'
+      ? responseData?.android_adsid.applovin_banner_unit_id
+      : responseData?.ios_adsid.applovin_banner_unit_id;
     
-    setadsValue("applovin");
-    const adUnitId = Platform.OS === 'android'
-    ? responseData?.android_adsid.applovin_banner_unit_id
-    : responseData?.ios_adsid.applovin_banner_unit_id;
-  
-    applovinBenner.createAd(adUnitId, AdViewPosition.BOTTOM_CENTER, 10, 0);
-    console.log("adUnitId", adUnitId);
-    
-    applovinBenner.showAd(adUnitId);
-    console.log('AppLovin banner ad loaded');
+      applovinBenner.createAd(adUnitId, AdViewPosition.BOTTOM_CENTER, 10, 0);
+      console.log("adUnitId", adUnitId);
+      
+      applovinBenner.showAd(adUnitId);
+      console.log('AppLovin banner ad loaded');
+    }else{
+      showUnityBannerFun();
+    }
   };
 
   useEffect(() => {
@@ -835,49 +841,49 @@ const DrawerNavigation = () => {
     }
   };
   useEffect(() => {
-    // Add listeners for Unity Ads events using the custom addEventListener function
-    addEventListener('onUnityAdsAdFailedToLoad', (errorInfo) => {
-      setadsValue("")
-      let retryDelay = Math.pow(2, Math.min(6, interstitialRetryAttempt));
-      logStatus(`Interstitial ad failed to load with code ${errorInfo} - retrying in ${retryDelay}s`);
-    });
-  
-    addEventListener('onUnityAdsAdLoaded', (adInfo) => {
-      logStatus(`Unity AdLoaded, with ID: ${adInfo.adUnitId}`);
-    });
-  
-    addEventListener('onUnityAdsShowComplete', (adInfo) => {
-      setUnityAdShowCompleteState(adsShowState.completed);
-      logStatus(`Ads show completed, with ID: ${adInfo.adUnitId} state: ${adInfo.state}`);
-      if (adInfo.adUnitId === REWARDED_AD_UNIT_ID && adInfo.state === 1) {
-        console.log('Reward the user');
-      }
-    });
-  
-    // Add listeners for Banner Ad events
-    addEventListener('bannerViewDidLoad', (adInfo) => {
-      logStatus(`Banner ad loaded, with ID: ${adInfo.adUnitId}`);
-      setadsValue("unity");
-      setIsNativeUIBannerShowing(!isNativeUIBannerShowing);
-    });
-  
-    addEventListener('onBannerViewDidError', (errorInfo) => {
-      logStatus(`Banner ad failed to load with error code ${errorInfo.code} and message: ${errorInfo.message}`);
-    });
-  
-    addEventListener('onBannerViewDidClick', (adInfo) => {
-      logStatus('Banner ad clicked');
-    });
-  
-    addEventListener('onBannerViewDidLeaveApplication', (adInfo) => {
-      logStatus('Banner ad left application');
-      setIsNativeUIBannerShowing(!isNativeUIBannerShowing);
-    });
-  
-    // Clean up all listeners on unmount
-    return () => {
-      Object.keys(subscriptions).forEach(removeEventListener);
-    };
+      // Add listeners for Unity Ads events using the custom addEventListener function
+      addEventListener('onUnityAdsAdFailedToLoad', (errorInfo) => {
+        setadsValue("")
+        let retryDelay = Math.pow(2, Math.min(6, interstitialRetryAttempt));
+        logStatus(`Interstitial ad failed to load with code ${errorInfo} - retrying in ${retryDelay}s`);
+      });
+    
+      addEventListener('onUnityAdsAdLoaded', (adInfo) => {
+        logStatus(`Unity AdLoaded, with ID: ${adInfo.adUnitId}`);
+      });
+    
+      addEventListener('onUnityAdsShowComplete', (adInfo) => {
+        setUnityAdShowCompleteState(adsShowState.completed);
+        logStatus(`Ads show completed, with ID: ${adInfo.adUnitId} state: ${adInfo.state}`);
+        if (adInfo.adUnitId === REWARDED_AD_UNIT_ID && adInfo.state === 1) {
+          console.log('Reward the user');
+        }
+      });
+    
+      // Add listeners for Banner Ad events
+      addEventListener('bannerViewDidLoad', (adInfo) => {
+        logStatus(`Banner ad loaded, with ID: ${adInfo.adUnitId}`);
+        setadsValue("unity");
+        setIsNativeUIBannerShowing(!isNativeUIBannerShowing);
+      });
+    
+      addEventListener('onBannerViewDidError', (errorInfo) => {
+        logStatus(`Banner ad failed to load with error code ${errorInfo.code} and message: ${errorInfo.message}`);
+      });
+    
+      addEventListener('onBannerViewDidClick', (adInfo) => {
+        logStatus('Banner ad clicked');
+      });
+    
+      addEventListener('onBannerViewDidLeaveApplication', (adInfo) => {
+        logStatus('Banner ad left application');
+        setIsNativeUIBannerShowing(!isNativeUIBannerShowing);
+      });
+    
+      // Clean up all listeners on unmount
+      return () => {
+        Object.keys(subscriptions).forEach(removeEventListener);
+      };
   }, []);
 
   function logStatus(status) {
