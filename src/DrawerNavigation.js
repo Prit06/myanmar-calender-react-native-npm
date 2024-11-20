@@ -22,6 +22,11 @@ const Drawer = createDrawerNavigator();
 
 const platform = Platform.OS;
 
+
+function logStatus(status) {
+  console.log(status);
+}
+
 const CustomDrawerContent = (props) => {
   const isDrawerOpen = useDrawerStatus() === 'open';
   const { adCount, incrementAdCount, isBennerAds, isConnected } = useContext(AdContext);
@@ -231,7 +236,11 @@ const CustomDrawerContent = (props) => {
         
       }
       console.log("Unity Ads load initiated", data);
-  
+      // setTimeout(async() => {
+        var isLoaded = await UnityAds.isLoad(adUnitIds.unityId)
+        console.log("isLoaded", isLoaded);
+      // }, 500);
+      
       // Listener to handle ad load success and failure
       UnityAds.setOnUnityAdsLoadListener({
         onAdLoaded: (placementId) => {
@@ -269,8 +278,9 @@ const CustomDrawerContent = (props) => {
         setTimeout(() => {
           setLoading(false);
           setTimeout(() => { 
+            console.log("placementId", placementId);
             UnityAds.showAd(placementId);  
-          }, 30);
+          }, 500);
         }, 30);
         console.log('Unity ad shown successfully');
       } catch (error) {
@@ -280,6 +290,70 @@ const CustomDrawerContent = (props) => {
       }
     }, 500);
   };
+//   const emitter = new NativeEventEmitter(UnityAds);
+//   const subscriptions = {};
+//   const addEventListener = (event, handler) => {
+//     let subscription = emitter.addListener(event, handler);
+//     let currentSubscription = subscriptions[event];
+//     if (currentSubscription) {
+//       currentSubscription.remove();
+//     }
+//     subscriptions[event] = subscription;
+//   };
+  
+//   const removeEventListener = (event) => {
+//     let currentSubscription = subscriptions[event];
+//     if (currentSubscription) {
+//       currentSubscription.remove();
+//       delete subscriptions[event];
+//     }
+//   };
+
+//   useEffect(() => {
+//     // Add listeners for Unity Ads events using the custom addEventListener function
+//     addEventListener('onUnityAdsAdFailedToLoad', (errorInfo) => {
+//       setadsValue("")
+//       let retryDelay = Math.pow(2, Math.min(6, interstitialRetryAttempt));
+//       logStatus(`Interstitial ad failed to load with code ${errorInfo} - retrying in ${retryDelay}s`);
+//     });
+  
+//     addEventListener('onUnityAdsAdLoaded', (adInfo) => {
+//       logStatus(`Unity AdLoaded, with ID: ${adInfo.adUnitId}`);
+//     });
+  
+//     addEventListener('onUnityAdsShowComplete', (adInfo) => {
+//       setUnityAdShowCompleteState(adsShowState.completed);
+//       logStatus(`Ads show completed, with ID: ${adInfo.adUnitId} state: ${adInfo.state}`);
+//       if (adInfo.adUnitId === REWARDED_AD_UNIT_ID && adInfo.state === 1) {
+//         console.log('Reward the user');
+//       }
+//     });
+  
+//     // Add listeners for Banner Ad events
+//     addEventListener('bannerViewDidLoad', (adInfo) => {
+//       logStatus(`Banner ad loaded, with ID: ${adInfo.adUnitId}`);
+//       setadsValue("unity");
+//       setIsNativeUIBannerShowing(!isNativeUIBannerShowing);
+//     });
+  
+//     addEventListener('onBannerViewDidError', (errorInfo) => {
+//       logStatus(`Banner ad failed to load with error code ${errorInfo.code} and message: ${errorInfo.message}`);
+//     });
+  
+//     addEventListener('onBannerViewDidClick', (adInfo) => {
+//       logStatus('Banner ad clicked');
+//     });
+  
+//     addEventListener('onBannerViewDidLeaveApplication', (adInfo) => {
+//       logStatus('Banner ad left application');
+//       setIsNativeUIBannerShowing(!isNativeUIBannerShowing);
+//     });
+  
+//     // Clean up all listeners on unmount
+//     return () => {
+//       Object.keys(subscriptions).forEach(removeEventListener);
+//     };
+// }, []);
 
 
 
@@ -583,7 +657,6 @@ const DrawerNavigation = () => {
   const [showUnityBanner, setShowUnityBanner] = useState(false);
   const [responseData, setresponseData] = useState(null);
   const [langCalTypeButton, setLangCalTypeButton] = useState(false);
-  const [isApiData, setIsApiData] = useState(false);
 
   var adLoadState = {
     notLoaded: 'NOT_LOADED',
@@ -629,13 +702,12 @@ const DrawerNavigation = () => {
   useEffect(() => {
     const fetchApiData = async () => {
       try {
-        const response = await axios.get(API_KEY);
-        const dataSet = response.data?.meta.ads;
-        setresponseData(dataSet);
+        console.log("responseData----", responseData);
+        
         if (responseData) {
-          if (dataSet?.ad_status === "1") {
+          if (responseData?.ad_status === "1") {
             if (responseData?.admob_ads === "1") {
-              setupAdMobBanner(dataSet);
+              setupAdMobBanner(responseData);
             } else {
               // showUnityBannerFun();
               setupAppLovinBanner()
@@ -653,17 +725,24 @@ const DrawerNavigation = () => {
       }
     };
     fetchApiData();
-  }, [isConnected, isApiData]);
-
-  useEffect(() => {
-    console.log("fsdfsf", responseData);
-    console.log("fsdfsf", isApiData);
-    if(!isApiData){
-      setIsApiData(true)
-    }
   }, [responseData]);
 
+  useEffect(() => {
+    const fetchApiData = async () => {
+      try {
+        const response = await axios.get(API_KEY);
+        const dataSet = response.data?.meta.ads;
+        setresponseData(dataSet);
+      } catch (error) {
+        console.log('Error fetching API data:', error);
+      }
+    };
+    fetchApiData();
+  }, [isConnected]);
+
   const setupAdMobBanner = (data) => {
+    console.log("admob------ads");
+    
     const adUnitId = Platform.OS === 'android'
       ? data.android_adsid.admob_banner_unit_id
       : data.ios_adsid.admob_banner_unit_id;
@@ -673,10 +752,11 @@ const DrawerNavigation = () => {
     setAdmobFailed(false);
     setShowUnityBanner(false);
   
-    if (bannerRef && bannerRef.current) {
-      bannerRef.current.loadAd();
+    if (bannerRef && bannerRef?.current) {
+      bannerRef?.current?.loadAd();
     } else {
-      console.error("bannerRef or bannerRef.current is null");
+      console.log("bannerRef or bannerRef.current is null");
+      handleAdFailedToLoad()
     }
   };
 
@@ -688,6 +768,8 @@ const DrawerNavigation = () => {
   };
 
   const showUnityBannerFun = () => {
+    console.log("unity add-------", responseData);
+    setBannShow(true)
     setadsValue("unity");
     // if (responseData?.unity_ads !== "1") {
     //   setupAppLovinBanner();
@@ -697,8 +779,6 @@ const DrawerNavigation = () => {
     const unityPlacementId = Platform.OS === 'android'
       ? responseData?.android_adsid.unity_banner_placement_id
       : responseData?.ios_adsid.unity_banner_placement_id;
-    console.log("unityPlacementId", unityPlacementId);
-    
     Unityads.loadBottomBanner(unityPlacementId);
     setShowUnityBanner(true);
   };
@@ -729,9 +809,9 @@ const DrawerNavigation = () => {
     
      const bannerLeaveListener = DeviceEventEmitter.addListener('onBannerViewDidLeaveApplication', (event) => {
        console.log('Banner failed to load:...', event);
-       setadsValue("")
+      //  setadsValue("")
        setBannShow(false)
-       setupAppLovinBanner();
+      //  setupAppLovinBanner();
      });
 
      const bannerClickListener = DeviceEventEmitter.addListener(
@@ -745,7 +825,7 @@ const DrawerNavigation = () => {
        console.log('Banner failed to load:--------', event);
        setadsValue("")
        setBannShow(false)
-      //  setupAppLovinBanner();
+       setupAppLovinBanner();
      });
      return () => {
       bannerLoadListener.remove();
@@ -781,11 +861,11 @@ const DrawerNavigation = () => {
           console.log('Banner ad revenue paid: ' + adInfo.revenue);
       });
     }
-}, []);
+}, [responseData]);
 
   const setupAppLovinBanner = () => {
     if(Platform.OS === 'ios'){
-      console.log("unityPlacementId", responseData);
+      console.log("unityPlacementId-798", responseData);
       
       setadsValue("applovin");
       const adUnitId = Platform.OS === 'android'
@@ -798,20 +878,24 @@ const DrawerNavigation = () => {
       applovinBenner.showAd(adUnitId);
       console.log('AppLovin banner ad loaded');
     }else{
+      console.log("unityPlacementId---", responseData);
       showUnityBannerFun();
     }
   };
 
   useEffect(() => {
+    console.log("check dtgdgf", adsValue); 
+    console.log("check bannunity", bannunity); 
+    console.log("check admobFailed", admobFailed); 
     if (bannunity && admobFailed) {
-      console.log("check dtgdgf");
       if (adsValue == "unity") {
+        console.log("check dtgdgfdffdf"); 
         showUnityBannerFun()
       }else if(adsValue == "applovin"){
         setupAppLovinBanner();
       }
     } else {
-      console.log("check");
+      console.log("check", adsValue);
       if (adsValue == "unity") {
         unloadBottomBanner()
       }else if(adsValue == "applovin"){
@@ -884,7 +968,7 @@ const DrawerNavigation = () => {
       return () => {
         Object.keys(subscriptions).forEach(removeEventListener);
       };
-  }, []);
+  }, [responseData]);
 
   function logStatus(status) {
     console.log(status);
@@ -1217,10 +1301,9 @@ const styles = StyleSheet.create({
   // },
   unityadContainer: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 10,
     backgroundColor: 'white',
     height: 100,
-    marginBottom: 0
   },
   noadsContainer: {
     alignItems: 'center',

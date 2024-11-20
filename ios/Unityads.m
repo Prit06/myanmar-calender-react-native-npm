@@ -95,14 +95,15 @@ RCT_EXPORT_METHOD(loadInterstitial:(NSString *)adUnitIdentifier)
 
 RCT_EXPORT_METHOD(loadBottomBanner:(NSString *)adUnitIdentifier)
 {
-  
+//  CGRect screenBounds = [UIScreen mainScreen].bounds;
 //  // Create a container view with a top margin
-//  UIView *bannerContainerView = [[UIView alloc] initWithFrame:CGRectMake(0, 20, 0, 50)]; // Adjust 10 to the desired top margin
+//  UIView *bannerContainerView = [[UIView alloc] initWithFrame:CGRectMake((screenBounds.size.width - 320) / 2 , 20, 320, 70)]; // Adjust 10 to the desired top margin
 //  bannerContainerView.backgroundColor = [UIColor clearColor]; // Set background color as needed
 //
 //  // Initialize the banner view
 //  self.bottomBannerView = [[UADSBannerView alloc] initWithPlacementId:adUnitIdentifier size:CGSizeMake(320, 50)];
 //  self.bottomBannerView.delegate = self;
+//  self.bottomBannerView.clipsToBounds = true;
 //
 //  // Add the banner view to the container
 //  [bannerContainerView addSubview:self.bottomBannerView];
@@ -112,6 +113,10 @@ RCT_EXPORT_METHOD(loadBottomBanner:(NSString *)adUnitIdentifier)
 //
 //  // Load the banner ad
 //  [self.bottomBannerView load];
+  
+  
+  
+ 
 
   	
       self.bottomBannerView = [[UADSBannerView alloc] initWithPlacementId:adUnitIdentifier size:CGSizeMake(320, 50)];

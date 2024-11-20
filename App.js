@@ -7,12 +7,12 @@ import axios from 'axios';
 import Model from './src/Model';
 import DeviceInfo from 'react-native-device-info';
 import { AppOpenAd, AdEventType } from 'react-native-google-mobile-ads';
-import { BackHandler, Modal, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { BackHandler, Modal, View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import Exitmodel from './src/Exitmodel';
 import NetInfo from '@react-native-community/netinfo';
 import RNExitApp from 'react-native-exit-app';
 import { API_KEY } from '@env';
-
+import AppLovinMAX, { AppOpenAd as applovinAppOpenAd, AdViewPosition } from 'react-native-applovin-max';
 import { Dimensions } from 'react-native';
 
 const { width } = Dimensions.get('window');
@@ -28,6 +28,7 @@ const App = () => {
     const [exitModel, setExitModel] = useState(false);
     const [isConnected, setIsConnected] = useState(true); // For offline modal
     const [showOfflineModal, setShowOfflineModal] = useState(false); // State to manage offline modal
+    const [isInitializedApplovin, setIsInitializedApplovin] = useState(false);
 
     useEffect(() => {
         // Monitor network connection
@@ -69,9 +70,78 @@ const App = () => {
     useEffect(() => {
         if (isAdsFailed && apiData) {
         // if (apiData) {
+        if(Platform.OS == "ios"){
+            const initializeAppLovin = async () => {
+                try {
+                    AppLovinMAX.initialize('iTwh_UVXAifQEJI0VaSCck97B9evnrT9g7Epl7OEtIRgVROTh5pFoGDiVGdWPasG1Knys15HQLeVriCHP_1WA6')
+                    .then(config => {
+                        setIsInitializedApplovin(true);
+                        console.log('AppLovin SDK initialized successfully:', config);
+                        applovinAppOpenAd.loadAd(apiData.ios_adsid.applovin_app_open_unit_id);
+                    })
+                    .catch(error => {
+                    console.error('AppLovin SDK initialization failed:', error);
+                    });
+                } catch (error) {
+                    console.error('AppLovin SDK initialization failed:', error);
+                }
+            };
+            initializeAppLovin();
+        }
+        if(Platform.OS == "android"){
             checkAppVersion(appVersion, apiData?.update_on);
         }
+        }
     }, [isAdsFailed, apiData]);
+
+    useEffect(()=>{
+        const loadListeners = [
+            applovinAppOpenAd.addAdLoadedEventListener((adInfo) => {
+                 console.log('applovinAppOpenAd ad loaded:', adInfo);
+                //     if (nextAppState === 'active') {
+                console.log("applovinAppOpenAd.isAdReady(apiData.ios_adsid.applovin_app_open_unit_id)", apiData.ios_adsid.applovin_app_open_unit_id);
+                console.log("applovinAppOpenAd.isAdReady(apiData.ios_adsid.applovin_app_open_unit_id)", applovinAppOpenAd.isAdReady(apiData.ios_adsid.applovin_app_open_unit_id));
+                if(apiData){
+                    if (applovinAppOpenAd.isAdReady(apiData.ios_adsid.applovin_app_open_unit_id)) {
+                    console.log("asdasdoasoa show");
+                    
+                    applovinAppOpenAd.showAd(apiData.ios_adsid.applovin_app_open_unit_id);
+                    } else {
+                    // Preload the App Open Ad again
+                    applovinAppOpenAd.loadAd(apiData.ios_adsid.applovin_app_open_unit_id);
+                    }
+                }
+            }),
+            applovinAppOpenAd.addAdLoadFailedEventListener((errorInfo) => {
+              console.error('applovinAppOpenAd ad failed to load:', errorInfo);
+              checkAppVersion(appVersion, apiData?.update_on);
+            //   setLoading(false);
+            }),
+            applovinAppOpenAd.addAdDisplayedEventListener((adInfo) => {
+              console.log('applovinAppOpenAd ad displayed:', adInfo);
+            }),
+            applovinAppOpenAd.addAdClickedEventListener(() => {
+              console.log('applovinAppOpenAd ad clicked');
+            }),
+            applovinAppOpenAd.addAdFailedToDisplayEventListener(() => {
+              console.error('applovinAppOpenAd ad failed to display');
+              checkAppVersion(appVersion, apiData?.update_on);
+            //   setLoading(false);
+            }),
+            applovinAppOpenAd.addAdHiddenEventListener(() => {
+              console.log('applovinAppOpenAd ad hidden');
+              checkAppVersion(appVersion, apiData?.update_on);
+            //   setLoading(false);
+            }),
+            applovinAppOpenAd.addAdRevenuePaidListener((adRevenueInfo) => {
+              console.log('applovinAppOpenAd ad revenue paid:', adRevenueInfo);
+            }),
+          ];
+          // Clean up event listeners when the component is unmounted
+          return () => {
+            loadListeners.forEach(listener => listener?.remove());
+          };
+    }, [isAdsFailed, apiData])
 
     const fetchApiData = async () => {
         try {
@@ -91,6 +161,7 @@ const App = () => {
     };
 
     const loadAppOpenAd = (adsData) => {
+        return setIsAdsFailed(true)
         if (adsData?.ad_status === "0" || adsData?.admob_ads === "0") setIsAdsFailed(true)
         if (adsData?.ad_status === "1" && adsData?.admob_ads === "1") {
             const appOpenAd = AppOpenAd.createForAdRequest(adsData.android_adsid.admob_app_open_unit_id, {
@@ -131,6 +202,15 @@ const App = () => {
             SplashScreen.hide();
         }
     };
+
+    const applovinAddOpen = () => {
+        try {
+            
+        } catch (error) {
+            console.log("error", error);
+            
+        }
+    }
 
     const checkAppVersion = async (latestVersion, update_on) => {
         const version = await DeviceInfo.getVersion();
