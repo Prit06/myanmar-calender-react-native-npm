@@ -6,27 +6,24 @@ import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
 import com.facebook.react.defaults.DefaultReactActivityDelegate
 import com.facebook.react.modules.network.OkHttpClientProvider
-import org.devio.rn.splashscreen.SplashScreen
-
+// import org.devio.rn..SplashScreen
 class MainActivity : ReactActivity() {
 
     /**
-     * Called when the activity is first created.
+     * Called when the activity is first 9.`
      * This is where the splash screen is shown.
      */
 
 
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
-        SplashScreen.show(this) // Show the splash screen
-        OkHttpClientProvider.setOkHttpClientFactory(IgnoreSSLFactory())
-        super.onCreate(savedInstanceState)
-    }   
+           OkHttpClientProvider.setOkHttpClientFactory(IgnoreSSLFactory())
+       // SplashScreen.show(this) // Show the splash screen
+        super.onCreate(savedInstanceState)x
+    }
 
 
     /**
-     * Returns the name of the main component registered from JavaScript.showInternetErrorDialog
+     * Returns the name o       f the main component registered from JavaScript.showInternetErrorDialog
      * This is used to schedule rendering of the component.
      */
     override fun getMainComponentName(): String = "AwesomePro"
@@ -39,3 +36,4 @@ class MainActivity : ReactActivity() {
     override fun createReactActivityDelegate(): ReactActivityDelegate =
         DefaultReactActivityDelegate(this, mainComponentName, fabricEnabled)
 }
+    

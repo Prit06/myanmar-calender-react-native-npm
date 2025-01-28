@@ -259,8 +259,8 @@ const EmCalender = ({ setLangCalTypeButton, langCalTypeButton }) => {
       const data = await Holidaydata();
       const shortMonth = englishMonth.slice(0, 3);
       const updatedHolidays = data.holidays.filter(holiday => {
-        const [monthS, , holidayYear] = holiday.date.split(" ");
-        return monthS === shortMonth && holidayYear === englishYears;
+        const [date, monthS, holidayYear] = holiday.date.split(" ");
+        return monthS === englishMonth && holidayYear === englishYears;
       });
       setHolidays(updatedHolidays);
     };
@@ -381,7 +381,7 @@ const EmCalender = ({ setLangCalTypeButton, langCalTypeButton }) => {
         </View>
       </TouchableOpacity>
     );
-  };
+  }
 
   const renderEmptyDays = (count) => {
     const emptyDays = [];
@@ -489,14 +489,6 @@ const EmCalender = ({ setLangCalTypeButton, langCalTypeButton }) => {
             )
           } */}
 
-
-
-
-
-
-
-
-
             <View>
               <View style={{ backgroundColor: "pink", flexDirection: "row" }}>
                 <TouchableOpacity
@@ -575,8 +567,7 @@ const EmCalender = ({ setLangCalTypeButton, langCalTypeButton }) => {
                     />
                   </View>
                 </View>
-
-
+                
                 <View>
                   <Text
                     style={{
@@ -779,8 +770,6 @@ const EmCalender = ({ setLangCalTypeButton, langCalTypeButton }) => {
                 </View> */}
 
 
-
-
                   <View>
                     <Text
                       style={{ margin: 10, fontWeight: "bold", fontSize: 16, color: 'black' }}
@@ -799,7 +788,7 @@ const EmCalender = ({ setLangCalTypeButton, langCalTypeButton }) => {
                               { color: "#FF5454", fontWeight: "bold" },
                             ]}
                           >
-                            {holiday.date.split(" ")[1]}
+                            {holiday.date.split(" ")[0]}
                           </Text>
                           <Text style={{ marginLeft: 5, fontWeight: "bold" }}>
                             :
@@ -963,6 +952,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     marginTop: -8,
   },
+  
   weekdayclass: {
     color: "#cca6f2",
     fontWeight: 700,
@@ -1011,6 +1001,19 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
 
+  
+  arrow: {
+    fontSize: 22,
+    color: "white",
+  
+  },
+  
+  spacer: {
+    // flex: 1,
+    marginLeft:20,
+    marginRight:20,
+  },
+   
   yearMonthContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -1018,31 +1021,24 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
-  arrow: {
-    fontSize: 22,
-    color: "white",
-  },
-
-  spacer: {
-    flex: 1,
-  },
-
   yearContainer: {
-    marginHorizontal: 7,
-    width: 80,
+    flex:1,
+    // marginHorizontal: 7,
+    // width: 40,
   },
+  
+  monthContainer: {
+    flex: 1,
+    justifyContent: "center",
+    flexDirection: 'row',
+    // width: 10,
+  },
+
 
   inputYear: {
     color: "black",
     textAlign: "center",
     width: "100%",
-  },
-
-  monthContainer: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    flexDirection: 'row',
   },
 
   pickerWrapper: {

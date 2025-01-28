@@ -5,9 +5,6 @@ import { View, Text, TouchableOpacity, Modal, StyleSheet, Linking } from 'react-
 
 const Exitmodel = ({ onConfirm, onCancel }) => {
 
-
-
-    
     const handleCancel = () => {
         // Replace the URL with the actual Play Store link you want to open
         const playStoreUrl = 'https://apps.apple.com/us/app/inreel-saver-repost-reel/id6479700632'; // Your app's Play Store URL
@@ -75,7 +72,7 @@ const styles = StyleSheet.create({
         color: 'black',
         fontSize: 18,
         fontWeight: 'bold',
- 
+
     },
     modalMessage: {
         fontSize: 16,

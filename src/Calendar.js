@@ -215,7 +215,6 @@ const Calender = ({ setLangCalTypeButton, langCalTypeButton }) => {
     setTimeout(() => {
       setYear(year + value);
     }, 500);
-    
   };
 
   const isToday = (day) => {
@@ -877,7 +876,30 @@ const styles = StyleSheet.create({
   yearMonthContainer: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: 'center',
     flex: 1,
+  },
+
+  yearContainer: {
+    // marginHorizontal: 5,
+    // width: 80,
+    flex:1,
+  },
+  
+  monthContainer:{
+    // flex: 1,
+    // justifyContent: "center",
+    // alignItems: "center",
+    // flexDirection:'row',
+    // paddingHorizontal: 20, 
+    flex: 1,
+    justifyContent: "center",
+    flexDirection: 'row',
+  },
+  spacer: {
+    // flex: 1,
+    marginLeft:20,
+    marginRight:20,
   },
 
   arrow: {
@@ -887,28 +909,14 @@ const styles = StyleSheet.create({
     // marginHorizontal: 20,
   },
 
-  spacer: {
-    flex: 1,
-  },
 
-  yearContainer: {
-    marginHorizontal: 5,
-    width: 80,
-  },
   inputYear: {
     // fontSize: 15,
     color: "black",
     textAlign: "center",
     width: "100%",
   },
-  monthContainer:{
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    flexDirection:'row',
-    // paddingHorizontal: 20, 
 
-  },
   pickerWrapper: {
     flex: 1,
     justifyContent: "center",

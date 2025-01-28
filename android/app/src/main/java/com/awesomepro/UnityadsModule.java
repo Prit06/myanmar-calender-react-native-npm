@@ -54,7 +54,6 @@ public class UnityadsModule extends ReactContextBaseJavaModule implements IUnity
     private boolean                  isPluginInitialized;
     private boolean                  isSdkInitialized;
 
-
     private IUnityAdsLoadListener loadListener = new IUnityAdsLoadListener() {
       @Override
       public void onUnityAdsAdLoaded(String placementId) {
@@ -112,7 +111,7 @@ public class UnityadsModule extends ReactContextBaseJavaModule implements IUnity
         params.putString( "adUnitId", placementId );
         params.putInt( "state", state.equals(UnityAds.UnityAdsShowCompletionState.COMPLETED)?1:0 );
 
-        sendReactNativeEvent( "onUnityAdsShowComplete", params );
+        sendReactNativeEvent("onUnityAdsShowComplete", params );
       }
     };
 
@@ -179,13 +178,11 @@ public class UnityadsModule extends ReactContextBaseJavaModule implements IUnity
       Log.d(TAG, "SDK initialized" );
       isSdkInitialized = true;
       mInitCallback.invoke( "success" );
-
     }
 
     @Override
     public void onInitializationFailed(UnityAds.UnityAdsInitializationError error, String message) {
       mInitCallback.invoke( "Unity Sdk has Initiallized" +message + " error: " +error);
-
     }
 
     @Override
@@ -207,7 +204,6 @@ public class UnityadsModule extends ReactContextBaseJavaModule implements IUnity
       return sCurrentActivity;
     }
 
-
     // Example method
     // See https://reactnative.dev/docs/native-modules-android
     @ReactMethod(isBlockingSynchronousMethod = true)
@@ -228,8 +224,7 @@ public class UnityadsModule extends ReactContextBaseJavaModule implements IUnity
       }
       else
       {
-        Log.d( TAG, "No current Activity found! Delaying initialization..." );
-
+        Log.d( TAG, "No current Activity found! Delaying initialization...." );
         new Handler().postDelayed(new Runnable()
         {
           @Override
@@ -238,7 +233,7 @@ public class UnityadsModule extends ReactContextBaseJavaModule implements IUnity
             Context contextToUse = maybeGetCurrentActivity();
             if ( contextToUse == null )
             {
-              Log.d( TAG,"Still unable to find current Activity - initializing SDK with application context" );
+              Log.d(TAG,"Still unable to find current Activity - initializing SDK with 1 context" );
               contextToUse = getReactApplicationContext();
             }
 
@@ -253,15 +248,16 @@ public class UnityadsModule extends ReactContextBaseJavaModule implements IUnity
     {
       UnityAds.load(adUnitId, loadListener);
     }
+    
 
     @ReactMethod()
     public void loadBottomBanner(String adUnitId)
     {
-      bottomBanner = new BannerView(sCurrentActivity, adUnitId, new UnityBannerSize(320, 50));
+      sCurrentActivity = maybeGetCurrentActivity();
+      bottomBanner = new BannerView(getReactApplicationContext().getCurrentActivity(), adUnitId, new UnityBannerSize(320, 50));
       // Set the listener for banner lifecycle events:
       bottomBanner.setListener(bannerListener);
       bottomBanner.load();
-
     }
 
     @ReactMethod()
@@ -280,9 +276,7 @@ public class UnityadsModule extends ReactContextBaseJavaModule implements IUnity
         WritableMap params = Arguments.createMap();
         params.putString( "adUnitId", "unload banner view" );
         sendReactNativeEvent( "onBannerViewDidLeaveApplication", params );
-
       }
-
     }
 
     private static  int toPixelUnits(int dipUnit) {
@@ -346,5 +340,4 @@ public class UnityadsModule extends ReactContextBaseJavaModule implements IUnity
         .getJSModule( RCTDeviceEventEmitter.class )
         .emit( name, params );
     }
-
 }
