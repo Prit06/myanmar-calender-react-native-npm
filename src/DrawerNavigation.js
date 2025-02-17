@@ -228,9 +228,6 @@ const CustomDrawerContent = (props) => {
   };
   
 
-
-
-
 //   const emitter = new NativeEventEmitter(UnityAds);
 //   const subscriptions = {};
 //   const addEventListener = (event, handler) => {
@@ -414,6 +411,8 @@ const CustomDrawerContent = (props) => {
       setLoading(false);
     }
   };
+
+  
   // ====================================== Applovin Ads code end ==================================================//
 
 

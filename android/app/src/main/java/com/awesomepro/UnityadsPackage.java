@@ -14,7 +14,7 @@ import java.util.List;
 public class UnityadsPackage implements ReactPackage {
     @NonNull
     @Override
-    public List<NativeModule> createNativeModules(@NonNull ReactApplicationContext reactContext) {
+        public List<NativeModule> createNativeModules(@NonNull ReactApplicationContext reactContext) {
         List<NativeModule> modules = new ArrayList<>();
         modules.add(new UnityadsModule(reactContext));
         return modules;

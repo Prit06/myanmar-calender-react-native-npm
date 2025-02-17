@@ -18,12 +18,12 @@ class MainActivity : ReactActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
            OkHttpClientProvider.setOkHttpClientFactory(IgnoreSSLFactory())
        // SplashScreen.show(this) // Show the splash screen
-        super.onCreate(savedInstanceState)x
+        super.onCreate(savedInstanceState)
     }
 
 
     /**
-     * Returns the name o       f the main component registered from JavaScript.showInternetErrorDialog
+     * Returns the name of the main component registered from JavaScript.showInternetErrorDialog
      * This is used to schedule rendering of the component.
      */
     override fun getMainComponentName(): String = "AwesomePro"
