@@ -20,7 +20,6 @@ UnityAdsShowDelegate>
  * Shared instance of this bridge module.
  */
 @property (nonatomic, strong, readonly, class) Unityads *shared;
-
 @end
 
 NS_ASSUME_NONNULL_END

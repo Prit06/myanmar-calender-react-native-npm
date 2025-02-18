@@ -5,6 +5,7 @@ import { AdContext, AdProvider } from './src/adsContext';
 import NetInfo from '@react-native-community/netinfo';
 import { API_KEY } from '@env';
 import AppContainer from './AppContainer';
+import { SafeAreaView, StyleSheet } from 'react-native';
 
 var adFunLoad = false
 const App = ({apiData}) => {
@@ -35,13 +36,21 @@ const App = ({apiData}) => {
     return (
         <>
             {/* <GestureHandlerRootView style={{ flex: 1 }}> */}
-                <AdProvider isConnected={isConnected}>
-                    <AppContainer showOfflineModal={showOfflineModal} apiDatas={apiData}/>
-                </AdProvider>
+            <AdProvider isConnected={isConnected}>
+                <SafeAreaView style={styles.container}>
+                        <AppContainer showOfflineModal={showOfflineModal} apiDatas={apiData}/>
+                </SafeAreaView>
+            </AdProvider>
             {/* </GestureHandlerRootView> */}
         </>
     );
 };
 
+const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: '#FFBABA',
+    },
+  });
 
 export default App;

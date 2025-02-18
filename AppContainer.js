@@ -6,7 +6,7 @@ import axios from 'axios';
 import Model from './src/Model';
 import DeviceInfo from 'react-native-device-info'
 import { AppOpenAd, AdEventType } from 'react-native-google-mobile-ads';
-import { BackHandler, Modal, View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+import { AppState, BackHandler, Platform } from 'react-native';
 import Exitmodel from './src/Exitmodel';
 import NetInfo from '@react-native-community/netinfo';
 import RNExitApp from 'react-native-exit-app';
@@ -29,6 +29,26 @@ const AppContainer = ({showOfflineModal, apiDatas}) => {
   const [isConnected, setIsConnected] = useState(true); // For offline modal
   const [isInitializedApplovin, setIsInitializedApplovin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  
+  useEffect(() => {
+    const handleAppStateChange = (nextAppState) => {
+      if (nextAppState === 'background') {
+        console.log('App moved to background');
+      } else if (nextAppState === 'active') {
+        if (apiData) {
+          loadAppOpenAd(apiData)
+          setIsLoading(false);
+        }else{
+          setIsLoading(true);
+        }
+        console.log('App is in foreground');
+      }
+    };
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
+    return () => {
+      subscription.remove();
+    };
+  }, [apiData]);
 
  // var adFunLoad = false
   useEffect(() => {
@@ -70,8 +90,10 @@ const AppContainer = ({showOfflineModal, apiDatas}) => {
     
       if (isAdsFailed && apiData) {
         if(Platform.OS == "ios"){
+            checkAppVersion(appVersion, apiData?.update_on);
             const initializeAppLovin = async () => {
-                try {
+                try {              
+                    console.log("SDK_KEYSDK_KEY", SDK_KEY);
                     AppLovinMAX.initialize(SDK_KEY)
                     .then(config => {
                         setIsInitializedApplovin(true);
@@ -79,10 +101,10 @@ const AppContainer = ({showOfflineModal, apiDatas}) => {
                         applovinAppOpenAd.loadAd(apiData.ios_adsid.applovin_app_open_unit_id);
                     })
                     .catch(error => {
-                    console.error('AppLovin SDK initialization failed:', error);
+                    console.error('AppLovin SDK initialization failed::', error);
                     });
                 } catch (error) {
-                    console.error('AppLovin SDK initialization failed:', error);
+                    console.error('AppLovin SDK initialization failed::', error);
                 }
             };
             initializeAppLovin();

@@ -17,6 +17,11 @@ const Splash = () => {
   const [isConnected, setIsConnected] = useState(true);
   const { setApiDataFun, apiData } = useContext(AdContext);
 
+  useEffect(() => {
+   console.log("dfdfdfdfddfd");
+   
+  }, []);
+
 
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener((state) => {
@@ -46,6 +51,8 @@ const Splash = () => {
         axios 
         .get(API_KEY)
         .then((response) => {
+          console.log("responseresponseresponseresponseresponseresponse", response.data);
+          
           setData(response.data); // Access data from the Axios response
           setIsLoading(false);
         })

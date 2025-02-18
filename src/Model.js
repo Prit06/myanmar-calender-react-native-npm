@@ -26,7 +26,7 @@ const Model = (props) => {
   };  
 
   const handleUpdate = () => {
-    const playStoreUrl = 'https://apps.apple.com/us/app/inreel-saver-repost-reel/id6479700632'; // Replace with your app's Play Store URL
+    const playStoreUrl = 'https://apps.apple.com/us/app/inreel-saver-repost-reel/id6680188818'; // Replace with your app's Play Store URL
     Linking.openURL(playStoreUrl).catch((err) => 
       console.error('Error opening URL:', err)
     );

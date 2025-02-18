@@ -323,10 +323,10 @@ const CustomDrawerContent = (props) => {
             // You can also check the config object to ensure everything is set up correctly
           })
           .catch(error => {
-            console.error('AppLovin SDK initialization failed:', error);
+            console.error('AppLovin SDK initialization failed:-', error);
           });
         } catch (error) {
-          console.error('AppLovin SDK initialization failed:', error);
+          console.error('AppLovin SDK initialization failed:-', error);
         }
       };
       initializeAppLovin();
