@@ -44,7 +44,7 @@ const CustomDrawerContent = (props) => {
   const shareContent = () => {
     const shareOptions = {
       title: 'Share this app',
-      message: 'Check out this awesome app!',
+      message: 'နှစ်တစ်ရာပြက္ခဒိန်, a traditional Myanmar Calendar for 100 years. Look back your birth date or check out burmese traditional festival or today Myanmar holidays.',
       url: 'https://example.com',
     };
 
