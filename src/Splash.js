@@ -18,12 +18,6 @@ const Splash = () => {
   const { setApiDataFun, apiData } = useContext(AdContext);
 
   useEffect(() => {
-   console.log("dfdfdfdfddfd");
-   
-  }, []);
-
-
-  useEffect(() => {
     const unsubscribe = NetInfo.addEventListener((state) => {
       setIsConnected(state.isConnected);
     });
@@ -40,7 +34,7 @@ const Splash = () => {
   }, [isConnected]);
 
   // useEffect(() => {
-  //   fetchApiData
+  //   fetchApiData()
   // }, []);
 
   const fetchApiData = async () => {

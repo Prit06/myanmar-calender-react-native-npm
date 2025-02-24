@@ -45,7 +45,10 @@ const CustomDrawerContent = (props) => {
     const shareOptions = {
       title: 'Share this app',
       message: 'နှစ်တစ်ရာပြက္ခဒိန်, a traditional Myanmar Calendar for 100 years. Look back your birth date or check out burmese traditional festival or today Myanmar holidays.',
-      url: 'https://example.com',
+      url: Platform.select({
+        android: 'https://play.google.com/store/apps/details?id=com.awesomepro',
+        ios: 'https://apps.apple.com/us/app/myanmar-calendar-2025/id6680188818',
+      }),
     };
 
     Share.open(shareOptions).catch((err) => console.error("Couldn't share content", err));
@@ -910,6 +913,7 @@ const DrawerNavigation = ({apiDatas}) => {
           headerStyle: {
             backgroundColor: '#FFBABA',
           },
+          headerTintColor: '#000', 
           drawerLabelStyle: {
             fontSize: 16,
           },

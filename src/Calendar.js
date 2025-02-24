@@ -903,7 +903,7 @@ const styles = StyleSheet.create({
   },
 
   arrow: {
-    fontSize: 22,
+    fontSize: 25,
     color: "white",
     
     // marginHorizontal: 20,

@@ -58,9 +58,12 @@ const AppContainer = ({showOfflineModal, apiDatas}) => {
         const adsData = apiDatas?.meta?.ads;
         setApiData(adsData);
         setAppVersion(adsData?.update);
-        console.log("fffff")
-        if (!adFunLoad) {
-          loadAppOpenAd(adsData)
+        if(adsData?.update_on == 1){
+          checkAppVersion(adsData?.update, adsData?.update_on);
+        }else{
+          if (!adFunLoad) {
+            loadAppOpenAd(adsData)
+          }
         }
         setIsLoading(false);
       }else{
@@ -85,29 +88,25 @@ const AppContainer = ({showOfflineModal, apiDatas}) => {
   }, [exitModel]);
 
   useEffect(() => {
-    console.log("isAdsFailed", isAdsFailed);
-    console.log("apiData", apiData);
-    
       if (isAdsFailed && apiData) {
         if(Platform.OS == "ios"){
-            checkAppVersion(appVersion, apiData?.update_on);
-            const initializeAppLovin = async () => {
-                try {              
-                    console.log("SDK_KEYSDK_KEY", SDK_KEY);
-                    AppLovinMAX.initialize(SDK_KEY)
-                    .then(config => {
-                        setIsInitializedApplovin(true);
-                        console.log('AppLovin SDK initialized successfully:', config);
-                        applovinAppOpenAd.loadAd(apiData.ios_adsid.applovin_app_open_unit_id);
-                    })
-                    .catch(error => {
-                    console.error('AppLovin SDK initialization failed::', error);
-                    });
-                } catch (error) {
-                    console.error('AppLovin SDK initialization failed::', error);
-                }
-            };
-            initializeAppLovin();
+          const initializeAppLovin = async () => {
+              try {              
+                  console.log("SDK_KEYSDK_KEY", SDK_KEY);
+                  AppLovinMAX.initialize(SDK_KEY)
+                  .then(config => {
+                      setIsInitializedApplovin(true);
+                      console.log('AppLovin SDK initialized successfully:', config);
+                      applovinAppOpenAd.loadAd(apiData.ios_adsid.applovin_app_open_unit_id);
+                  })
+                  .catch(error => {
+                  console.error('AppLovin SDK initialization failed::', error);
+                  });
+              } catch (error) {
+                  console.error('AppLovin SDK initialization failed::', error);
+              }
+          };
+          initializeAppLovin();
         }
         if(Platform.OS == "android"){
             checkAppVersion(appVersion, apiData?.update_on);
@@ -121,21 +120,19 @@ const AppContainer = ({showOfflineModal, apiDatas}) => {
       if (adsData?.ad_status === "0" || adsData?.admob_ads === "0"){
           setIsAdsFailed(true)
       } 
-      if (adsData?.ad_status === "1" && adsData?.admob_ads === "1") {
+      if (adsData?.ad_status === "1" && adsData?.admob_ads === "1" && adsData?.update_on == 0) {
           const appOpenAd = AppOpenAd.createForAdRequest(adsData.android_adsid.admob_app_open_unit_id, {
               requestNonPersonalizedAdsOnly: true,
           });
-  
           appOpenAd.addAdEventListener(AdEventType.LOADED, () => {
               setIsAdLoaded(true);
               adFunLoad = true
               appOpenAd.show();
           });
-  
           appOpenAd.addAdEventListener(AdEventType.CLOSED, () => {
               setAdClosed(true);
               adFunLoad = true
-              checkAppVersion(adsData?.update, adsData?.update_on);
+              // checkAppVersion(adsData?.update, adsData?.update_on);
           });
   
           appOpenAd.addAdEventListener(AdEventType.ERROR, () => {
@@ -201,6 +198,8 @@ const AppContainer = ({showOfflineModal, apiDatas}) => {
       const version = await DeviceInfo.getVersion();
       if (version < latestVersion && update_on === 1) {
           setVersionModel(true);
+      }else{
+        return true
       }
   };
 
