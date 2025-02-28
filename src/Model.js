@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Text, View, TouchableOpacity, StyleSheet, Linking, BackHandler } from 'react-native';
-
+import { ANDROID_PLAYSTORE_LINK, IOS_PLAYSTORE_LINK} from "@env";
 
 
 const Model = (props) => {
@@ -26,12 +26,17 @@ const Model = (props) => {
   };  
 
   const handleUpdate = () => {
-    const playStoreUrl = 'https://apps.apple.com/us/app/inreel-saver-repost-reel/id6680188818'; // Replace with your app's Play Store URL
-    Linking.openURL(playStoreUrl).catch((err) => 
-      console.error('Error opening URL:', err)
-    );
+    const playStoreUrl = Platform.select({
+      android: ANDROID_PLAYSTORE_LINK,
+      ios: IOS_PLAYSTORE_LINK,
+    });
+  
+    if (playStoreUrl) {
+      Linking.openURL(playStoreUrl).catch((err) =>
+        console.error("Error opening URL:", err)
+      );
+    }
   };
-
   return (
     <View style={styles.container}>
 

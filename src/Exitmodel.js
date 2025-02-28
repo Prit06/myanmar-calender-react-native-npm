@@ -1,14 +1,22 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Modal, StyleSheet, Linking } from 'react-native';
-
+import { ANDROID_PLAYSTORE_LINK, IOS_PLAYSTORE_LINK} from "@env";
 // Import your existing styles
 
 const Exitmodel = ({ onConfirm, onCancel }) => {
 
+
+
     const handleCancel = () => {
-        // Replace the URL with the actual Play Store link you want to open
-        const playStoreUrl = 'https://apps.apple.com/us/app/inreel-saver-repost-reel/id6479700632'; // Your app's Play Store URL
-        Linking.openURL(playStoreUrl).catch(err => console.error("Failed to open URL:", err));
+        const playStoreUrl = Platform.select({
+            android: ANDROID_PLAYSTORE_LINK,
+            ios: IOS_PLAYSTORE_LINK,
+        });
+    
+        if (playStoreUrl) {
+            Linking.openURL(playStoreUrl).catch(err => console.error("Failed to open URL:", err));
+        }
+    
         onCancel(); // Call the onCancel function after opening the link
     };
 

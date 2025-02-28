@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useContext, useRef } from 'react';
-import { Animated, StyleSheet, Text, View, TouchableOpacity, Image, StatusBar, Linking, ActivityIndicator, Modal, Platform, NativeModules, DeviceEventEmitter, NativeEventEmitter } from 'react-native';
+import { Animated, StyleSheet, Text, View, TouchableOpacity, Image, StatusBar, Linking, ActivityIndicator, Modal, Platform, NativeModules, DeviceEventEmitter, NativeEventEmitter, Dimensions } from 'react-native';
 import { createDrawerNavigator, DrawerContentScrollView, useDrawerStatus } from '@react-navigation/drawer';
 import { NavigationContainer, } from '@react-navigation/native';
 import Calendar from './Calendar';
@@ -14,8 +14,7 @@ import axios from 'axios';
 import UnityAds from 'react-native-unity-ads-monetization';
 import  AppLovinMAX, { InterstitialAd as InterstitialApplovinAd, ErrorCode }  from 'react-native-applovin-max';
 import { BannerAd as applovinBenner, AdViewPosition } from 'react-native-applovin-max';
-// import type { Configuration, AdInfo, AdLoadFailedInfo, NativeUIComponentAdViewOptions } from 'react-native-applovin-max';
-
+const { height: screenHeight, width: screenWidth } = Dimensions.get('window');
 import {API_KEY} from '@env';
 
 const Drawer = createDrawerNavigator();
@@ -31,12 +30,13 @@ const CustomDrawerContent = (props) => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [loading, setLoading] = useState(false);
   const [apiData, setApiData] = useState(null);
-
+  const drawer = useRef(null);
   const [adUnitIds, setAdUnitIds] = useState({})
   const [adLoaded, setAdLoaded] = useState(false);
   const [isInitializedApplovin, setIsInitializedApplovin] = useState(false);
   const [isInitializedUnityAds, setIsInitializedUnityAds] = useState(false);  
-
+  const [redirectLoading, setRedirectLoading] = useState(false);
+  const [isFirstTime, setIsFirstTime] = useState(true);
   const openURL = (url) => {
     Linking.openURL(url).catch((err) => console.error("Couldn't load page", err));
   };
@@ -65,6 +65,7 @@ const CustomDrawerContent = (props) => {
       // Handle drawer open event
     } else {
       console.log("close", props.unityAdsFailed);
+      // drawer.current.closeDrawer()
       props.setBannShow(true)
       props.setBannunity(true)
       // Handle drawer close event 
@@ -87,7 +88,7 @@ const CustomDrawerContent = (props) => {
           ios: apidata.meta.ads.ios_adsid.admob_interstitial_unit_id,
         }),
         unityId: Platform.select({
-          android: apidata.meta.ads.android_adsid.unity_interstitial_placement_id ,
+          android: apidata.meta.ads.android_adsid.unity_interstitial_placement_id,
           ios: apidata.meta.ads.ios_adsid.unity_interstitial_placement_id,
         }),
         gameId: Platform.select({
@@ -133,7 +134,6 @@ const CustomDrawerContent = (props) => {
       setLoading(true);
 
         if (apiData?.ads.admob_ads === "1"){
-          // const interstitialAd = InterstitialAd.createForAdRequest(adUnitIds.admobId);
           const interstitialAd = InterstitialAd.createForAdRequest(String(adUnitIds.admobId));
           const adLoadListener = interstitialAd.addAdEventListener(AdEventType.LOADED, () => {
             setAdLoaded(true);
@@ -195,7 +195,7 @@ const CustomDrawerContent = (props) => {
             console.log("isLoaded", isLoaded);
           }, 500);
         }
-        console.log("Unity Ads load initiated", data);
+        // console.log("Unity Ads load initiated", data);
       }
   
   
@@ -430,6 +430,54 @@ const CustomDrawerContent = (props) => {
         </View>
       </Modal>
 
+      <Modal visible={redirectLoading} transparent>
+           <View style={{
+                  height: screenHeight,
+                  width: screenWidth,
+                  position:"absolute",
+                  top: - 60,
+                  left: 0,
+                  display:"flex",
+                  alignItems:"center",
+                  backgroundColor: 'rgba(0, 0, 0, 0)',
+                  justifyContent:"center",
+                  zIndex: 999,
+                }}>
+                  <View
+                    style={{
+                      // height: "50%",
+                      justifyContent: "center", // Centers vertically
+                      alignItems: "center", // Centers horizontally
+                      // position: "absolute", // Ensure it stays in the center
+                      // top: 0,
+                      // left: 0,
+                      // right: 0,
+                      // bottom: 0,
+                      display: "flex",
+                    }}
+                  >
+                    <View
+                      style={{
+                        width: 70, // Set the width to create a square
+                        height: 70, // Same as width for the square shape
+                        justifyContent: "center",
+                        alignItems: "center",
+                        borderRadius: 20, // Add some border radius for smooth edges
+                        zIndex: 900, // Ensures the loader stays on top
+                        backgroundColor: "white",
+                      }}
+                    >
+                      <ActivityIndicator
+                        style={{ transform: [{ scale: 1.2 }] }} // Scale it for responsiveness
+                        size="large"
+                        color="#7B61FF"
+                      />
+                    </View>
+                  </View>
+                </View>
+      </Modal>
+
+
       <View style={styles.drawerHeader}>
         <Image
           source={require('./assets/mayanmarcalendar.png')}
@@ -466,15 +514,29 @@ const CustomDrawerContent = (props) => {
           </Text>
         </TouchableOpacity>
 
+
         <TouchableOpacity
           style={[
             styles.drawerItemContainer,
             { backgroundColor: selectedItem === 'Myanmar Calendar' ? '#FFBABA' : 'transparent' }
           ]}
           onPress={() => {
-            setSelectedItem('Myanmar Calendar');
-            props.navigation.navigate('Myanmar Calendar');
-            incrementAdCount();
+            if(isFirstTime){
+              setRedirectLoading(true)
+              setSelectedItem('Myanmar Calendar');
+              props.navigation.closeDrawer(); // Close the drawer first
+              incrementAdCount();
+              setTimeout(() => {
+                props.navigation.navigate('Myanmar Calendar');
+                setRedirectLoading(false); // Hide loader after navigating
+                setIsFirstTime(false)
+              }, 100);
+            }else{
+              setSelectedItem('Myanmar Calendar');
+              props.navigation.closeDrawer();
+              props.navigation.navigate('Myanmar Calendar');
+              incrementAdCount();
+            }
           }}
         >
           <Image
@@ -488,9 +550,11 @@ const CustomDrawerContent = (props) => {
             styles.drawerItemText,
             { color: selectedItem === 'Myanmar Calendar' ? '#FF3030' : 'white' }
           ]}>
+
             {"Myanmar Calendar"}
           </Text>
         </TouchableOpacity>
+
         <TouchableOpacity
           style={[
             styles.drawerItemContainer,
@@ -516,7 +580,6 @@ const CustomDrawerContent = (props) => {
             Holidays
           </Text>
         </TouchableOpacity>
-
 
         <TouchableOpacity
           style={[
@@ -596,6 +659,7 @@ const CustomDrawerContent = (props) => {
           </Text>
         </TouchableOpacity>
       </View>
+      
     </DrawerContentScrollView>
   );
 };
@@ -895,6 +959,7 @@ const DrawerNavigation = ({apiDatas}) => {
     <NavigationContainer>
       <StatusBar barStyle="dark-content" backgroundColor="#FFBABA" />
       <Drawer.Navigator
+        lazy={true} 
         drawerContent={(props) => (
           <CustomDrawerContent
             {...props}
@@ -920,18 +985,24 @@ const DrawerNavigation = ({apiDatas}) => {
           headerTitleStyle: {
             fontWeight: 'bold',
           },
+          drawerType: 'front', // Ensures the drawer overlays the screen
+          swipeEnabled: false, // Disable swipe to avoid lag
+          animationEnabled: true, // Disable animation for instant close
         }}
       >
+
+
         <Drawer.Screen name="English Calendar">
           {(props) => <Calendar {...props} langCalTypeButton={langCalTypeButton} setLangCalTypeButton={setLangCalTypeButton} />}
         </Drawer.Screen>
-        <Drawer.Screen name="Myanmar Calendar">
-          {(props) => <Emcalendar {...props} langCalTypeButton={langCalTypeButton} setLangCalTypeButton={setLangCalTypeButton} />}
+        <Drawer.Screen name="Myanmar Calendar"  options={{ animationEnabled: false, unmountOnBlur: false }}>
+          {(props) => <Emcalendar {...props} langCalTypeButton={langCalTypeButton} setLangCalTypeButton={setLangCalTypeButton} isFirst={true}/>}
         </Drawer.Screen>
         {/* <Drawer.Screen name="Emcalendar" component={Emcalendar} /> */}
         <Drawer.Screen name="Holidays" component={Holidays} />
         <Drawer.Screen name="Myanmar Zodiac Signs" component={MyanmarZodiacSigns} />
       </Drawer.Navigator>
+
 
       {
       // (bannShow && responseData?.ad_status === "1") ? (

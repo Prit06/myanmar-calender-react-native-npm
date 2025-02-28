@@ -542,6 +542,8 @@ const getCalenderDaysData = async (js, calenderType, calenderLanguage) => {
 
 const getMCalenderData = async (month, year, calenderType, calenderLanguage) => {
   try {
+    // console.log("month, year, calenderType, calenderLanguage", month, year, calenderType, calenderLanguage);
+    
     var x = new ceMmTranslate();
     var chron = new ceMmChronicle();
     var dt = new Date();
@@ -794,7 +796,7 @@ const getMCalenderData = async (month, year, calenderType, calenderLanguage) => 
         PThMC += ", ";
       }
 
-      PThMC = PThMC + "Sasana Year " + MS.ToMString("&YYYY"); //Sasana year
+      PThMC = PThMC + "Sasana Year " + MS.ToMString("&"); //Sasana year
       if (MS.sy != ME.sy) PThMC = PThMC + " - " + ME.ToMString("&YYYY");
       PThMC = PThMC + " Ku, ";
       PThMC = PThMC + MS.ToString("%y"); //english year

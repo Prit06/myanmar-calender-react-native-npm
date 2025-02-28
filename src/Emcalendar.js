@@ -31,7 +31,7 @@ const { height: screenHeight, width: screenWidth } = Dimensions.get('window');
 
 
 
-const EmCalender = ({ setLangCalTypeButton, langCalTypeButton }) => {
+const EmCalender = ({ setLangCalTypeButton, langCalTypeButton, isFirst }) => {
   var dt = new Date();
   const [day, setDay] = useState(dt.getDate());
   const [MCalenderData, setMCalenderData] = useState([]);
@@ -61,6 +61,7 @@ const EmCalender = ({ setLangCalTypeButton, langCalTypeButton }) => {
   const [englishYears, setEnglishYears] = useState("")
   const [currentYear, setCurrentYear] = useState(null);
   const [currentMonth, setCurrentMonth] = useState(null);
+  const [isFirstTime, setIsFirstTime] = useState(isFirst);
 
   const { adCount, incrementAdCount } = useContext(AdContext);
 
@@ -86,12 +87,14 @@ const EmCalender = ({ setLangCalTypeButton, langCalTypeButton }) => {
     setTimeout(() => {
       setLoading(false);
       setLangCalTypeButton(false)
+      setIsFirstTime(false)
     }, time);
   };
 
   const startLoadingMain = (time) => {
     setTimeout(() => {
       setLoading(false);
+      setIsFirstTime(false)
     }, time);
   };
 
@@ -399,7 +402,7 @@ const EmCalender = ({ setLangCalTypeButton, langCalTypeButton }) => {
 
   return (
     <>
-      {(loading || langCalTypeButton) && (
+      {((loading || langCalTypeButton) && !isFirstTime) && (
         <View style={{
           height: screenHeight,
           width: screenWidth,

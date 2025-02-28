@@ -30,30 +30,39 @@ const AppContainer = ({showOfflineModal, apiDatas}) => {
   const [isInitializedApplovin, setIsInitializedApplovin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   
-  useEffect(() => {
-    const handleAppStateChange = (nextAppState) => {
-      if (nextAppState === 'background') {
-        console.log('App moved to background');
-      } else if (nextAppState === 'active') {
-        if (apiData) {
-          loadAppOpenAd(apiData)
-          setIsLoading(false);
-        }else{
-          setIsLoading(true);
-        }
-        console.log('App is in foreground');
+
+
+useEffect(() => {
+  if (Platform.OS !== 'ios') return; // Ensure the code runs only on iOS
+  const handleAppStateChange = (nextAppState) => {
+    if (nextAppState === 'background') {
+      console.log('App moved to background');
+    } else if (nextAppState === 'active') {
+      if (apiData) {
+        loadAppOpenAd(apiData);
+        setIsLoading(false);
+      } else {
+        setIsLoading(true);
       }
-    };
-    const subscription = AppState.addEventListener('change', handleAppStateChange);
-    return () => {
-      subscription.remove();
-    };
-  }, [apiData]);
+      console.log('App is in foreground');
+    }
+  };
+
+  const subscription = AppState.addEventListener('change', handleAppStateChange);
+
+  return () => {
+    subscription.remove();
+  };
+}, [apiData]);
+
+
+
+
 
  // var adFunLoad = false
   useEffect(() => {
       // fetchApiData();
-      console.log("contextData.apiData", apiDatas);
+      // console.log("contextData.apiData", apiDatas);
       if (apiDatas) {
         const adsData = apiDatas?.meta?.ads;
         setApiData(adsData);
@@ -115,7 +124,7 @@ const AppContainer = ({showOfflineModal, apiDatas}) => {
   }, [isAdsFailed, apiData]);
 
   const loadAppOpenAd = (adsData) => {
-    console.log("adsDataadsData", adsData);
+    // console.log("adsDataadsData", adsData);
       // return setIsAdsFailed(true)
       if (adsData?.ad_status === "0" || adsData?.admob_ads === "0"){
           setIsAdsFailed(true)
